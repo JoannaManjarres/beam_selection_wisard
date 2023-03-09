@@ -1,7 +1,6 @@
 import numpy as np
 import csv
-import pandas as pd
-import matplotlib.pyplot as plt
+
 
 def read_all_coordinates():
     filename = "../data/coordinates/CoordVehiclesRxPerScene_s008.csv"
@@ -28,169 +27,30 @@ def read_all_coordinates():
 
     return all_info_coord
 
-def position_just_rx(coordenadas):
+def read_valid_coordinates():
+    filename = '/Users/Joanna/git/Analise_de_dados/data/coordinates/CoordVehiclesRxPerScene_s008.csv'
+    limit_ep_train = 1564
 
-    ''''Este metodo recibe as coordenadas (EpisodeID, coord_x, coord_y, coord_z, LOS, val)'''
+    with open(filename) as csvfile:
+        reader = csv.DictReader(csvfile)
+        number_of_rows = len(list(reader))
 
-    valid_conection = 5
-    separated_dataset_LOS_NLOS = True
+    all_info_coord_val = np.zeros([11194, 5], dtype=object)
 
-    min_coord_x = np.min(coordenadas[:,1])
-    min_coord_y = np.min(coordenadas[:,2])
+    with open(filename) as csvfile:
+        reader = csv.DictReader(csvfile)
+        cont = 0
+        for row in reader:
+            if row['Val'] == 'V':
+                all_info_coord_val[cont] = int(row['EpisodeID']), float(row['x']), float(row['y']), float(row['z']), row['LOS']
+                cont += 1
 
-    max_coord_x = np.max(coordenadas[:,1])
-    max_coord_y = np.max(coordenadas[:,2])
+    # all_info_coord = np.array(all_info_coord)
 
-    numOfSamples = len(coordenadas)
-    num_of_valid_samples = len(coordenadas[coordenadas[:, 5] == 'V'])
-    area_interese_mtrs = np.array([23, 250], dtype=int)
-    num_positions_of_internal_matrix = area_interese_mtrs[0] * area_interese_mtrs[1]
+    coord_train = all_info_coord_val[(all_info_coord_val[:, 0] < limit_ep_train + 1)]
+    coord_test = all_info_coord_val[(all_info_coord_val[:, 0] > limit_ep_train)]
 
-    coordenadas_x_mtrs = np.array((coordenadas[:, 1] - min_coord_x) / max_coord_x * float(area_interese_mtrs[0]), dtype=float)
-    coordenadas_y_mtrs = np.array((coordenadas[:, 2] - min_coord_y) / max_coord_y * float(area_interese_mtrs[1]), dtype=float)
-    coordenadas_x_mtrs = np.round(coordenadas_x_mtrs)
-    coordenadas_y_mtrs = np.round(coordenadas_y_mtrs)
-
-    Qs_all = np.zeros(area_interese_mtrs, dtype=int)  # Matriz que representa a posicao de TODOS os veiculos num episodio
-    Qs_valid = np.zeros(area_interese_mtrs, dtype=int)  # Matriz que representa a posicao de TODOS os veiculos com conexao valida num episodio
-
-    coord_qs_all            = np.zeros((num_of_valid_samples, num_positions_of_internal_matrix), dtype=int)
-    coord_qs_valid          = np.zeros((num_of_valid_samples, num_positions_of_internal_matrix), dtype=int)
-    coord_qs_valid_unique   = np.zeros((num_of_valid_samples, num_positions_of_internal_matrix), dtype=int)
-
-    data_for_train = coordenadas[coordenadas[:,0]<1565]
-    data_for_test  = coordenadas[coordenadas[:,0]>1564]
-
-    num_of_samples_train = len(data_for_train)
-
-    num_of_valid_communications_in_actual_episode = 0
-    total_valid_communications = 0
-    Qs_unico_array = []
-    actual_episode =0
-
-    id_episodes_flagLOS = np.zeros((num_of_valid_samples,2), dtype=object)
-
-    for cont_samples in range(numOfSamples):
-
-        Qs_unique = np.zeros(area_interese_mtrs)  # Matriz que representa a posicao de um veiculo
-
-        x = int(coordenadas_x_mtrs[cont_samples])
-        y = int(coordenadas_y_mtrs[cont_samples])
-
-        sample_episode = int(coordenadas[cont_samples, 0])
-
-        if sample_episode == actual_episode:
-            Qs_all[x, y] = 1
-
-            if coordenadas[cont_samples, 5] == 'V':
-
-                num_of_valid_communications_in_actual_episode += 1
-
-
-                Qs_unique[x, y] = 1
-                Qs_valid[x, y] = 1
-
-                Qs_unico_array.append(Qs_unique)
-        else:
-            vector_qs = Qs_all.reshape(1, num_positions_of_internal_matrix)
-            vector_qs_valid = Qs_valid.reshape(1, num_positions_of_internal_matrix)
-
-
-            for i in range(num_of_valid_communications_in_actual_episode):
-                vector_qs_valid_unique = Qs_unico_array[i].reshape(1, num_positions_of_internal_matrix)
-                id_episodes_flagLOS[total_valid_communications+i] = actual_episode, coordenadas[cont_samples, 4]
-                coord_qs_all[total_valid_communications + i] = vector_qs
-                coord_qs_valid[total_valid_communications + i] = vector_qs_valid
-                coord_qs_valid_unique[total_valid_communications + i] = vector_qs_valid_unique
-
-            total_valid_communications += num_of_valid_communications_in_actual_episode
-            num_of_valid_communications_in_actual_episode = 0
-            actual_episode = actual_episode + 1
-
-            Qs_unico_array = []
-            Qs_all = np.zeros(area_interese_mtrs)  # Matriz que representa a posicao de TODOS os veiculos num episodio
-            Qs_valid = np.zeros(area_interese_mtrs)  # Matriz que representa a posicao de TODOS os veiculos com conexao valida num episodio
-
-            Qs_all[x, y] = 1
-            if coordenadas[cont_samples, 1] == 'V':
-
-                num_of_valid_communications_in_actual_episode += 1
-
-                Qs_unique[x, y] = 1
-                Qs_valid[x, y] = 1
-
-                Qs_unico_array.append(Qs_unique)
-
-    if separated_dataset_LOS_NLOS:
-        all_dataset = np.concatenate((id_episodes_flagLOS, coord_qs_all, coord_qs_valid_unique), axis=1)
-    # output = coord_qs_all
-    # output = coord_qs_valid
-    # output = coord_qs_valid_unique
-    # output = np.concatenate((coord_qs_all, coord_qs_valid), 1)
-    output = np.concatenate((coord_qs_all, coord_qs_valid_unique), axis=1)
-    #output = np.concatenate((coord_qs_valid, coord_qs_valid_unique), 1)
-
-
-
-    #-------------------------------------------------------------
-
-    '''Cria as matrizes Qs de TODO o banco de daos'''
-    for cont_samples in range(numOfSamples):
-
-        Qs_unique = np.zeros(area_interese_mtrs)  # Matriz que representa a posicao de um veiculo
-
-        x = int(coordenadas_x_mtrs[cont_samples])
-        y = int(coordenadas_y_mtrs[cont_samples])
-
-        sample_episode = int(coordenadas[cont_samples, 0])
-
-        if sample_episode == actual_episode:
-            Qs_all[x, y] = 1
-
-            if coordenadas[cont_samples, 5] == 'V':
-                num_of_valid_communications_in_actual_episode += 1
-
-                Qs_unique[x, y] = 1
-                Qs_valid[x, y] = 1
-
-                Qs_unico_array.append(Qs_unique)
-        else:
-            vector_qs = Qs_all.reshape(1, num_positions_of_internal_matrix)
-            vector_qs_valid = Qs_valid.reshape(1, num_positions_of_internal_matrix)
-
-            for i in range(num_of_valid_communications_in_actual_episode):
-                vector_qs_valid_unique = Qs_unico_array[i].reshape(1, num_positions_of_internal_matrix)
-
-                coord_qs_all[total_valid_communications + i] = vector_qs
-                coord_qs_valid[total_valid_communications + i] = vector_qs_valid
-                coord_qs_valid_unique[total_valid_communications + i] = vector_qs_valid_unique
-
-            total_valid_communications += num_of_valid_communications_in_actual_episode
-            num_of_valid_communications_in_actual_episode = 0
-            actual_episode = actual_episode + 1
-
-            Qs_unico_array = []
-            Qs_all = np.zeros(area_interese_mtrs)  # Matriz que representa a posicao de TODOS os veiculos num episodio
-            Qs_valid = np.zeros(area_interese_mtrs)  # Matriz que representa a posicao de TODOS os veiculos com conexao valida num episodio
-
-            Qs_all[x, y] = 1
-            if coordenadas[cont_samples, 1] == 'V':
-                num_of_valid_communications_in_actual_episode += 1
-
-                Qs_unique[x, y] = 1
-                Qs_valid[x, y] = 1
-
-                Qs_unico_array.append(Qs_unique)
-
-    # output = coord_qs_all
-    # output = coord_qs_valid
-    # output = coord_qs_valid_unique
-    # output = np.concatenate((coord_qs_all, coord_qs_valid), 1)
-    output = np.concatenate((coord_qs_all, coord_qs_valid_unique), axis=1)
-    #output = np.concatenate((coord_qs_valid, coord_qs_valid_unique), 1)
-
-    return output
-
+    return all_info_coord_val
 
 def coord_to_Qs_matrix(coordenadas):
     ''''Este metodo recibe o obj coordenadas com a ordem dos seguintes dados
@@ -265,28 +125,178 @@ def coord_to_Qs_matrix(coordenadas):
 
     separed_coord_LOS = True
     coordenadas_LOS_train = []
+    coordenadas_LOS_train1 = []
     coordenadas_NLOS_train = []
+    coordenadas_NLOS_train1 = []
     coordenadas_LOS_test = []
+    coordenadas_LOS_test1 = []
     coordenadas_NLOS_test = []
+    coordenadas_NLOS_test1 = []
+    temp_train = []
+    temp_test = []
+    coordenadas_all_train = []
+    coordenadas_all_test = []
+
     if separed_coord_LOS:
         for i in range(len(train)):
+            temp_train.append(train[i][1].tolist())
             if train[i][0] == 'LOS=1':
-                coordenadas_LOS_train.append(train[i][1])
+                coordenadas_LOS_train1.append(train[i][1].tolist())
             else:
-                coordenadas_NLOS_train.append(train[i][1])
+                coordenadas_NLOS_train1.append(train[i][1].tolist())
         for i in range(len(test)):
+            temp_test.append(test[i][1].tolist())
             if test[i][0] == 'LOS=1':
-                coordenadas_LOS_test.append(test[i][1])
+                coordenadas_LOS_test1.append(test[i][1].tolist())
             else:
-                coordenadas_NLOS_test.append(test[i][1])
+                coordenadas_NLOS_test1.append(test[i][1].tolist())
+
+    for i in range(len(coordenadas_LOS_train1)):
+        coordenadas_LOS_train.append(coordenadas_LOS_train1[i][0])
+
+    for i in range(len(coordenadas_NLOS_train1)):
+        coordenadas_NLOS_train.append(coordenadas_NLOS_train1[i][0])
+
+    for i in range(len(coordenadas_LOS_test1)):
+        coordenadas_LOS_test.append(coordenadas_LOS_test1[i][0])
+
+    for i in range(len(coordenadas_NLOS_test1)):
+        coordenadas_NLOS_test.append(coordenadas_NLOS_test1[i][0])
+
+    for i in range(len(train)):
+        coordenadas_all_train.append(temp_train[i][0])
+
+    for i in range(len(test)):
+        coordenadas_all_test.append(temp_test[i][0])
+
+    return coordenadas_all_train, coordenadas_all_test, coordenadas_LOS_train, coordenadas_NLOS_train, coordenadas_LOS_test, coordenadas_NLOS_test
+
+def save_Qs_matrix(all_train_coord, all_test_coord, LOS_train_coord, LOS_test_coord, NLOS_train_coord, NLOS_test_coord):
+    save_path = "../data/coordinates/processed/"
+
+    # Todas as coordenadas em formato Qs
+    np.savez(save_path + 'all_train_coord' + '.npz', coord_training=all_train_coord)
+    np.savez(save_path + 'all_test_coord' + '.npz', coor_test=all_test_coord)
 
 
+    # coordenadas LOS em formato Qs
+    np.savez(save_path + 'LOS_train_coord' + '.npz', coord_LOS_training=LOS_train_coord)
+    np.savez(save_path + 'LOS_test_coord' + '.npz', coor_LOS_test=LOS_test_coord)
+
+    # coordenadas NLOS em formato Qs
+    np.savez(save_path + 'NLOS_train_coord' + '.npz', coord_NLOS_training=NLOS_train_coord)
+    np.savez(save_path + 'NLOS_test_coord' + '.npz', coor_NLOS_test=NLOS_test_coord)
+
+def read_beams_raymobtime():
+    data_path = '/Users/Joanna/git/beam_selection_wisard/data/beams/Ailton/beam_output/beams_output_8x32.npz'
+    beams = np.load(data_path)['output_classification']
+    num_antennas_tx = 32
+    num_antennas_rx = 8
+
+    best_beam_index = []
+    for sample in range(beams.shape[0]):
+        best_beam_index.append(np.argmax(beams[sample, :]))
+
+    beam_index_rx = np.array(best_beam_index)
+
+    tx_index = np.zeros((beams.shape[0]), dtype=int)
+    rx_index = np.zeros((beams.shape[0]), dtype=int)
+
+    for sample in range(len(beam_index_rx)):
+        index_tx = best_beam_index[sample] // num_antennas_rx
+        index_rx = best_beam_index[sample] % num_antennas_rx
+        tx_index[sample] = index_tx
+        rx_index[sample] = index_rx
+
+    return tx_index, rx_index
+
+def divide_beams_in_train_test(rx_beams, tx_beams, coord, save_data):
 
 
-    return train, test, coordenadas_LOS_train, coordenadas_NLOS_train, coordenadas_LOS_test, coordenadas_NLOS_test
+    all_data = np.column_stack((coord, rx_beams, tx_beams))
+
+    limit_ep_train = 1564
+
+    data_train = all_data[(all_data[:, 0] < limit_ep_train + 1)]
+    data_test = all_data[(all_data[:, 0] > limit_ep_train)]
+
+    all_beam_tx_train =data_train[:,-1].astype(int)
+    all_beam_tx_test =data_test[:,-1].astype(int)
+
+    all_beam_rx_train =data_train[:,-2].astype(int)
+    all_beam_rx_test =data_test[:,-2].astype(int)
+
+    if save_data:
+        all_beams_tx_train = data_train[:, -1]
+        all_beams_tx_test = data_test[:, -1]
+
+        all_beams_rx_train = data_train[:, -2]
+        all_beams_rx_test = data_test[:, -2]
 
 
+        save_path = '/Users/Joanna/git/beam_selection_wisard/data/beams/all_index_beam/'
+        np.savez(save_path + 'index_beams_tx_train' + '.npz', all_beams_tx_train=all_beams_tx_train)
+        np.savez(save_path + 'index_beams_tx_test' + '.npz', all_beams_tx_test=all_beams_tx_test)
+
+        np.savez(save_path + 'index_beams_rx_train' + '.npz', all_beams_rx_train=all_beams_rx_train)
+        np.savez(save_path + 'index_beams_rx_test' + '.npz', all_beams_rx_test=all_beams_rx_test)
 
 
+    return all_beam_tx_train, all_beam_tx_test, all_beam_rx_train, all_beam_rx_test
 
+def divide_beams_and_coord_in_LOS_or_NLOS_connect(rx_beams, tx_beams, coord, save_data):
+    '''Metodo que genera y guarda las coordenadas y beams para train y test'''
+
+    all_data = np.column_stack((coord, rx_beams, tx_beams))
+    all_info_LOS = []
+    all_info_NLOS = []
+
+    for sample in range(len(all_data)):
+        if all_data[sample,4]=='LOS=1':
+            all_info_LOS.append(all_data[sample])
+        else:
+            all_info_NLOS.append(all_data[sample])
+
+    data_LOS = np.array(all_info_LOS)
+    data_NLOS = np.array(all_info_NLOS)
+
+    limit_ep_train = 1564
+
+    data_train_LOS = data_LOS[(data_LOS[:, 0] < limit_ep_train + 1)]
+    data_test_LOS = data_LOS[(data_LOS[:, 0] > limit_ep_train)]
+
+    data_train_NLOS = data_NLOS[(data_NLOS[:, 0] < limit_ep_train + 1)]
+    data_test_NLOS = data_NLOS[(data_NLOS[:, 0] > limit_ep_train)]
+
+    beam_LOS_tx_train = data_train_LOS[:, -1].astype(int)
+    beam_LOS_rx_train = data_train_LOS[:, -2].astype(int)
+
+    beam_LOS_tx_test = data_test_LOS[:, -1].astype(int)
+    beam_LOS_rx_test = data_test_LOS[:, -2].astype(int)
+
+    beam_NLOS_tx_train = data_train_NLOS[:, -1].astype(int)
+    beam_NLOS_rx_train = data_train_NLOS[:, -2].astype(int)
+
+    beam_NLOS_tx_test = data_test_NLOS[:, -1].astype(int)
+    beam_NLOS_rx_test = data_test_NLOS[:, -2].astype(int)
+
+
+    if save_data:
+
+        save_path = '/Users/Joanna/git/beam_selection_wisard/data/beams/LOS_index_beam/'
+        np.savez(save_path + 'beam_LOS_tx_train' + '.npz', beam_LOS_tx_train=beam_LOS_tx_train)
+        np.savez(save_path + 'beam_LOS_rx_train' + '.npz', beam_LOS_rx_train=beam_LOS_rx_train)
+
+        np.savez(save_path + 'beam_LOS_tx_test' + '.npz', beam_LOS_tx_test=beam_LOS_tx_test)
+        np.savez(save_path + 'beam_LOS_rx_test' + '.npz', beam_LOS_rx_test=beam_LOS_rx_test)
+
+        save_path = '/Users/Joanna/git/beam_selection_wisard/data/beams/NLOS_index_beam/'
+        np.savez(save_path + 'beam_NLOS_tx_train' + '.npz', beam_NLOS_tx_train=beam_NLOS_tx_train)
+        np.savez(save_path + 'beam_NLOS_rx_train' + '.npz', beam_NLOS_rx_train=beam_NLOS_rx_train)
+
+        np.savez(save_path + 'beam_NLOS_tx_test' + '.npz', beam_NLOS_tx_test=beam_NLOS_tx_test)
+        np.savez(save_path + 'beam_NLOS_rx_test' + '.npz', beam_NLOS_rx_test=beam_NLOS_rx_test)
+
+
+    return data_train_LOS, data_train_NLOS, data_test_LOS, data_test_NLOS
 
