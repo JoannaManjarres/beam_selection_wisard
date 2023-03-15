@@ -33,74 +33,157 @@ def beam_selection(flag_beam_selection):
         print(" a partir das posicoes de TODOS os veiculos")
         all_coord_train, all_coord_test = read.read_all_Qs_matrix()
         index_beam_rx_train, index_beam_rx_test, index_beam_tx_train, index_beam_tx_test = read.read_all_beams()
-        obj.select_best_beam(all_coord_train,
+
+        flag_rx_or_tx = input("Realizar a selecao de feixe do: \n " \
+                              "\t Transmissor [T] ou Receptor [R]\n").upper()
+
+        if(flag_rx_or_tx=='R'):
+            obj.select_best_beam(all_coord_train,
                              all_coord_test,
                              index_beam_rx_train,
                              index_beam_rx_test,
                              "TODOS os dados das coordenadas dos veiculos",
                              enableDebug = False,
                              plot_confusion_matrix_enable = False)
+        else:
+            obj.select_best_beam(all_coord_train,
+                                 all_coord_test,
+                                 index_beam_tx_train,
+                                 index_beam_tx_test,
+                                 "Selecao_do_BEAM_Tx_com_TODOS_os_dados_das_coord_dos_veiculos",
+                                 enableDebug=False,
+                                 plot_confusion_matrix_enable=False)
 
     if flag_beam_selection == '2':    # COORD [LOS]
         print("a partir das posicoes dos veiculos que apenas possuam conexão LOS")
         LOS_coord_train, LOS_coord_test = read.read_Qs_matrix_with_LOS_data()
         index_beam_rx_LOS_train, index_beam_rx_LOS_test, index_beam_tx_LOS_train, index_beam_tx_LOS_test = read.read_LOS_beams()
-        obj.select_best_beam(LOS_coord_train,
+
+        flag_rx_or_tx = input("Realizar a selecao de feixe do: \n " \
+                              "\t Transmissor [T] ou Receptor [R]\n").upper()
+
+        if (flag_rx_or_tx == 'R'):
+            obj.select_best_beam(LOS_coord_train,
                              LOS_coord_test,
                              index_beam_rx_LOS_train,
                              index_beam_rx_LOS_test,
-                             "coordenadas dos veiculos com conexão LOS",
+                             "Selecao_do_BEAM_Rx_com_coordenadas com conexão LOS",
                              enableDebug = False,
                              plot_confusion_matrix_enable = False)
+        else:
+            obj.select_best_beam(LOS_coord_train,
+                                 LOS_coord_test,
+                                 index_beam_tx_LOS_train,
+                                 index_beam_tx_LOS_test,
+                                 "Selecao_do_BEAM_Tx_com_Coordenadas_com_conexao_LOS",
+                                 enableDebug=False,
+                                 plot_confusion_matrix_enable=False)
 
     if flag_beam_selection == '3':    # COORD [NLOS]
         print("a partir das posicoes dos veiculos que apenas possuam NLOS")
         NLOS_coord_train, NLOS_coord_test = read.read_Qs_matrix_with_NLOS_data()
         index_beam_rx_NLOS_train, index_beam_rx_NLOS_test, index_beam_tx_NLOS_train, index_beam_tx_NLOS_test = read.read_NLOS_beams()
-        obj.select_best_beam(NLOS_coord_train,
-                             NLOS_coord_test,
-                             index_beam_rx_NLOS_train,
-                             index_beam_rx_NLOS_test,
-                             "coordenadas dos veiculos com conexão NLOS",
-                             enableDebug = False,
-                             plot_confusion_matrix_enable = False)
+
+        flag_rx_or_tx = input("Realizar a selecao de feixe do: \n " \
+                              "\t Transmissor [T] ou Receptor [R]\n").upper()
+
+        if (flag_rx_or_tx == 'R'):
+
+            obj.select_best_beam(NLOS_coord_train,
+                                NLOS_coord_test,
+                                index_beam_rx_NLOS_train,
+                                index_beam_rx_NLOS_test,
+                                "Selecao_do_BEAM_Rx_com_coordenadas com conexão NLOS",
+                                enableDebug = False,
+                                plot_confusion_matrix_enable = False)
+        else:
+            obj.select_best_beam(NLOS_coord_train,
+                                 NLOS_coord_test,
+                                 index_beam_tx_NLOS_train,
+                                 index_beam_tx_NLOS_test,
+                                 "Selecao_do_BEAM_Tx_com_Coordenadas_com_conexão_NLOS")
 
     if flag_beam_selection == '4': # LiDAR [ALL]
         print("a partir de dados LiDAR com TODOS os dados do dataset")
         data_lidar_train, data_lidar_validation = obj_lidar.read_all_LiDAR_data()
         index_beam_rx_train, index_beam_rx_test, index_beam_tx_train, index_beam_tx_test = read.read_all_beams()
-        obj.select_best_beam(data_lidar_train,
-                             data_lidar_validation,
-                             index_beam_rx_train,
-                             index_beam_rx_test,
-                             "LIDAR com TODOS os dados",
-                             enableDebug=False,
-                             plot_confusion_matrix_enable=False)
+
+        flag_rx_or_tx = input("Realizar a selecao de feixe do: \n " \
+                              "\t Transmissor [T] ou Receptor [R]\n").upper()
+
+        if (flag_rx_or_tx == 'R'):
+
+            obj.select_best_beam(data_lidar_train,
+                                data_lidar_validation,
+                                index_beam_rx_train,
+                                index_beam_rx_test,
+                                "Selecao_do_BEAM_Rx_com_TODOS_os_dados_LIDAR ",
+                                enableDebug=False,
+                                plot_confusion_matrix_enable=False)
+
+        else:
+            obj.select_best_beam(data_lidar_train,
+                                data_lidar_validation,
+                                 index_beam_tx_train,
+                                 index_beam_tx_test,
+                                 "Selecao_do_BEAM_Tx_com_TODOS_os_dados_LIDAR",
+                                 enableDebug=False,
+                                 plot_confusion_matrix_enable=False)
 
     if flag_beam_selection =='5' : # LiDAR [LOS]
         print("a partir de dados LiDAR com veiculos com conexao LOS  do dataset")
         data_lidar_LOS_train, data_lidar_LOS_test = obj_lidar.read_LiDAR_LOS_data()
         index_beam_rx_LOS_train, index_beam_rx_LOS_test, index_beam_tx_LOS_train, index_beam_tx_LOS_test = read.read_LOS_beams()
-        obj.select_best_beam(data_lidar_LOS_train,
+
+        flag_rx_or_tx = input("Realizar a selecao de feixe do: \n " \
+                              "\t Transmissor [T] ou Receptor [R]\n").upper()
+
+        if (flag_rx_or_tx == 'R'):
+
+            obj.select_best_beam(data_lidar_LOS_train,
                              data_lidar_LOS_test,
                              index_beam_rx_LOS_train,
                              index_beam_rx_LOS_test,
-                             "LIDAR com dados LOS",
+                             "Selecao_do_BEAM_Rx_LIDAR_com_dados_LOS",
                              enableDebug=False,
                              plot_confusion_matrix_enable=False)
+
+        else:
+            obj.select_best_beam(data_lidar_LOS_train,
+                                 data_lidar_LOS_test,
+                                 index_beam_tx_LOS_train,
+                                 index_beam_tx_LOS_test,
+                                 "Selecao_do_BEAM_Tx_LIDAR_com_dados_LOS",
+                                 enableDebug=False,
+                                 plot_confusion_matrix_enable=False)
 
 
     if flag_beam_selection =='6' : # LiDAR [NLOS]
         print("a partir de dados LiDAR com veiculos com conexao NLOS  do dataset")
         data_lidar_NLOS_train, data_lidar_NLOS_test =obj_lidar.read_LiDAR_NLOS_data()
         index_beam_rx_NLOS_train, index_beam_rx_NLOS_test, index_beam_tx_NLOS_train, index_beam_tx_NLOS_test = read.read_NLOS_beams()
-        obj.select_best_beam(data_lidar_NLOS_train,
+
+        flag_rx_or_tx = input("Realizar a selecao de feixe do: \n " \
+                              "\t Transmissor [T] ou Receptor [R]\n").upper()
+
+        if (flag_rx_or_tx == 'R'):
+
+            obj.select_best_beam(data_lidar_NLOS_train,
                              data_lidar_NLOS_test,
                              index_beam_rx_NLOS_train,
                              index_beam_rx_NLOS_test,
-                             "LIDAR com dados NLOS",
+                             "Selecao_do_BEAM_Rx_LIDAR_com_dados_NLOS",
                              enableDebug=False,
                              plot_confusion_matrix_enable=False)
+
+        else:
+            obj.select_best_beam(data_lidar_NLOS_train,
+                                 data_lidar_NLOS_test,
+                                 index_beam_tx_NLOS_train,
+                                 index_beam_tx_NLOS_test,
+                                 "Selecao_do_BEAM_Tx_LIDAR_com_dados_NLOS",
+                                 enableDebug=False,
+                                 plot_confusion_matrix_enable=False)
 
     if flag_beam_selection =='7':
         print("a partir de dados LiDAR + Coordenadas com TODOS os dados do dataset")
@@ -108,29 +191,30 @@ def beam_selection(flag_beam_selection):
         data_lidar_train, data_lidar_validation = obj_lidar.process_data(enable_plot=False, num_scene_to_plot=0)
         all_coord_train, all_coord_test         = read.read_all_Qs_matrix()
 
-        number_of_samples_train     = data_lidar_train.shape[0]
-        dimension_of_coordenadas    = all_coord_train.shape[1]
-        dimension_of_lidar          = data_lidar_train.shape[1]
-        dimension_of_input          = dimension_of_lidar + dimension_of_coordenadas
+        coord_LiDAR_ALL_train = np.column_stack((all_coord_train, data_lidar_train))
+        coord_LiDAR_ALL_test = np.column_stack((all_coord_test, data_lidar_validation))
 
-        number_of_samples_test = data_lidar_validation.shape[0]
+        flag_rx_or_tx = input("Realizar a selecao de feixe do: \n " \
+                              "\t Transmissor [T] ou Receptor [R]\n").upper()
 
-        input_train = np.zeros([number_of_samples_train, dimension_of_input], dtype=np.int8)
-        input_test = np.zeros([number_of_samples_test, dimension_of_input], dtype=np.int8)
+        if (flag_rx_or_tx == 'R'):
 
-        for i in range(len(data_lidar_train)):
-            input_train[i] = np.concatenate((all_coord_train[i], data_lidar_train[i]))
-
-        for i in range(len(data_lidar_validation)):
-            input_test[i] = np.concatenate((all_coord_test[i], data_lidar_validation[i]))
-
-        obj.select_best_beam(input_train,
-                             input_test,
-                             index_beam_rx_train,
-                             index_beam_rx_test,
-                             "LIDAR + Coord com TODOS os dados",
-                             enableDebug=False,
-                             plot_confusion_matrix_enable=False)
+            obj.select_best_beam(coord_LiDAR_ALL_train,
+                                 coord_LiDAR_ALL_test,
+                                 index_beam_rx_train,
+                                 index_beam_rx_test,
+                                 "Selecao_do_BEAM_Rx_LIDAR_+_Coord_com_TODOS_os_dados",
+                                 enableDebug=False,
+                                 plot_confusion_matrix_enable=False)
+        else:
+            obj.select_best_beam(coord_LiDAR_ALL_train,
+                                 coord_LiDAR_ALL_test,
+                                 index_beam_tx_train,
+                                 index_beam_tx_test,
+                                 "Selecao_do_BEAM_Tx_LIDAR_+_Coord_com_TODOS_os_dados",
+                                 enableDebug=False,
+                                 plot_confusion_matrix_enable=False
+                                 )
 
     if flag_beam_selection == '8':
         print("a partir de dados LiDAR + Coordenadas com dados LOS do dataset")
@@ -142,13 +226,27 @@ def beam_selection(flag_beam_selection):
         coord_LiDAR_LOS_train = np.column_stack((coord_LOS_train, LiDAR_LOS_train))
         coord_LiDAR_LOS_test = np.column_stack((coord_LOS_test, LiDAR_LOS_test))
 
-        obj.select_best_beam(coord_LiDAR_LOS_train,
+        flag_rx_or_tx = input("Realizar a selecao de feixe do: \n " \
+                              "\t Transmissor [T] ou Receptor [R]\n").upper()
+
+        if (flag_rx_or_tx == 'R'):
+
+            obj.select_best_beam(coord_LiDAR_LOS_train,
                                  coord_LiDAR_LOS_test,
                                  index_beam_rx_LOS_train,
                                  index_beam_rx_LOS_test,
-                                 "LIDAR_+_Coord_com_dados_LOS",
+                                 "Selecao_do_BEAM_Rx_LIDAR_+_Coord_com_dados_LOS",
                                  enableDebug=False,
                                  plot_confusion_matrix_enable=False)
+        else:
+            obj.select_best_beam(coord_LiDAR_LOS_train,
+                                 coord_LiDAR_LOS_test,
+                                 index_beam_tx_LOS_train,
+                                 index_beam_tx_LOS_test,
+                                 "Selecao_do_BEAM_Tx_LIDAR_+_Coord_com_dados_LOS",
+                                 enableDebug=False,
+                                 plot_confusion_matrix_enable=False)
+
 
     if flag_beam_selection == '9':
         print("a partir de dados LiDAR + Coordenadas com dados NLOS do dataset")
@@ -159,19 +257,33 @@ def beam_selection(flag_beam_selection):
         coord_LiDAR_NLOS_train = np.column_stack((coord_NLOS_train, LiDAR_NLOS_train))
         coord_LiDAR_NLOS_test = np.column_stack((coord_NLOS_test, LiDAR_NLOS_test))
 
-        obj.select_best_beam(coord_LiDAR_NLOS_train,
+        flag_rx_or_tx = input("Realizar a selecao de feixe do: \n " \
+                              "\t Transmissor [T] ou Receptor [R]\n").upper()
+
+        if (flag_rx_or_tx == 'R'):
+
+            obj.select_best_beam(coord_LiDAR_NLOS_train,
                              coord_LiDAR_NLOS_test,
                              index_beam_rx_NLOS_train,
                              index_beam_rx_NLOS_test,
-                             "LiDAR_+_Coord_com_dados_NLOS",
+                             "Selecao_do_BEAM_Rx_LiDAR_+_Coord_com_dados_NLOS",
                              enableDebug=False,
                              plot_confusion_matrix_enable=False)
+
+        else:
+            obj.select_best_beam(coord_LiDAR_NLOS_train,
+                                 coord_LiDAR_NLOS_test,
+                                 index_beam_tx_NLOS_train,
+                                 index_beam_tx_NLOS_test,
+                                 "Selecao_do_BEAM_Tx_LiDAR_+_Coord_com_dados_NLOS",
+                                 enableDebug=False,
+                                 plot_confusion_matrix_enable=False)
 
 
     # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     print_hi('PyCharm')
-
+    preprocess.pre_process_coordinates_in_lines(separed_coord_LOS=True)
 
 
     flag_preprocess_coord = input("Realizar pre processamento das coordenadas? [S/N] \n").upper()

@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 import csv
 
 
@@ -186,6 +187,184 @@ def save_Qs_matrix(all_train_coord, all_test_coord, LOS_train_coord, LOS_test_co
     # coordenadas NLOS em formato Qs
     np.savez(save_path + 'NLOS_train_coord' + '.npz', coord_NLOS_training=NLOS_train_coord)
     np.savez(save_path + 'NLOS_test_coord' + '.npz', coor_NLOS_test=NLOS_test_coord)
+
+def pre_process_coordinates_in_lines(separed_coord_LOS):
+    print_positions = True
+    coordenadas = read_all_coordinates()
+    ''''Este metodo recibe o obj coordenadas com a ordem dos seguintes dados
+            (EpisodeID, coord_x, coord_y, coord_z, LOS, val)'''
+
+    min_coord_x = np.min(coordenadas[:, 1])
+    min_coord_y = np.min(coordenadas[:, 2])
+
+    max_coord_x = np.max(coordenadas[:, 1])
+    max_coord_y = np.max(coordenadas[:, 2])
+
+    area_interese_mtrs = np.array([23, 250], dtype=int)
+    #num_positions_of_internal_matrix = area_interese_mtrs[0] * area_interese_mtrs[1]
+    area_interes_pre_process = np.array([2, 120], dtype=int)
+    num_positions_of_internal_matrix = area_interes_pre_process[0] * area_interes_pre_process[1]
+
+    coord_x_mtrs = np.array((coordenadas[:, 1] - min_coord_x) / max_coord_x * float(area_interese_mtrs[0]),dtype=float)
+    coord_y_mtrs = np.array((coordenadas[:, 2] - min_coord_y) / max_coord_y * float(area_interese_mtrs[1]),dtype=float)
+    all_x_coord_in_metros = np.round(coord_x_mtrs)
+    all_y_coord_in_metros = np.round(coord_y_mtrs)
+
+    average = np.average(all_x_coord_in_metros)
+    sample_size = len(coordenadas)
+    #x_line_position = np.zeros((sample_size, 1),   dtype=int)
+    #y_line_position = np.zeros((sample_size, 120), dtype=int)
+    x_all_position=[]
+    all_coord_in_Qs_lines = []
+
+    for i in range(sample_size):
+        if all_x_coord_in_metros[i] < average:
+             line = 0
+        else:
+            line = 1
+
+        x_all_position.append(line)
+
+    amostra = 0
+    Qs_all = np.zeros(area_interes_pre_process, dtype=int)
+
+    for i in range(2086):
+        for a in range(10):
+            x = x_all_position[amostra]
+            y = int(all_y_coord_in_metros[amostra])
+            Qs_all[x, y] = 1
+            amostra += 1
+
+        episodio = coordenadas[amostra-1,0]
+        flag_valid_coord = coordenadas[amostra-1, 5]
+        flag_LOS_or_NLOS = coordenadas[amostra-1, 4]
+
+        all_coord_in_Qs_lines.append([episodio, flag_valid_coord, flag_LOS_or_NLOS, Qs_all.reshape(1, num_positions_of_internal_matrix)])
+        Qs_all = np.zeros(area_interes_pre_process, dtype=int)
+
+    coordenadas_validas = coordenadas[coordenadas[:, 5] == 'V']
+    coord_val_x_mtrs = np.array((coordenadas_validas[:, 1] - min_coord_x) / max_coord_x * float(area_interese_mtrs[0]), dtype=float)
+    coord_val_y_mtrs = np.array((coordenadas_validas[:, 2] - min_coord_y) / max_coord_y * float(area_interese_mtrs[1]), dtype=float)
+    coord_val_x_mtrs = np.round(coord_val_x_mtrs)
+    coord_val_y_mtrs = np.round(coord_val_y_mtrs)
+    coord_val_Qs = []
+    x_position_val= []
+
+    for i in range(len(coordenadas_validas)):
+        if coord_val_x_mtrs[i] < average:
+             line = 0
+        else:
+            line = 1
+
+        x_position_val.append(line)
+
+    Qs_val = np.zeros(area_interes_pre_process, dtype=int)
+
+    for i in range(len(coordenadas_validas)):
+        x_val = int(x_position_val[i])
+        y_val = int(coord_val_y_mtrs[i])
+        Qs_val[x_val, y_val] = 1
+
+        episodio_val = coordenadas_validas[i,0]
+        flag_LOS_or_NLOS_val = coordenadas_validas[i,4]
+
+        coord_val_Qs.append([episodio_val, flag_LOS_or_NLOS_val, Qs_val.reshape(1, num_positions_of_internal_matrix)])
+        Qs_val = np.zeros(area_interes_pre_process, dtype=int)
+
+    Qs = []
+    for j in range(len(all_coord_in_Qs_lines )):
+        for i in range(len(coord_val_Qs)):
+            if (all_coord_in_Qs_lines[j][0] == coord_val_Qs[i][0]):
+                z = np.concatenate([coord_val_Qs[i][2], all_coord_in_Qs_lines[j][3]], axis=1)
+                Qs.append([coord_val_Qs[i][1], z])
+
+    train = Qs[:9234]
+    test = Qs[9234:]
+
+    separed_coord_LOS = True
+    coordenadas_LOS_train = []
+    coordenadas_LOS_train1 = []
+    coordenadas_NLOS_train = []
+    coordenadas_NLOS_train1 = []
+    coordenadas_LOS_test = []
+    coordenadas_LOS_test1 = []
+    coordenadas_NLOS_test = []
+    coordenadas_NLOS_test1 = []
+    temp_train = []
+    temp_test = []
+    coordenadas_all_train = []
+    coordenadas_all_test = []
+
+    if separed_coord_LOS:
+        for i in range(len(train)):
+            temp_train.append(train[i][1].tolist())
+            if train[i][0] == 'LOS=1':
+                coordenadas_LOS_train1.append(train[i][1].tolist())
+            else:
+                coordenadas_NLOS_train1.append(train[i][1].tolist())
+        for i in range(len(test)):
+            temp_test.append(test[i][1].tolist())
+            if test[i][0] == 'LOS=1':
+                coordenadas_LOS_test1.append(test[i][1].tolist())
+            else:
+                coordenadas_NLOS_test1.append(test[i][1].tolist())
+
+    for i in range(len(coordenadas_LOS_train1)):
+        coordenadas_LOS_train.append(coordenadas_LOS_train1[i][0])
+
+    for i in range(len(coordenadas_NLOS_train1)):
+        coordenadas_NLOS_train.append(coordenadas_NLOS_train1[i][0])
+
+    for i in range(len(coordenadas_LOS_test1)):
+        coordenadas_LOS_test.append(coordenadas_LOS_test1[i][0])
+
+    for i in range(len(coordenadas_NLOS_test1)):
+        coordenadas_NLOS_test.append(coordenadas_NLOS_test1[i][0])
+
+    for i in range(len(train)):
+        coordenadas_all_train.append(temp_train[i][0])
+
+    for i in range(len(test)):
+        coordenadas_all_test.append(temp_test[i][0])
+
+    save_Qs_matrix_in_lines(coordenadas_all_train, coordenadas_all_test, coordenadas_LOS_train, coordenadas_NLOS_train, coordenadas_LOS_test, coordenadas_NLOS_test)
+
+
+    # if print_positions==True: #Nao esta funcionando direito
+    #     #all_x_coord = veicles_positions[:,0]
+    #     #all_y_coord = np.array(veicles_positions[:,1:120])
+    #     x = x_line_position[0:9]
+    #     y = y_coordinate_in_metros[0:9]
+    #     plt.scatter(x,y, label='All')
+    #     plt.legend()
+    #
+    #     #plt.title("Coordenadas da amostra: " + str(sample) + " do episodio: " + str(id_episode))
+    #     plt.title("posicao dos receptores")
+    #     plt.xlabel('x')
+    #     plt.ylabel('y')
+    #     plt.xlim([-0.5, 2])
+    #     plt.ylim([0, 122])
+    #     plt.axvline(0.5, color='r', linestyle='dashed')
+    #     #plt.text(20, mean_x + 3, str(mean_x), color='r')
+    #     plt.grid(True)
+    #     plt.show()
+
+    return coordenadas_all_train, coordenadas_all_test, coordenadas_LOS_train, coordenadas_NLOS_train, coordenadas_LOS_test, coordenadas_NLOS_test
+
+def save_Qs_matrix_in_lines(all_train_coord, all_test_coord, LOS_train_coord, LOS_test_coord, NLOS_train_coord, NLOS_test_coord):
+    save_path = "../data/coordinates/processed/Qs_in_lines/"
+
+    # Todas as coordenadas em formato Qs
+    np.savez(save_path + 'all_train_coord_in_lines' + '.npz', coord_training=all_train_coord)
+    np.savez(save_path + 'all_test_coord_in_lines' + '.npz', coor_test=all_test_coord)
+
+    # coordenadas LOS em formato Qs
+    np.savez(save_path + 'LOS_train_coord_in_lines' + '.npz', coord_LOS_training=LOS_train_coord)
+    np.savez(save_path + 'LOS_test_coord_in_lines' + '.npz', coor_LOS_test=LOS_test_coord)
+
+    # coordenadas NLOS em formato Qs
+    np.savez(save_path + 'NLOS_train_coord_in_lines' + '.npz', coord_NLOS_training=NLOS_train_coord)
+    np.savez(save_path + 'NLOS_test_coord_in_lines' + '.npz', coor_NLOS_test=NLOS_test_coord)
 
 def read_beams_raymobtime():
     data_path = '/Users/Joanna/git/beam_selection_wisard/data/beams/Ailton/beam_output/beams_output_8x32.npz'

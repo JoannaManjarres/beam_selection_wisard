@@ -110,7 +110,7 @@ def select_best_beam(input_train,
     vector_time_train_desvio_padrao = []
     vector_time_test_desvio_padrao = []
 
-    path_result = "../results/"
+    path_result = "../results"
 
     for j in range(len(address_size)):  # For encargado de variar el tamano de la memoria
 
@@ -177,15 +177,15 @@ def select_best_beam(input_train,
     # ----------------- GUARDA EM CSV VECTORES DE ESTADISTICAS  -----------------------
     print('\n Saving results files ...')
 
-    with open(path_result + 'accuracy/acuracia.csv', 'w') as f:
+    with open(path_result + '/accuracy/acuracia_' + titulo_resultados + '.csv', 'w') as f:
         writer_acuracy = csv.writer(f, delimiter='\t')
         writer_acuracy.writerows(zip(address_size, vector_acuracia_media, vector_acuracia_desvio_padrao))
 
-    with open(path_result + 'processingTime/time_train.csv', 'w') as f:
+    with open(path_result + '/processingTime/time_train_' + titulo_resultados + '.csv', 'w') as f:
         writer_time_train = csv.writer(f, delimiter='\t')
         writer_time_train.writerows(zip(address_size, vector_acuracia_media, vector_time_train_desvio_padrao))
 
-    with open(path_result + 'processingTime/time_test.csv', 'w') as f:
+    with open(path_result + '/processingTime/time_test_' + titulo_resultados + 'csv', 'w') as f:
         writer_time_test = csv.writer(f, delimiter='\t')
         writer_time_test.writerows(zip(address_size, vector_time_test_media, vector_time_test_desvio_padrao))
 
