@@ -13,6 +13,44 @@ def read_all_Qs_matrix():
 
     return all_coord_train, all_coord_test
 
+def read_all_Qs_matrix_in_lines():
+    path = "/Users/Joanna/git/beam_selection_wisard/data/coordinates/processed/Qs_in_lines/"
+
+    input_cache_file = np.load(path + "all_train_coord_in_lines.npz", allow_pickle=True)
+    all_coord_train = input_cache_file["coord_training"]
+
+    input_cache_file = np.load(path + "all_test_coord_in_lines.npz", allow_pickle=True)
+    all_coord_test = input_cache_file["coor_test"]
+
+    return all_coord_train, all_coord_test
+
+def read_Qs_matrix_in_lines_with_LOS_data():
+    path = "/Users/Joanna/git/beam_selection_wisard/data/coordinates/processed/Qs_in_lines/"
+
+    input_cache_file = np.load(path + "LOS_train_coord_in_lines.npz", allow_pickle=True)
+    LOS_coord_train = input_cache_file["coord_LOS_training"]
+    input_LOS_coord_train = LOS_coord_train.tolist()
+
+    input_cache_file = np.load(path + "LOS_test_coord_in_lines.npz", allow_pickle=True)
+    LOS_coord_test = input_cache_file["coor_LOS_test"]
+    input_LOS_coord_test = LOS_coord_test.tolist()
+
+    return input_LOS_coord_train, input_LOS_coord_test
+
+def read_Qs_matrix_in_lines_with_NLOS_data():
+    path = "/Users/Joanna/git/beam_selection_wisard/data/coordinates/processed/Qs_in_lines/"
+
+    input_cache_file = np.load(path + "NLOS_train_coord_in_lines.npz", allow_pickle=True)
+    NLOS_coord_train = input_cache_file["coord_NLOS_training"]
+    input_NLOS_coord_train = NLOS_coord_train.tolist()
+
+    input_cache_file = np.load(path + "NLOS_test_coord_in_lines.npz", allow_pickle=True)
+    NLOS_coord_test = input_cache_file["coor_NLOS_test"]
+    input_NLOS_coord_test = NLOS_coord_test.tolist()
+
+    return input_NLOS_coord_train, input_NLOS_coord_test
+
+
 def read_Qs_matrix_with_LOS_data():
     path = "/Users/Joanna/git/beam_selection_wisard/data/coordinates/processed/"
 

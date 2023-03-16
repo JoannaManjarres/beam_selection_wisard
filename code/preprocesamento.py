@@ -327,7 +327,8 @@ def pre_process_coordinates_in_lines(separed_coord_LOS):
     for i in range(len(test)):
         coordenadas_all_test.append(temp_test[i][0])
 
-    save_Qs_matrix_in_lines(coordenadas_all_train, coordenadas_all_test, coordenadas_LOS_train, coordenadas_NLOS_train, coordenadas_LOS_test, coordenadas_NLOS_test)
+    save_Qs_matrix_in_lines(coordenadas_all_train, coordenadas_all_test, coordenadas_LOS_train, coordenadas_LOS_test, coordenadas_NLOS_train, coordenadas_NLOS_test)
+
 
 
     # if print_positions==True: #Nao esta funcionando direito

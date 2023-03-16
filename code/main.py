@@ -19,9 +19,18 @@ def do_preprocess(flag_preprocess_coord, flag_preprocess_beams_index, flag_prepr
 
 
     if flag_preprocess_coord =='S':
-        coord = preprocess.read_all_coordinates()
-        train, test, coordenadas_LOS_train, coordenadas_NLOS_train, coordenadas_LOS_test, coordenadas_NLOS_test = preprocess.coord_to_Qs_matrix(coord)
-        preprocess.save_Qs_matrix(train, test, coordenadas_LOS_train, coordenadas_LOS_test, coordenadas_NLOS_train, coordenadas_NLOS_test)
+
+        print("pre processar em:")
+        flag_matriz_type = input("\t [1] matriz Qs ou \n " \
+                                 "\t [2] matriz Qs em linhas ")
+        if (flag_matriz_type == '1'):
+            coord = preprocess.read_all_coordinates()
+            train, test, coordenadas_LOS_train, coordenadas_NLOS_train, coordenadas_LOS_test, coordenadas_NLOS_test = preprocess.coord_to_Qs_matrix(coord)
+            preprocess.save_Qs_matrix(train, test, coordenadas_LOS_train, coordenadas_LOS_test, coordenadas_NLOS_train, coordenadas_NLOS_test)
+            print("Coordenadas pre processadas em matriz Qs [23X250] e guardadas")
+        if (flag_matriz_type == '2'):
+            preprocess.pre_process_coordinates_in_lines(separed_coord_LOS=True)
+            print("Coordenadas pre processadas em matriz Qs em linhas [2X120] e guardadas")
 
     if flag_preprocess_LiDAR == 'S':
         obj_lidar.process_data(enable_plot=False, num_scene_to_plot=0)
@@ -279,6 +288,80 @@ def beam_selection(flag_beam_selection):
                                  enableDebug=False,
                                  plot_confusion_matrix_enable=False)
 
+    if flag_beam_selection == '10':
+        all_coord_in_Qs_line_train, all_coord_in_Qs_line_test = read.read_all_Qs_matrix_in_lines()
+        index_beam_rx_train, index_beam_rx_test, index_beam_tx_train, index_beam_tx_test = read.read_all_beams()
+
+        flag_rx_or_tx = input("Realizar a selecao de feixe do: \n " \
+                              "\t Transmissor [T] ou Receptor [R]\n").upper()
+
+        if (flag_rx_or_tx == 'R'):
+            obj.select_best_beam(all_coord_in_Qs_line_train,
+                                 all_coord_in_Qs_line_test,
+                                 index_beam_rx_train,
+                                 index_beam_rx_test,
+                                 "Selecao_do_BEAM_Rx_with_Coord_em_Qs_Line",
+                                 enableDebug=False,
+                                 plot_confusion_matrix_enable=False)
+        else:
+            obj.select_best_beam(all_coord_in_Qs_line_train,
+                                 all_coord_in_Qs_line_test,
+                                 index_beam_tx_train,
+                                 index_beam_tx_test,
+                                 "Selecao_do_BEAM_Tx_with_Coord_em_Qs_Line",
+                                 enableDebug=False,
+                                 plot_confusion_matrix_enable=False)
+
+    if flag_beam_selection == '11':
+        LOS_coord_in_Qs_line_train, LOS_coord_in_Qs_line_test = read.read_Qs_matrix_in_lines_with_LOS_data()
+        index_beam_rx_LOS_train, index_beam_rx_LOS_test, index_beam_tx_LOS_train, index_beam_tx_LOS_test = read.read_LOS_beams()
+
+        flag_rx_or_tx = input("Realizar a selecao de feixe do: \n " \
+                              "\t Transmissor [T] ou Receptor [R]\n").upper()
+
+        if (flag_rx_or_tx == 'R'):
+            obj.select_best_beam(LOS_coord_in_Qs_line_train,
+                                 LOS_coord_in_Qs_line_test,
+                                 index_beam_rx_LOS_train,
+                                 index_beam_rx_LOS_test,
+                                 "Selecao_do_BEAM_Rx_with_LOS_Coord_em_Qs_Line",
+                                 enableDebug=False,
+                                 plot_confusion_matrix_enable=False)
+        else:
+            obj.select_best_beam(LOS_coord_in_Qs_line_train,
+                                 LOS_coord_in_Qs_line_test,
+                                 index_beam_tx_LOS_train,
+                                 index_beam_tx_LOS_test,
+                                 "Selecao_do_BEAM_Tx_with_LOS_Coord_em_Qs_Line",
+                                 enableDebug=False,
+                                 plot_confusion_matrix_enable=False)
+
+    if flag_beam_selection == '12':
+        NLOS_coord_in_Qs_line_train, NLOS_coord_in_Qs_line_test = read.read_Qs_matrix_in_lines_with_NLOS_data()
+        index_beam_rx_NLOS_train, index_beam_rx_NLOS_test, index_beam_tx_NLOS_train, index_beam_tx_NLOS_test = read.read_NLOS_beams()
+
+
+        flag_rx_or_tx = input("Realizar a selecao de feixe do: \n " \
+                              "\t Transmissor [T] ou Receptor [R]\n").upper()
+
+        if (flag_rx_or_tx == 'R'):
+            obj.select_best_beam(NLOS_coord_in_Qs_line_train,
+                                 NLOS_coord_in_Qs_line_test,
+                                 index_beam_rx_NLOS_train,
+                                 index_beam_rx_NLOS_test,
+                                 "Selecao_do_BEAM_Rx_with_NLOS_Coord_em_Qs_Line",
+                                 enableDebug=False,
+                                 plot_confusion_matrix_enable=False)
+        else:
+            obj.select_best_beam(NLOS_coord_in_Qs_line_train,
+                                 NLOS_coord_in_Qs_line_test,
+                                 index_beam_tx_NLOS_train,
+                                 index_beam_tx_NLOS_test,
+                                 "Selecao_do_BEAM_Tx_with_NLOS_Coord_em_Qs_Line",
+                                 enableDebug=False,
+                                 plot_confusion_matrix_enable=False)
+
+
 
     # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
@@ -291,16 +374,37 @@ if __name__ == '__main__':
     flag_preprocess_LiDAR = input("Realizar pre processamento dos dados LiDAR? [S/N] \n").upper()
     do_preprocess(flag_preprocess_coord, flag_preprocess_beams_index, flag_preprocess_LiDAR)
 
-    flag_beam_selection = input ("Realizar a selecao de feixe com \n " \
-    "\t 1. [Coord] TODOS os dados do dataset? \n " \
-    "\t 2. [Coord] Apenas os dados Com Linha de Visado [LOS]? \n " \
-    "\t 3. [Coord] Apenas os dados Sem Linha de Visado [NLOS]?\n" \
-    "\t 4. [LiDAR] TODOS os dados do dataset? \n "\
-    "\t 5. [LiDAR] com dados LOS? \n "\
-    "\t 6. [LiDAR] com dados NLOS? \n"\
-    "\t 7. [Coord + LiDAR] com TODOS os dados do dataset?\n"
-    "\t 8. [Coord + LiDAR] com dados LOS? \n"
-    "\t 9. [Coord + LiDAR] com dados NLOS? \n")
+    flag_input_beam_selection = input("Realizar a selecao de feixe com \n " \
+        "\t [1] Coordenadas? \n " \
+        "\t [2] LiDAR? \n " 
+        "\t [3] Coord + LiDAR? \n " )
+
+    if flag_input_beam_selection == '1':
+        a =  input("selecionar o beam com as coordenadas pre-processadas em: \n"\
+                   "\t [1] matriz Qs [23 X 250] \n"\
+                   "\t [2] Matriz Qs em linhas [2 X 120] \n")
+        if a=='1':
+            flag_beam_selection = input("Realizar a selecao de feixe com  Qs [23X250] \n " \
+                                        "\t 1. [Coord] TODOS os dados do dataset? \n " \
+                                        "\t 2. [Coord] Apenas os dados Com Linha de Visado [LOS]? \n " \
+                                        "\t 3. [Coord] Apenas os dados Sem Linha de Visado [NLOS]?\n" )
+        if a=='2':
+            flag_beam_selection = input("Realizar a selecao de feixe com Qs [2X120] \n " \
+                                        "\t 10. [Coord] TODOS os dados do dataset? \n " \
+                                        "\t 11. [Coord] Apenas os dados Com Linha de Visado [LOS]? \n " \
+                                        "\t 12. [Coord] Apenas os dados Sem Linha de Visado [NLOS]?\n")
+
+    if flag_input_beam_selection == '2':
+        flag_beam_selection = input("Realizar a selecao de feixe com \n " \
+                                    "\t 4. [LiDAR] TODOS os dados do dataset? \n " \
+                                    "\t 5. [LiDAR] com dados LOS? \n " \
+                                    "\t 6. [LiDAR] com dados NLOS? \n" )
+
+    if flag_input_beam_selection == '3':
+        flag_beam_selection = input("Realizar a selecao de feixe com \n " \
+                                     "\t 7. [Coord + LiDAR] com TODOS os dados do dataset?\n"
+                                     "\t 8. [Coord + LiDAR] com dados LOS? \n"
+                                     "\t 9. [Coord + LiDAR] com dados NLOS? \n")
 
 
     beam_selection(flag_beam_selection)
