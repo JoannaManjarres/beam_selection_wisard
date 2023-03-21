@@ -51,7 +51,7 @@ def read_valid_coordinates():
     coord_train = all_info_coord_val[(all_info_coord_val[:, 0] < limit_ep_train + 1)]
     coord_test = all_info_coord_val[(all_info_coord_val[:, 0] > limit_ep_train)]
 
-    return all_info_coord_val
+    return all_info_coord_val, coord_train, coord_test
 
 def coord_to_Qs_matrix(coordenadas):
     ''''Este metodo recibe o obj coordenadas com a ordem dos seguintes dados
@@ -424,6 +424,28 @@ def divide_beams_in_train_test(rx_beams, tx_beams, coord, save_data):
 
     return all_beam_tx_train, all_beam_tx_test, all_beam_rx_train, all_beam_rx_test
 
+def divide_valid_coord_in_LOS_NLOS_connection(valid_coord):
+    all_info_LOS = []
+    all_info_NLOS = []
+    for sample in range(len(valid_coord)):
+        if valid_coord[sample,4] == 'LOS=1':
+            all_info_LOS.append(valid_coord[sample])
+        else:
+            all_info_NLOS.append(valid_coord[sample])
+
+    data_LOS = np.array(all_info_LOS)
+    data_NLOS = np.array(all_info_NLOS)
+
+    limit_ep_train = 1564
+
+    data_train_LOS = data_LOS[(data_LOS[:, 0] < limit_ep_train + 1)]
+    data_test_LOS = data_LOS[(data_LOS[:, 0] > limit_ep_train)]
+
+    data_train_NLOS = data_NLOS[(data_NLOS[:, 0] < limit_ep_train + 1)]
+    data_test_NLOS = data_NLOS[(data_NLOS[:, 0] > limit_ep_train)]
+
+    return data_train_LOS, data_test_LOS, data_train_NLOS, data_test_NLOS
+
 def divide_beams_and_coord_in_LOS_or_NLOS_connect(rx_beams, tx_beams, coord, save_data):
     '''Metodo que genera y guarda las coordenadas y beams para train y test'''
 
@@ -432,7 +454,7 @@ def divide_beams_and_coord_in_LOS_or_NLOS_connect(rx_beams, tx_beams, coord, sav
     all_info_NLOS = []
 
     for sample in range(len(all_data)):
-        if all_data[sample,4]=='LOS=1':
+        if all_data[sample,4] == 'LOS=1':
             all_info_LOS.append(all_data[sample])
         else:
             all_info_NLOS.append(all_data[sample])
@@ -479,4 +501,6 @@ def divide_beams_and_coord_in_LOS_or_NLOS_connect(rx_beams, tx_beams, coord, sav
 
 
     return data_train_LOS, data_train_NLOS, data_test_LOS, data_test_NLOS
+
+
 

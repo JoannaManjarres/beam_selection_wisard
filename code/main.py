@@ -3,7 +3,10 @@ import preprocesamento as preprocess
 import read_data as read
 import beam_selection_wisard as obj
 import pre_process_lidar as obj_lidar
+import analyse_data as obj_analyse
 import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 def print_hi(name):
     # Use a breakpoint in the code line below to debug your script.
@@ -457,16 +460,60 @@ def beam_selection(flag_beam_selection):
                                  enableDebug=False,
                                  plot_confusion_matrix_enable=False)
 
+def beam_analysis(flag_beam_analysis):
+
+    if flag_beam_analysis == 'S':
+
+        print("Escolha a configuracao das antenas Rx-Tx")
+        antennas_num_rx = input("Digite a quantidade de antenas no \n"
+                                "\t Rx: 1, 2, 4, 8, 16 ou 32\n")
+        antennas_num_tx = input("Digite a quantidade de antenas no \n"
+                                "\t Tx: 4, 8, 16 ou 32\n")
+        antenna_config = antennas_num_rx+'X'+antennas_num_tx
+
+        a = input('Escolha o tipo de conexao que deseja analisar \n'
+                   '\t 1. ALL \n'
+                   '\t 2. LOS \n'
+                   '\t 3. NLOS\n')
+        if a == '1':
+            connection = 'ALL'
+        if a == '2':
+            connection = 'LOS'
+        if a == '3':
+            connection = 'NLOS'
+
+        obj_analyse.beam_analyses(antenna_config, connection)
+
+
+
+
+
+
+
     # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     print_hi('PyCharm')
-    preprocess.pre_process_coordinates_in_lines(separed_coord_LOS=True)
 
+    flag_beam_analysis = input("Realizar análise dos beams? [S/N] \n").upper()
+    beam_analysis(flag_beam_analysis)
 
-    flag_preprocess_coord       = input("Realizar pre processamento das coordenadas? [S/N] \n").upper()
+    flag_preprocess_coord = input("Realizar pre processamento das coordenadas? [S/N] \n").upper()
     flag_preprocess_beams_index = input("Realizar pre processamento dos indices dos Beams? [S/N] \n").upper()
-    flag_preprocess_LiDAR       = input("Realizar pre processamento dos dados LiDAR? [S/N] \n").upper()
+    flag_preprocess_LiDAR = input("Realizar pre processamento dos dados LiDAR? [S/N] \n").upper()
     do_preprocess(flag_preprocess_coord, flag_preprocess_beams_index, flag_preprocess_LiDAR)
+
+
+    flag_beam_analysis = input("Realizar análise dos beams? [S/N] \n").upper()
+    beam_analysis(flag_beam_analysis)
+
+
+
+
+
+
+
+
+
 
     flag_input_beam_selection = input("Realizar a selecao de feixe com \n " \
         "\t [1] Coordenadas? \n " \
