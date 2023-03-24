@@ -367,11 +367,11 @@ def save_Qs_matrix_in_lines(all_train_coord, all_test_coord, LOS_train_coord, LO
     np.savez(save_path + 'NLOS_train_coord_in_lines' + '.npz', coord_NLOS_training=NLOS_train_coord)
     np.savez(save_path + 'NLOS_test_coord_in_lines' + '.npz', coor_NLOS_test=NLOS_test_coord)
 
-def read_beams_raymobtime():
-    data_path = '/Users/Joanna/git/beam_selection_wisard/data/beams/Ailton/beam_output/beams_output_8x32.npz'
+def read_beams_raymobtime(num_antennas_tx, num_antennas_rx):
+
+    config_antenna = num_antennas_rx+'x'+num_antennas_tx
+    data_path = '/Users/Joanna/git/beam_selection_wisard/data/beams/Ailton/beam_output/beams_output_'+config_antenna+'.npz'
     beams = np.load(data_path)['output_classification']
-    num_antennas_tx = 32
-    num_antennas_rx = 8
 
     best_beam_index = []
     for sample in range(beams.shape[0]):
@@ -383,14 +383,14 @@ def read_beams_raymobtime():
     rx_index = np.zeros((beams.shape[0]), dtype=int)
 
     for sample in range(len(beam_index_rx)):
-        index_tx = best_beam_index[sample] // num_antennas_rx
-        index_rx = best_beam_index[sample] % num_antennas_rx
+        index_tx = best_beam_index[sample] // int(num_antennas_rx)
+        index_rx = best_beam_index[sample] % int(num_antennas_rx)
         tx_index[sample] = index_tx
         rx_index[sample] = index_rx
 
     return tx_index, rx_index
 
-def divide_beams_in_train_test(rx_beams, tx_beams, coord, save_data):
+def divide_beams_in_train_test(rx_beams, tx_beams, coord, antenna_config, save_data):
 
 
     all_data = np.column_stack((coord, rx_beams, tx_beams))
@@ -414,7 +414,7 @@ def divide_beams_in_train_test(rx_beams, tx_beams, coord, save_data):
         all_beams_rx_test = data_test[:, -2]
 
 
-        save_path = '/Users/Joanna/git/beam_selection_wisard/data/beams/all_index_beam/'
+        save_path = '/Users/Joanna/git/beam_selection_wisard/data/beams/'+antenna_config+'/all_index_beam/'
         np.savez(save_path + 'index_beams_tx_train' + '.npz', all_beams_tx_train=all_beams_tx_train)
         np.savez(save_path + 'index_beams_tx_test' + '.npz', all_beams_tx_test=all_beams_tx_test)
 
@@ -446,7 +446,7 @@ def divide_valid_coord_in_LOS_NLOS_connection(valid_coord):
 
     return data_train_LOS, data_test_LOS, data_train_NLOS, data_test_NLOS
 
-def divide_beams_and_coord_in_LOS_or_NLOS_connect(rx_beams, tx_beams, coord, save_data):
+def divide_beams_and_coord_in_LOS_or_NLOS_connect(rx_beams, tx_beams, coord, antenna_config, save_data):
     '''Metodo que genera y guarda las coordenadas y beams para train y test'''
 
     all_data = np.column_stack((coord, rx_beams, tx_beams))
@@ -485,14 +485,14 @@ def divide_beams_and_coord_in_LOS_or_NLOS_connect(rx_beams, tx_beams, coord, sav
 
     if save_data:
 
-        save_path = '/Users/Joanna/git/beam_selection_wisard/data/beams/LOS_index_beam/'
+        save_path = '/Users/Joanna/git/beam_selection_wisard/data/beams/'+antenna_config+'/LOS_index_beam/'
         np.savez(save_path + 'beam_LOS_tx_train' + '.npz', beam_LOS_tx_train=beam_LOS_tx_train)
         np.savez(save_path + 'beam_LOS_rx_train' + '.npz', beam_LOS_rx_train=beam_LOS_rx_train)
 
         np.savez(save_path + 'beam_LOS_tx_test' + '.npz', beam_LOS_tx_test=beam_LOS_tx_test)
         np.savez(save_path + 'beam_LOS_rx_test' + '.npz', beam_LOS_rx_test=beam_LOS_rx_test)
 
-        save_path = '/Users/Joanna/git/beam_selection_wisard/data/beams/NLOS_index_beam/'
+        save_path = '/Users/Joanna/git/beam_selection_wisard/data/beams/'+antenna_config+'/NLOS_index_beam/'
         np.savez(save_path + 'beam_NLOS_tx_train' + '.npz', beam_NLOS_tx_train=beam_NLOS_tx_train)
         np.savez(save_path + 'beam_NLOS_rx_train' + '.npz', beam_NLOS_rx_train=beam_NLOS_rx_train)
 
