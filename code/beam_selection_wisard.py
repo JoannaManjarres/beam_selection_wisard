@@ -89,9 +89,10 @@ def select_best_beam(input_train,
                      input_validation,
                      label_train,
                      label_validation,
-                     titulo_resultados,
+                     figure_name,
                      antenna_config,
                      type_of_input,
+                     titulo_figura,
                      user,
                      enableDebug=False,
                      plot_confusion_matrix_enable=False):
@@ -180,20 +181,20 @@ def select_best_beam(input_train,
     # ----------------- GUARDA EM CSV VECTORES DE ESTADISTICAS  -----------------------
     print('\n Saving results files ...')
 
-    with open(path_result + '/accuracy/'+antenna_config+'/'+type_of_input+'/'+user+'/acuracia_' + titulo_resultados + '.csv', 'w') as f:
+    with open(path_result + '/accuracy/'+antenna_config+'/'+type_of_input+'/'+user+'/acuracia_' + figure_name + '.csv', 'w') as f:
         writer_acuracy = csv.writer(f, delimiter='\t')
         writer_acuracy.writerows(zip(address_size, vector_acuracia_media, vector_acuracia_desvio_padrao))
 
-    with open(path_result + '/processingTime/'+antenna_config+'/'+type_of_input + '/' + user + '/time_train_' + titulo_resultados + '.csv', 'w') as f:
+    with open(path_result + '/processingTime/'+antenna_config+'/'+type_of_input + '/' + user + '/time_train_' + figure_name + '.csv', 'w') as f:
         writer_time_train = csv.writer(f, delimiter='\t')
         writer_time_train.writerows(zip(address_size, vector_acuracia_media, vector_time_train_desvio_padrao))
 
-    with open(path_result + '/processingTime/'+antenna_config+'/'+type_of_input + '/' + user +'/time_test_' + titulo_resultados + '.csv', 'w') as f:
+    with open(path_result + '/processingTime/'+antenna_config+'/'+type_of_input + '/' + user +'/time_test_' + figure_name + '.csv', 'w') as f:
         writer_time_test = csv.writer(f, delimiter='\t')
         writer_time_test.writerows(zip(address_size, vector_time_test_media, vector_time_test_desvio_padrao))
 
     # ----------------- PLOT DE RESULTADOS  ------------------------------
-    titulo = titulo_resultados
+    titulo = titulo_figura
     nombre_curva = "Dado com desvio padrão"
 
     plotarResultados(address_size,
@@ -203,7 +204,7 @@ def select_best_beam(input_train,
                      nombre_curva,
                      "Tamanho da memória",
                      "Acuracia Média (%)",
-                     ruta=path_result + '/accuracy/'+antenna_config+'/'+type_of_input + '/' + user +'/acuracia_'+titulo+'.png')
+                     ruta=path_result + '/accuracy/'+antenna_config+'/'+type_of_input + '/' + user +'/acuracia_'+figure_name+'.png')
 
     plotarResultados(address_size,
                      vector_time_train_media,
@@ -212,7 +213,7 @@ def select_best_beam(input_train,
                      nombre_curva,
                      "Tamanho da memória",
                      "Tempo de treinamento Médio (s)",
-                     ruta=path_result + '/processingTime/'+antenna_config+'/'+type_of_input + '/' + user +'/time_train_'+titulo+'.png''')
+                     ruta=path_result + '/processingTime/'+antenna_config+'/'+type_of_input + '/' + user +'/time_train_'+figure_name+'.png''')
 
     plotarResultados(address_size,
                      vector_time_test_media,
@@ -221,6 +222,6 @@ def select_best_beam(input_train,
                      nombre_curva,
                      "Tamanho da memória",
                      "Tempo de Teste Médio (s)",
-                     ruta=path_result + '/processingTime/'+antenna_config+'/'+type_of_input + '/' + user +'/time_test_'+titulo+'.png')
+                     ruta=path_result + '/processingTime/'+antenna_config+'/'+type_of_input + '/' + user +'/time_test_'+figure_name+'.png')
 
     return out_red#, df_cm
