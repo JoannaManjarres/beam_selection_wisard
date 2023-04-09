@@ -29,7 +29,8 @@ def read_all_coordinates():
     return all_info_coord
 
 def read_valid_coordinates():
-    filename = '/Users/Joanna/git/Analise_de_dados/data/coordinates/CoordVehiclesRxPerScene_s008.csv'
+    #filename = '/Users/Joanna/git/Analise_de_dados/data/coordinates/CoordVehiclesRxPerScene_s008.csv'
+    filename ='../data/coordinates/CoordVehiclesRxPerScene_s008.csv'
     limit_ep_train = 1564
 
     with open(filename) as csvfile:
