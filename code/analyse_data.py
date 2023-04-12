@@ -59,8 +59,8 @@ def relation_coord_with_beams_Plot2D(all_data, set, connection, pp_folder, confi
              markerfacecolor="red",
              label='Tx')
 
-    plot=sns.scatterplot(data=data,
-                    x='x',
+    plot = sns.scatterplot(data=data,
+                           x='x',
                     y='y',
                     style='txBeams',
                     palette='deep',
@@ -75,7 +75,7 @@ def relation_coord_with_beams_Plot2D(all_data, set, connection, pp_folder, confi
     plt.subplots_adjust(top=0.94, left = 0.082)
     name = path + 'relation_coord_with_Tx_beams_' + connection+'_' + set + '.png'
     plt.savefig(name, transparent=False, dpi=300)
-    plt.show()
+    #plt.show()
 
     ############################################
 
@@ -125,7 +125,7 @@ def relation_coord_with_beams_extend_Plot2D(all_data, set, connection, pp_folder
     plot.fig.set_figwidth(15)
     plot.fig.set_figheight(6)
     plt.savefig(name, transparent=False, dpi=300)
-    plt.show()
+    #plt.show()
 
 
 
@@ -151,7 +151,7 @@ def relation_coord_with_beams_extend_Plot2D(all_data, set, connection, pp_folder
     plot.fig.set_figwidth(15)
     plot.fig.set_figheight(6)
     plt.savefig(name, transparent=False, dpi=300)
-    plt.show()
+    #plt.show()
 
 
 

@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 import matplotlib.pyplot as plt
 import csv
@@ -371,7 +373,8 @@ def save_Qs_matrix_in_lines(all_train_coord, all_test_coord, LOS_train_coord, LO
 def read_beams_raymobtime(num_antennas_tx, num_antennas_rx):
 
     config_antenna = num_antennas_rx+'x'+num_antennas_tx
-    data_path = '/Users/Joanna/git/beam_selection_wisard/data/beams/Ailton/beam_output/beams_output_'+config_antenna+'.npz'
+    #data_path = '/Users/Joanna/git/beam_selection_wisard/data/beams/Ailton/beam_output/beams_output_'+config_antenna+'.npz'
+    data_path = '../data/beams/Ailton/beam_output/beams_output_'+config_antenna+'.npz'
     beams = np.load(data_path)['output_classification']
 
     best_beam_index = []
@@ -415,7 +418,25 @@ def divide_beams_in_train_test(rx_beams, tx_beams, coord, antenna_config, save_d
         all_beams_rx_test = data_test[:, -2]
 
 
-        save_path = '/Users/Joanna/git/beam_selection_wisard/data/beams/'+antenna_config+'/all_index_beam/'
+        #---------- esta parte nao esta funcionando ------------
+        #save_path = '/Users/Joanna/git/beam_selection_wisard/data/beams/'+antenna_config+'/all_index_beam/'
+        '''
+        save_path = '../data/beam/'+antenna_config+'/'
+        save_path1 = '../data/beam/'+antenna_config+'/all_index_beam/'
+        try:
+            os.mkdir(save_path)
+            os.mkdir(save_path1)
+
+        except OSError:
+            print('Pasta %s NAO foi criada' %save_path)
+            print('Pasta %s NAO foi criada' % save_path1)
+        else:
+            print('Pasta %s criada' %save_path)
+            print('Pasta %s criada' % save_path1)
+
+        #-------------------------------------------------------
+        '''
+        save_path = '../data/beams/' + antenna_config + '/all_index_beam/'
         np.savez(save_path + 'index_beams_tx_train' + '.npz', all_beams_tx_train=all_beams_tx_train)
         np.savez(save_path + 'index_beams_tx_test' + '.npz', all_beams_tx_test=all_beams_tx_test)
 
@@ -486,14 +507,16 @@ def divide_beams_and_coord_in_LOS_or_NLOS_connect(rx_beams, tx_beams, coord, ant
 
     if save_data:
 
-        save_path = '/Users/Joanna/git/beam_selection_wisard/data/beams/'+antenna_config+'/LOS_index_beam/'
+        #save_path = '/Users/Joanna/git/beam_selection_wisard/data/beams/'+antenna_config+'/LOS_index_beam/'
+        save_path = '../data/beams/'+antenna_config+'/LOS_index_beam/'
         np.savez(save_path + 'beam_LOS_tx_train' + '.npz', beam_LOS_tx_train=beam_LOS_tx_train)
         np.savez(save_path + 'beam_LOS_rx_train' + '.npz', beam_LOS_rx_train=beam_LOS_rx_train)
 
         np.savez(save_path + 'beam_LOS_tx_test' + '.npz', beam_LOS_tx_test=beam_LOS_tx_test)
         np.savez(save_path + 'beam_LOS_rx_test' + '.npz', beam_LOS_rx_test=beam_LOS_rx_test)
 
-        save_path = '/Users/Joanna/git/beam_selection_wisard/data/beams/'+antenna_config+'/NLOS_index_beam/'
+        #save_path = '/Users/Joanna/git/beam_selection_wisard/data/beams/'+antenna_config+'/NLOS_index_beam/'
+        save_path = '../data/beams/' + antenna_config + '/NLOS_index_beam/'
         np.savez(save_path + 'beam_NLOS_tx_train' + '.npz', beam_NLOS_tx_train=beam_NLOS_tx_train)
         np.savez(save_path + 'beam_NLOS_rx_train' + '.npz', beam_NLOS_rx_train=beam_NLOS_rx_train)
 

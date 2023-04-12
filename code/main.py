@@ -5,6 +5,7 @@ import beam_selection_wisard as obj
 import pre_process_lidar as obj_lidar
 import analyse_data as obj_analyse
 import numpy as np
+import os
 import seaborn as sns
 import matplotlib.pyplot as plt
 
@@ -204,12 +205,13 @@ def beam_analysis(flag_beam_analysis, antenna_config,connection):
     # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     print_hi('PyCharm')
-    '''
+
+
     print("Escolha a configuracao das antenas Rx-Tx")
     antennas_num_rx = input("Digite a quantidade de antenas no \n"
                             "\t Rx: 1, 2, 4, 8, 16 ou 32\n")
     antennas_num_tx = input("Digite a quantidade de antenas no \n"
-                            "\t Tx: 4, 8, 16 ou 32\n")
+                            "\t Tx: 2, 4, 8, 16 ou 32\n")
     antenna_config = antennas_num_rx + 'X' + antennas_num_tx
 
     print('--------------------------------------------')
@@ -240,10 +242,14 @@ if __name__ == '__main__':
 
     print('--------------------------------------------')
 
-    flag_input_beam_selection = input("Realizar a selecao de feixe com \n " 
+    temporal = input("Realizar a selecao de feixe? [S/N] \n").upper()
+    if temporal == 'S':
+        flag_input_beam_selection = input("Realizar a selecao de feixe com \n " 
                                       "\t [1] Coordenadas? \n " 
                                       "\t [2] LiDAR? \n "
                                       "\t [3] Coord + LiDAR? \n ")
+    else:
+        exit()
 
     # SELECIONA BEAMS COM COORD
     if flag_input_beam_selection == '1':
@@ -275,10 +281,10 @@ if __name__ == '__main__':
 
     beam_selection(type_of_input=type_of_input, type_of_connection=connection, antenna_config=antenna_config)
 
-    '''
 
-#####################################################################
 
+####################-  SIMULACAO STAND ALONE PARAMETRIZADA -#################################################
+'''
     flag_rx_or_tx_vector = ['T','R']
     type_of_input_vector = ['coord_in_Qs','coord_in_Qs_lines','lidar','coord_in_Qs_+_Lidar','coord_in_Qs_lines_+_Lidar']
     antenna_config_vector = ['2X2','2X32','4X4','4X32','8X8']
@@ -308,6 +314,7 @@ if __name__ == '__main__':
                                flag_rx_or_tx=flag_rx_or_tx_vector[1])
                 print('----------------------------------------------------')
                 print('----------------------------------------------------')
+    '''
 
 
 
