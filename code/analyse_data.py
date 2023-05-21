@@ -237,14 +237,16 @@ def beam_analyses(antenna_config, connection):
         all_info_test  = np.column_stack((coord_val_test,  index_beam_rx_test,  index_beam_tx_test, beam_combined_test))
 
     if connection =='LOS':
-        beam_rx_LOS_train, beam_rx_LOS_test, beam_tx_LOS_train, beam_tx_LOS_test = read.read_LOS_beams(antenna_config)
+        beam_rx_LOS_train, beam_rx_LOS_test, beam_tx_LOS_train, beam_tx_LOS_test, index_beam_combined_LOS_train, index_beam_combined_LOS_test = read.read_LOS_beams(antenna_config)
         beam_rx_train = np.array([int(i) for i in beam_rx_LOS_train])
         beam_rx_test = np.array([int(i) for i in beam_rx_LOS_test])
         beam_tx_train = np.array([int(i) for i in beam_tx_LOS_train])
         beam_tx_test = np.array([int(i) for i in beam_tx_LOS_test])
+        beam_combined_train = np.array([int(i) for i in index_beam_combined_LOS_train])
+        beam_combined_test = np.array([int(i) for i in index_beam_combined_LOS_test])
 
-        all_info_train = np.column_stack((coord_val_train_LOS, beam_rx_LOS_train, beam_tx_LOS_train))
-        all_info_test  = np.column_stack((coord_val_test_LOS,  beam_rx_LOS_test,  beam_tx_LOS_test))
+        all_info_train = np.column_stack((coord_val_train_LOS, beam_rx_LOS_train, beam_tx_LOS_train, beam_combined_train))
+        all_info_test  = np.column_stack((coord_val_test_LOS,  beam_rx_LOS_test,  beam_tx_LOS_test, beam_combined_test))
 
     if connection =='NLOS':
         beam_rx_NLOS_train, beam_rx_NLOS_test, beam_tx_NLOS_train, beam_tx_NLOS_test = read.read_NLOS_beams(antenna_config)
@@ -288,7 +290,7 @@ def beam_analyses(antenna_config, connection):
                         pp_folder=pp_folder,
                         config=antenna_config)
 
-    plot_histogram_beam(index_beam_combined_train,
+    plot_histogram_beam(beam_combined_train,
                         user='combinados',
                         color='darkblue',
                         connection=connection,
@@ -296,7 +298,7 @@ def beam_analyses(antenna_config, connection):
                         pp_folder=pp_folder,
                         config=antenna_config)
 
-    plot_histogram_beam(index_beam_combined_test,
+    plot_histogram_beam(beam_combined_train,
                         user='combinados',
                         color='mediumblue',
                         connection=connection,
