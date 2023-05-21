@@ -146,4 +146,12 @@ def read_NLOS_beams(antenna_config):
     input_cache_file = np.load(path + "beam_NLOS_tx_test.npz", allow_pickle=True)
     index_beam_tx_NLOS_test = input_cache_file["beam_NLOS_tx_test"].astype(str)
 
-    return index_beam_rx_NLOS_train, index_beam_rx_NLOS_test, index_beam_tx_NLOS_train, index_beam_tx_NLOS_test
+    input_cache_file = np.load(path + "beam_NLOS_combined_train.npz", allow_pickle=True)
+    index_beam_combined_LOS_train = input_cache_file["beam_NLOS_combined_train"].astype(str)
+    label_combined_NLOS_train = index_beam_combined_LOS_train.tolist()
+
+    input_cache_file = np.load(path + "beam_NLOS_combined_test.npz", allow_pickle=True)
+    index_beam_combined_LOS_test = input_cache_file["beam_NLOS_combined_test"].astype(str)
+    label_combined_NLOS_test = index_beam_combined_LOS_test.tolist()
+
+    return index_beam_rx_NLOS_train, index_beam_rx_NLOS_test, index_beam_tx_NLOS_train, index_beam_tx_NLOS_test, label_combined_NLOS_train, label_combined_NLOS_test
