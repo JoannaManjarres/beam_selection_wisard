@@ -91,7 +91,14 @@ def read_all_beams(antenna_config):
     input_cache_file = np.load(path + "index_beams_tx_test.npz", allow_pickle=True)
     index_beam_tx_test = input_cache_file["all_beams_tx_test"].astype(str)
 
-    return index_beam_rx_train, index_beam_rx_test, index_beam_tx_train, index_beam_tx_test
+    input_cache_file = np.load(path + "index_beams_combined_train.npz", allow_pickle=True)
+    index_beam_combined_train = input_cache_file["all_beam_combined_train"].astype(str)
+
+    input_cache_file = np.load(path + "index_beams_combined_test.npz", allow_pickle=True)
+    index_beam_combined_test = input_cache_file["all_beam_combined_test"].astype(str)
+
+
+    return index_beam_rx_train, index_beam_rx_test, index_beam_tx_train, index_beam_tx_test, index_beam_combined_train, index_beam_combined_test
 
 def read_LOS_beams(antenna_config):
     #path = '/Users/Joanna/git/beam_selection_wisard/data/beams/'+antenna_config+'/LOS_index_beam/'

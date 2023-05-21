@@ -12,8 +12,10 @@ import read_data as read
 
 def plot_histogram_beam(index_beam, user, color, connection, set, pp_folder, config):
 
+    print("Histograma dos indices dos Beams do ", user ," [" + connection + "] em config ", config , " \n usando dados de ",  set)
+
     path = pp_folder + '/histogram/'+connection + '/'
-    title = 'Distribuicao dos indices dos Beams do '+ user +' [' + connection + '] em config ' + config + ' \n usando dados de ' + set
+    title = 'Distribuicao dos indices dos Beams do ' + user +' [' + connection + '] em config ' + config + ' \n usando dados de ' + set
     sns.set(style='darkgrid')
     sns.set(rc={'figure.figsize': (8, 4)})
     plot = sns.histplot(data=index_beam,
@@ -39,9 +41,12 @@ def plot_histogram_beam(index_beam, user, color, connection, set, pp_folder, con
 
 def relation_coord_with_beams_Plot2D(all_data, set, connection, pp_folder, config):
 
-    data = pd.DataFrame(all_data, columns=['EpisodeID','x','y','z','LOS','rxBeams','txBeams'])
-    print(data.head())
+    print ('Plot da Distribuicao dos indices dos Beams do Tx [', connection ,'] \n em config ' , config , ' relativo à posicao usando dados ' , set)
+
+    data = pd.DataFrame(all_data, columns=['EpisodeID','x','y','z','LOS','rxBeams','txBeams','combinedBeams'])
+    #print(data.head())
     path = pp_folder + '/relation_beams_coord/'+ connection +'/'
+
     ############################################
     plt.figure(figsize=(10, 8))
     sns.set(style='darkgrid')
@@ -52,7 +57,8 @@ def relation_coord_with_beams_Plot2D(all_data, set, connection, pp_folder, confi
     z_Tx = [4]
 
     # Plota o Tx
-    plt.plot(x_Tx, y_Tx,
+    plt.plot(x_Tx,
+             y_Tx,
              marker=5,
              markersize=20,
              markeredgecolor="black",
@@ -60,15 +66,16 @@ def relation_coord_with_beams_Plot2D(all_data, set, connection, pp_folder, confi
              label='Tx')
 
     plot = sns.scatterplot(data=data,
-                           x='x',
-                    y='y',
-                    style='txBeams',
-                    palette='deep',
-                    hue='txBeams',
-                    #style='txBeams',
-                    sizes=(20,200),
-                    legend='brief'
-                    )
+                            x='x',
+                            y='y',
+                            style='txBeams',
+                            palette='deep',
+                            hue='txBeams',
+                            #style='txBeams',
+                            sizes=(20,200),
+                            legend='brief'
+                            )
+
 
     plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left', borderaxespad=0)
     plt.title('Distribuicao dos indices dos Beams do Tx ['+ connection +'] \n em config ' + config + ' relativo à posicao usando dados ' + set)
@@ -79,13 +86,14 @@ def relation_coord_with_beams_Plot2D(all_data, set, connection, pp_folder, confi
 
     ############################################
 
+    print('plot da Distribuicao dos indices dos Beams do Rx [' + connection + '] \n em config ' + config + ' relativo à posicao usando dados ' + set)
     plot = sns.relplot(data=data,
-                x='x',
-                y='y',
-                kind='scatter',
-                hue='rxBeams',
-                alpha=0.5,
-                palette='deep')
+                        x='x',
+                        y='y',
+                        kind='scatter',
+                        hue='rxBeams',
+                        alpha=0.5,
+                        palette='deep')
     sns.set(rc={'figure.figsize':(60,5)})
 
     plot.fig.suptitle('Distribuicao dos indices dos Beams do Rx ['+ connection +'] em config ' + config + ' \n relativo à posicao usando dados ' + set,
@@ -93,20 +101,43 @@ def relation_coord_with_beams_Plot2D(all_data, set, connection, pp_folder, confi
     plot.fig.subplots_adjust(top=0.90)
     plot.fig.set_figwidth(6)
     plot.fig.set_figheight(8)
-
-
     name = path + 'relation_coord_with_Rx_beams_' + connection +'_'+ set + '.png'
     plt.savefig(name, transparent=False, dpi=300)
     plt.show()
 
+    ############################################
+
+    print(
+        'plot da Distribuicao dos indices dos Beams combinados [' + connection + '] \n em config ' + config + ' relativo à posicao usando dados ' + set)
+
+    plot = sns.relplot(data=data,
+                       x='x',
+                       y='y',
+                       kind='scatter',
+                       hue='combinedBeams',
+                       alpha=0.5,
+                       palette='deep')
+    sns.set(rc={'figure.figsize': (60, 5)})
+
+    plot.fig.suptitle(
+        'Distribuicao dos indices dos Beams Combinados [' + connection + '] em config ' + config + ' \n relativo à posicao usando dados ' + set,
+        fontweight='bold')
+    plot.fig.subplots_adjust(top=0.90)
+    plot.fig.set_figwidth(6)
+    plot.fig.set_figheight(8)
+    name = path + 'relation_coord_with_combined_beams_' + connection + '_' + set + '.png'
+    plt.savefig(name, transparent=False, dpi=300)
+    plt.show()
+
+
 def relation_coord_with_beams_extend_Plot2D(all_data, set, connection, pp_folder, config):
-    data = pd.DataFrame(all_data, columns=['EpisodeID', 'x', 'y', 'z', 'LOS', 'rxBeams', 'txBeams'])
-    print(data.head())
+    data = pd.DataFrame(all_data, columns=['EpisodeID', 'x', 'y', 'z', 'LOS', 'rxBeams', 'txBeams', 'combinedBeams'])
+    #print(data.head())
     path = pp_folder + 'relation_beam_coord_extend/'+ connection +'/'
 
 
+    print('plot da Dist. dos ind. dos Beams do Rx ['+ connection +'] em config ' + config + '\n relativo à posição usando dados ' + set)
     name = path + 'relation_coord_with_Rx_beams_extend_' + connection + '_' + set + '.png'
-
 
     sns.set(style='darkgrid')
     plot = sns.relplot(data=data,
@@ -129,8 +160,8 @@ def relation_coord_with_beams_extend_Plot2D(all_data, set, connection, pp_folder
 
 
 
+    print('plot da Dist. dos ind. dos Beams do Tx ['+ connection +'] em config ' + config + '\n relativo à posição usando dados ' + set)
     name = path + 'relation_coord_with_Tx_beams_extend_'+ connection + '_' + set + '.png'
-
     plot = sns.relplot(data=data,
                        x='x',
                        y='y',
@@ -147,17 +178,40 @@ def relation_coord_with_beams_extend_Plot2D(all_data, set, connection, pp_folder
     plot.fig.suptitle('Dist. dos ind. dos Beams do Tx ['+ connection +'] em config ' + config + '\n relativo à posição usando dados ' + set,
                       fontweight='bold')
     plot.fig.subplots_adjust(top=0.825, left=0.048)
-
     plot.fig.set_figwidth(15)
     plot.fig.set_figheight(6)
     plt.savefig(name, transparent=False, dpi=300)
-    #plt.show()
+    plt.show()
 
 
 
     # pairplot explore the pairwise relationships between variables.
     #sns.pairplot(data[['x', 'y', 'z', 'rxBeams']], hue='rxBeams', height=3)
     #plt.show()
+
+    print('plot da Dist. dos ind. dos Beams combinados [' + connection + '] em config ' + config + '\n relativo à posição usando dados ' + set)
+    name = path + 'relation_coord_with_combined_beams_extend_' + connection + '_' + set + '.png'
+    plot = sns.relplot(data=data,
+                       x='x',
+                       y='y',
+                       kind='scatter',
+                       hue='combinedBeams',
+                       palette='dark',
+                       style='combinedBeams',
+                       col='combinedBeams',
+                       legend=False,
+                       col_wrap=8)
+    # plot.fig.set_size_inches(20, 6)
+    plot.fig.set_figheight(6)
+    plot.fig.set_figwidth(40)
+    plot.fig.suptitle(
+        'Dist. dos ind. dos Beams combinados [' + connection + '] em config ' + config + '\n relativo à posição usando dados ' + set,
+        fontweight='bold')
+    plot.fig.subplots_adjust(top=0.825, left=0.048)
+    plot.fig.set_figwidth(15)
+    plot.fig.set_figheight(6)
+    plt.savefig(name, transparent=False, dpi=300)
+    plt.show()
 
 
 def beam_analyses(antenna_config, connection):
@@ -170,14 +224,17 @@ def beam_analyses(antenna_config, connection):
 
     if connection =='ALL':
 
-        index_beam_rx_train, index_beam_rx_test, index_beam_tx_train, index_beam_tx_test = read.read_all_beams(antenna_config)
+        index_beam_rx_train, index_beam_rx_test, index_beam_tx_train, index_beam_tx_test, index_beam_combined_train, index_beam_combined_test = read.read_all_beams(antenna_config)
         beam_rx_train = np.array([int(i) for i in index_beam_rx_train])
         beam_rx_test = np.array([int(i) for i in index_beam_rx_test])
         beam_tx_train = np.array([int(i) for i in index_beam_tx_train])
         beam_tx_test = np.array([int(i) for i in index_beam_tx_test])
+        beam_combined_train = np.array([int(i) for i in index_beam_combined_train])
+        beam_combined_test = np.array([int(i) for i in index_beam_combined_test])
 
-        all_info_train = np.column_stack((coord_val_train, index_beam_rx_train, index_beam_tx_train))
-        all_info_test  = np.column_stack((coord_val_test,  index_beam_rx_test,  index_beam_tx_test))
+
+        all_info_train = np.column_stack((coord_val_train, index_beam_rx_train, index_beam_tx_train, beam_combined_train))
+        all_info_test  = np.column_stack((coord_val_test,  index_beam_rx_test,  index_beam_tx_test, beam_combined_test))
 
     if connection =='LOS':
         beam_rx_LOS_train, beam_rx_LOS_test, beam_tx_LOS_train, beam_tx_LOS_test = read.read_LOS_beams(antenna_config)
@@ -198,34 +255,6 @@ def beam_analyses(antenna_config, connection):
 
         all_info_train = np.column_stack((coord_val_train_NLOS, beam_rx_NLOS_train, beam_tx_NLOS_train))
         all_info_test  = np.column_stack((coord_val_test_NLOS, beam_rx_NLOS_test,  beam_tx_NLOS_test))
-
-
-    relation_coord_with_beams_extend_Plot2D(all_info_train,
-                                            set='train',
-                                            connection=connection,
-                                            pp_folder=pp_folder,
-                                            config=antenna_config)
-
-    relation_coord_with_beams_extend_Plot2D(all_info_test,
-                                            set='test',
-                                            connection=connection,
-                                            pp_folder=pp_folder,
-                                            config=antenna_config)
-
-
-    relation_coord_with_beams_Plot2D(all_info_train,
-                                     set='train',
-                                     connection=connection,
-                                     pp_folder=pp_folder,
-                                     config=antenna_config)
-
-    relation_coord_with_beams_Plot2D(all_info_test,
-                                     set='test',
-                                     connection=connection,
-                                     pp_folder=pp_folder,
-                                     config=antenna_config)
-
-
 
     plot_histogram_beam(beam_rx_train,
                         user='rx',
@@ -258,6 +287,49 @@ def beam_analyses(antenna_config, connection):
                         set='test',
                         pp_folder=pp_folder,
                         config=antenna_config)
+
+    plot_histogram_beam(index_beam_combined_train,
+                        user='combinados',
+                        color='darkblue',
+                        connection=connection,
+                        set='train',
+                        pp_folder=pp_folder,
+                        config=antenna_config)
+
+    plot_histogram_beam(index_beam_combined_test,
+                        user='combinados',
+                        color='mediumblue',
+                        connection=connection,
+                        set='test',
+                        pp_folder=pp_folder,
+                        config=antenna_config)
+
+    relation_coord_with_beams_Plot2D(all_info_train,
+                                     set='train',
+                                     connection=connection,
+                                     pp_folder=pp_folder,
+                                     config=antenna_config)
+
+    relation_coord_with_beams_Plot2D(all_info_test,
+                                     set='test',
+                                     connection=connection,
+                                     pp_folder=pp_folder,
+                                     config=antenna_config)
+
+    relation_coord_with_beams_extend_Plot2D(all_info_train,
+                                            set='train',
+                                            connection=connection,
+                                            pp_folder=pp_folder,
+                                            config=antenna_config)
+
+    relation_coord_with_beams_extend_Plot2D(all_info_test,
+                                            set='test',
+                                            connection=connection,
+                                            pp_folder=pp_folder,
+                                            config=antenna_config)
+
+
+
 
 
 

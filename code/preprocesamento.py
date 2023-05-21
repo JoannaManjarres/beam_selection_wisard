@@ -392,30 +392,37 @@ def read_beams_raymobtime(num_antennas_tx, num_antennas_rx):
         tx_index[sample] = index_tx
         rx_index[sample] = index_rx
 
-    return tx_index, rx_index
+    return tx_index, rx_index, best_beam_index
 
-def divide_beams_in_train_test(rx_beams, tx_beams, coord, antenna_config, save_data):
+def divide_beams_in_train_test(rx_beams, tx_beams, combined_index, coord, antenna_config, save_data):
 
 
-    all_data = np.column_stack((coord, rx_beams, tx_beams))
+    all_data = np.column_stack((coord, rx_beams, tx_beams, combined_index))
 
     limit_ep_train = 1564
 
     data_train = all_data[(all_data[:, 0] < limit_ep_train + 1)]
     data_test = all_data[(all_data[:, 0] > limit_ep_train)]
 
-    all_beam_tx_train =data_train[:,-1].astype(int)
-    all_beam_tx_test =data_test[:,-1].astype(int)
+    all_beam_combined_train = data_train[:,-1].astype(int)
+    all_beam_combined_test = data_test[:,-1].astype(int)
 
-    all_beam_rx_train =data_train[:,-2].astype(int)
-    all_beam_rx_test =data_test[:,-2].astype(int)
+    all_beam_tx_train =data_train[:,-2].astype(int)
+    all_beam_tx_test =data_test[:,-2].astype(int)
+
+    all_beam_rx_train =data_train[:,-3].astype(int)
+    all_beam_rx_test =data_test[:,-3].astype(int)
 
     if save_data:
-        all_beams_tx_train = data_train[:, -1]
-        all_beams_tx_test = data_test[:, -1]
 
-        all_beams_rx_train = data_train[:, -2]
-        all_beams_rx_test = data_test[:, -2]
+        all_beam_combined_train = data_train[:, -1]
+        all_beam_combined_test = data_test[:, -1]
+
+        all_beams_tx_train = data_train[:, -2]
+        all_beams_tx_test = data_test[:, -2]
+
+        all_beams_rx_train = data_train[:, -3]
+        all_beams_rx_test = data_test[:, -3]
 
 
         #---------- esta parte nao esta funcionando ------------
@@ -443,6 +450,10 @@ def divide_beams_in_train_test(rx_beams, tx_beams, coord, antenna_config, save_d
         np.savez(save_path + 'index_beams_rx_train' + '.npz', all_beams_rx_train=all_beams_rx_train)
         np.savez(save_path + 'index_beams_rx_test' + '.npz', all_beams_rx_test=all_beams_rx_test)
 
+        np.savez(save_path + 'index_beams_combined_train' + '.npz', all_beam_combined_train=all_beam_combined_train)
+        np.savez(save_path + 'index_beams_combined_test' + '.npz', all_beam_combined_test=all_beam_combined_test)
+
+
 
     return all_beam_tx_train, all_beam_tx_test, all_beam_rx_train, all_beam_rx_test
 
@@ -468,10 +479,10 @@ def divide_valid_coord_in_LOS_NLOS_connection(valid_coord):
 
     return data_train_LOS, data_test_LOS, data_train_NLOS, data_test_NLOS
 
-def divide_beams_and_coord_in_LOS_or_NLOS_connect(rx_beams, tx_beams, coord, antenna_config, save_data):
+def divide_beams_and_coord_in_LOS_or_NLOS_connect(rx_beams, tx_beams, combined_index, coord, antenna_config, save_data):
     '''Metodo que genera y guarda las coordenadas y beams para train y test'''
 
-    all_data = np.column_stack((coord, rx_beams, tx_beams))
+    all_data = np.column_stack((coord, rx_beams, tx_beams, combined_index))
     all_info_LOS = []
     all_info_NLOS = []
 
@@ -492,17 +503,21 @@ def divide_beams_and_coord_in_LOS_or_NLOS_connect(rx_beams, tx_beams, coord, ant
     data_train_NLOS = data_NLOS[(data_NLOS[:, 0] < limit_ep_train + 1)]
     data_test_NLOS = data_NLOS[(data_NLOS[:, 0] > limit_ep_train)]
 
-    beam_LOS_tx_train = data_train_LOS[:, -1].astype(int)
-    beam_LOS_rx_train = data_train_LOS[:, -2].astype(int)
+    beam_LOS_combined_train = data_train_LOS[:, -1].astype(int)
+    beam_LOS_tx_train = data_train_LOS[:, -2].astype(int)
+    beam_LOS_rx_train = data_train_LOS[:, -3].astype(int)
 
-    beam_LOS_tx_test = data_test_LOS[:, -1].astype(int)
-    beam_LOS_rx_test = data_test_LOS[:, -2].astype(int)
+    beam_LOS_combined_test = data_test_LOS[:, -1].astype(int)
+    beam_LOS_tx_test = data_test_LOS[:, -2].astype(int)
+    beam_LOS_rx_test = data_test_LOS[:, -3].astype(int)
 
-    beam_NLOS_tx_train = data_train_NLOS[:, -1].astype(int)
-    beam_NLOS_rx_train = data_train_NLOS[:, -2].astype(int)
+    beam_NLOS_combined_train = data_train_NLOS[:, -1].astype(int)
+    beam_NLOS_tx_train = data_train_NLOS[:, -2].astype(int)
+    beam_NLOS_rx_train = data_train_NLOS[:, -3].astype(int)
 
-    beam_NLOS_tx_test = data_test_NLOS[:, -1].astype(int)
-    beam_NLOS_rx_test = data_test_NLOS[:, -2].astype(int)
+    beam_NLOS_combined_test = data_test_NLOS[:, -1].astype(int)
+    beam_NLOS_tx_test = data_test_NLOS[:, -2].astype(int)
+    beam_NLOS_rx_test = data_test_NLOS[:, -3].astype(int)
 
 
     if save_data:
@@ -515,6 +530,9 @@ def divide_beams_and_coord_in_LOS_or_NLOS_connect(rx_beams, tx_beams, coord, ant
         np.savez(save_path + 'beam_LOS_tx_test' + '.npz', beam_LOS_tx_test=beam_LOS_tx_test)
         np.savez(save_path + 'beam_LOS_rx_test' + '.npz', beam_LOS_rx_test=beam_LOS_rx_test)
 
+        np.savez(save_path + 'beam_LOS_combined_train' + '.npz', beam_LOS_combined_train=beam_LOS_combined_train)
+        np.savez(save_path + 'beam_LOS_combined_test' + '.npz', beam_LOS_combined_test=beam_LOS_combined_test)
+
         #save_path = '/Users/Joanna/git/beam_selection_wisard/data/beams/'+antenna_config+'/NLOS_index_beam/'
         save_path = '../data/beams/' + antenna_config + '/NLOS_index_beam/'
         np.savez(save_path + 'beam_NLOS_tx_train' + '.npz', beam_NLOS_tx_train=beam_NLOS_tx_train)
@@ -523,8 +541,10 @@ def divide_beams_and_coord_in_LOS_or_NLOS_connect(rx_beams, tx_beams, coord, ant
         np.savez(save_path + 'beam_NLOS_tx_test' + '.npz', beam_NLOS_tx_test=beam_NLOS_tx_test)
         np.savez(save_path + 'beam_NLOS_rx_test' + '.npz', beam_NLOS_rx_test=beam_NLOS_rx_test)
 
+        np.savez(save_path + 'beam_NLOS_combined_train' + '.npz', beam_NLOS_combined_train=beam_NLOS_combined_train)
+        np.savez(save_path + 'beam_NLOS_combined_test' + '.npz', beam_NLOS_combined_test=beam_NLOS_combined_test)
 
-    return data_train_LOS, data_train_NLOS, data_test_LOS, data_test_NLOS
+    return data_train_LOS, data_train_NLOS, data_test_LOS, data_test_NLOS,
 
 
 

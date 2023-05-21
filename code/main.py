@@ -37,9 +37,9 @@ def do_preprocess(flag_preprocess_coord,
 
     if flag_preprocess_beams_index =='S':
         valid_coord, coord_train, coord_test = preprocess.read_valid_coordinates()
-        tx_index, rx_index = preprocess.read_beams_raymobtime(num_antennas_tx, num_antennas_rx)
-        preprocess.divide_beams_in_train_test(rx_index, tx_index, valid_coord, antenna_config, save_data=True)
-        preprocess.divide_beams_and_coord_in_LOS_or_NLOS_connect(rx_index, tx_index, valid_coord, antenna_config, save_data=True)
+        tx_index, rx_index, combined_index = preprocess.read_beams_raymobtime(num_antennas_tx, num_antennas_rx)
+        preprocess.divide_beams_in_train_test(rx_index, tx_index, combined_index, valid_coord, antenna_config, save_data=True)
+        preprocess.divide_beams_and_coord_in_LOS_or_NLOS_connect(rx_index, tx_index, combined_index, valid_coord, antenna_config, save_data=True)
 
     if flag_preprocess_coord =='S':
 
