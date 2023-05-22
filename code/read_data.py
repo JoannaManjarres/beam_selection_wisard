@@ -3,7 +3,8 @@ import numpy as np
 
 def read_all_Qs_matrix():
 
-    path = "/Users/Joanna/git/beam_selection_wisard/data/coordinates/processed/"
+    #path = "/Users/Joanna/git/beam_selection_wisard/data/coordinates/processed/"
+    path = "../data/coordinates/processed/"
 
     input_cache_file = np.load(path + "all_train_coord.npz", allow_pickle=True)
     all_coord_train = input_cache_file["coord_training"]
@@ -14,7 +15,8 @@ def read_all_Qs_matrix():
     return all_coord_train, all_coord_test
 
 def read_all_Qs_matrix_in_lines():
-    path = "/Users/Joanna/git/beam_selection_wisard/data/coordinates/processed/Qs_in_lines/"
+    #path = "/Users/Joanna/git/beam_selection_wisard/data/coordinates/processed/Qs_in_lines/"
+    path = "../data/coordinates/processed/Qs_in_lines"
 
     input_cache_file = np.load(path + "all_train_coord_in_lines.npz", allow_pickle=True)
     all_coord_train = input_cache_file["coord_training"]
@@ -25,7 +27,8 @@ def read_all_Qs_matrix_in_lines():
     return all_coord_train, all_coord_test
 
 def read_Qs_matrix_in_lines_with_LOS_data():
-    path = "/Users/Joanna/git/beam_selection_wisard/data/coordinates/processed/Qs_in_lines/"
+    #path = "/Users/Joanna/git/beam_selection_wisard/data/coordinates/processed/Qs_in_lines/"
+    path = "../data/coordinates/processed/Qs_in_lines"
 
     input_cache_file = np.load(path + "LOS_train_coord_in_lines.npz", allow_pickle=True)
     LOS_coord_train = input_cache_file["coord_LOS_training"]
@@ -38,7 +41,8 @@ def read_Qs_matrix_in_lines_with_LOS_data():
     return input_LOS_coord_train, input_LOS_coord_test
 
 def read_Qs_matrix_in_lines_with_NLOS_data():
-    path = "/Users/Joanna/git/beam_selection_wisard/data/coordinates/processed/Qs_in_lines/"
+    #path = "/Users/Joanna/git/beam_selection_wisard/data/coordinates/processed/Qs_in_lines/"
+    path = "../data/coordinates/processed/Qs_in_lines"
 
     input_cache_file = np.load(path + "NLOS_train_coord_in_lines.npz", allow_pickle=True)
     NLOS_coord_train = input_cache_file["coord_NLOS_training"]
@@ -53,6 +57,7 @@ def read_Qs_matrix_in_lines_with_NLOS_data():
 
 def read_Qs_matrix_with_LOS_data():
     path = "/Users/Joanna/git/beam_selection_wisard/data/coordinates/processed/"
+    path = "../data/coordinates/processed"
 
     input_cache_file = np.load(path + "LOS_train_coord.npz", allow_pickle=True)
     LOS_coord_train = input_cache_file["coord_LOS_training"]
@@ -66,6 +71,7 @@ def read_Qs_matrix_with_LOS_data():
 
 def read_Qs_matrix_with_NLOS_data():
     path = "/Users/Joanna/git/beam_selection_wisard/data/coordinates/processed/"
+    path = "../data/coordinates/processed/"
 
     input_cache_file = np.load(path + "NLOS_train_coord.npz", allow_pickle=True)
     NLOS_coord_train = input_cache_file["coord_NLOS_training"]

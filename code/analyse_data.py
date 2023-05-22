@@ -300,7 +300,7 @@ def beam_analyses(antenna_config, connection):
                         pp_folder=pp_folder,
                         config=antenna_config)
 
-    plot_histogram_beam(beam_combined_train,
+    plot_histogram_beam(beam_combined_test,
                         user='combinados',
                         color='mediumblue',
                         connection=connection,

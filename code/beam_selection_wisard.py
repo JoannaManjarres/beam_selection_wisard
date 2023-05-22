@@ -94,7 +94,7 @@ def select_best_beam(input_train,
                      type_of_input,
                      titulo_figura,
                      user,
-                     enableDebug=False,
+                     enableDebug=True,
                      plot_confusion_matrix_enable=False):
 
     # config parameters

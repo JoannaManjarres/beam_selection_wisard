@@ -61,19 +61,24 @@ def do_preprocess(flag_preprocess_coord,
         obj_lidar.separed_data_lidar_LOS_NLOS()
 
 
-def beam_selection(antenna_config, type_of_connection, type_of_input,flag_rx_or_tx):
+def beam_selection(antenna_config, type_of_connection, type_of_input, flag_rx_or_tx):
 
     #flag_rx_or_tx = input("Realizar a selecao de feixe do: \n " \
     #                      "\t Transmissor [T] ou Receptor [R]\n").upper()
+    print("entre en BeamSelection")
 
     if type_of_connection == 'ALL':
-        index_beam_rx_train, index_beam_rx_test, index_beam_tx_train, index_beam_tx_test = read.read_all_beams(antenna_config)
+        print("entre en all")
+        index_beam_rx_train, index_beam_rx_test, index_beam_tx_train, index_beam_tx_test, index_beam_combined_train, index_beam_combined_test = read.read_all_beams(antenna_config)
         if flag_rx_or_tx == 'R':
             label_train = index_beam_rx_train
             label_test = index_beam_rx_test
         if flag_rx_or_tx == 'T':
             label_train = index_beam_tx_train
             label_test = index_beam_tx_test
+        if flag_rx_or_tx == 'C':
+            label_train = index_beam_combined_train
+            label_test = index_beam_combined_test
 
         if type_of_input == 'coord_in_Qs':
             all_coord_train, all_coord_test = read.read_all_Qs_matrix()
@@ -99,7 +104,8 @@ def beam_selection(antenna_config, type_of_connection, type_of_input,flag_rx_or_
             input_test = np.column_stack((all_coord_in_Qs_line_test, data_lidar_validation))
 
     if type_of_connection == 'LOS':
-        index_beam_rx_LOS_train, index_beam_rx_LOS_test, index_beam_tx_LOS_train, index_beam_tx_LOS_test = read.read_LOS_beams(antenna_config)
+        print('entre en LOS')
+        index_beam_rx_LOS_train, index_beam_rx_LOS_test, index_beam_tx_LOS_train, index_beam_tx_LOS_test, index_beam_combined_LOS_train, index_beam_combined_LOS_test = read.read_LOS_beams(antenna_config)
         if flag_rx_or_tx == 'R':
             label_train = index_beam_rx_LOS_train
             label_test = index_beam_rx_LOS_test
@@ -107,6 +113,10 @@ def beam_selection(antenna_config, type_of_connection, type_of_input,flag_rx_or_
         if flag_rx_or_tx == 'T':
             label_train = index_beam_tx_LOS_train
             label_test = index_beam_tx_LOS_test
+
+        if flag_rx_or_tx == 'C':
+            label_train = index_beam_combined_LOS_train
+            label_test = index_beam_combined_LOS_test
 
         if type_of_input == 'coord_in_Qs':
             LOS_coord_train, LOS_coord_test = read.read_Qs_matrix_with_LOS_data()
@@ -133,16 +143,20 @@ def beam_selection(antenna_config, type_of_connection, type_of_input,flag_rx_or_
             all_coord_in_Qs_line_train, all_coord_in_Qs_line_test = read.read_Qs_matrix_in_lines_with_LOS_data()
             input_train = np.column_stack((all_coord_in_Qs_line_train, data_lidar_train))
             input_test = np.column_stack((all_coord_in_Qs_line_test, data_lidar_validation))
-
-
     if type_of_connection == 'NLOS':
-        index_beam_rx_NLOS_train, index_beam_rx_NLOS_test, index_beam_tx_NLOS_train, index_beam_tx_NLOS_test = read.read_NLOS_beams(antenna_config)
+        print("entre en NLOS")
+        index_beam_rx_NLOS_train, index_beam_rx_NLOS_test, index_beam_tx_NLOS_train, index_beam_tx_NLOS_test, index_beam_combined_NLOS_train, index_beam_combined_NLOS_test  = read.read_NLOS_beams(antenna_config)
         if flag_rx_or_tx == 'R':
             label_train = index_beam_rx_NLOS_train
             label_test = index_beam_rx_NLOS_test
         if flag_rx_or_tx == 'T':
             label_train = index_beam_tx_NLOS_train
             label_test = index_beam_tx_NLOS_test
+
+        if flag_rx_or_tx == 'C':
+            label_train = index_beam_combined_NLOS_train
+            label_test = index_beam_combined_NLOS_test
+
 
         if type_of_input == 'coord_in_Qs':
             NLOS_coord_train, NLOS_coord_test = read.read_Qs_matrix_with_NLOS_data()
@@ -172,10 +186,14 @@ def beam_selection(antenna_config, type_of_connection, type_of_input,flag_rx_or_
             input_test = np.column_stack((coord_NLOS_test, LiDAR_NLOS_test))
 
 
+    user = ''
     if flag_rx_or_tx == 'T':
         user = 'Tx'
-    else:
+    elif flag_rx_or_tx == 'R':
         user = 'Rx'
+    elif flag_rx_or_tx == 'C':
+        user = 'Combined'
+
 
     title_figure = 'Seleção de Beam do ' + user + ' com antena em config ['+antenna_config+'] \n apartir de dados [' +type_of_input + '] com conexao ' + type_of_connection
     name_figure = 'beam_selection_'+user+'_['+antenna_config+']_'+type_of_input+'_'+type_of_connection
@@ -199,7 +217,7 @@ def beam_analysis(flag_beam_analysis, antenna_config,connection):
 
 
 
-
+############# ## MAIN ###############
 
 
     # Press the green button in the gutter to run the script.
@@ -244,7 +262,19 @@ if __name__ == '__main__':
 
     temporal = input("Realizar a selecao de feixe? [S/N] \n").upper()
     if temporal == 'S':
-        flag_input_beam_selection = input("Realizar a selecao de feixe com \n " 
+        flag_rx_or_tx = input('Escolha sobre qual usuario deseja realizar a selecao do beam \n'
+                              '\t 1. Rx \n'
+                              '\t 2. Tx \n'
+                              '\t 3. Combinados \n')
+
+        if flag_rx_or_tx == '1':
+            flag_rx_or_tx_or_C = 'R'
+        if flag_rx_or_tx == '2':
+            flag_rx_or_tx_or_C = 'T'
+        if flag_rx_or_tx == '3':
+            flag_rx_or_tx_or_C = 'C'
+
+        flag_input_beam_selection = input("Com qual tipo de entreda deseha realizar a selecao de feixe com \n " 
                                       "\t [1] Coordenadas? \n " 
                                       "\t [2] LiDAR? \n "
                                       "\t [3] Coord + LiDAR? \n ")
@@ -279,7 +309,10 @@ if __name__ == '__main__':
                 type_of_input = 'coord_in_Qs_lines_+_Lidar'
 
 
-    beam_selection(type_of_input=type_of_input, type_of_connection=connection, antenna_config=antenna_config)
+    print('type_of_input: ',type_of_input, 'type_of_connection' , connection , 'antenna_config' , antenna_config, 'flag_rx_or_tx', flag_rx_or_tx)
+    beam_selection(type_of_input=type_of_input, type_of_connection=connection, antenna_config=antenna_config, flag_rx_or_tx=flag_rx_or_tx_or_C)
+
+
 
 
 
