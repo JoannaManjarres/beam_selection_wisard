@@ -212,19 +212,14 @@ def beam_selection(antenna_config, type_of_connection, type_of_input, flag_rx_or
 def beam_analysis(flag_beam_analysis, antenna_config,connection):
 
     if flag_beam_analysis == 'S':
-        obj_analyse.beam_analyses(antenna_config, connection)
+        user = input('Escolha sobre qual usuario deseja realizar a análise do beam \n'
+              '\t 1. Rx \n'
+              '\t 2. Tx \n'
+              '\t 3. Combinados \n')
+        obj_analyse.beam_analyses(antenna_config, connection, user)
 
 
-
-
-############# ## MAIN ###############
-
-
-    # Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-
+def run_simulation():
     print("Escolha a configuracao das antenas Rx-Tx")
     antennas_num_rx = input("Digite a quantidade de antenas no \n"
                             "\t Rx: 1, 2, 4, 8, 16 ou 32\n")
@@ -249,9 +244,9 @@ if __name__ == '__main__':
 
     flag_pre_process = input("Realizar pre processamento? [S/N]\n").upper()
     preprocess_method(flag_pre_process,
-               num_antennas_tx = antennas_num_tx,
-               num_antennas_rx = antennas_num_rx,
-               antenna_config  = antenna_config)
+                      num_antennas_tx=antennas_num_tx,
+                      num_antennas_rx=antennas_num_rx,
+                      antenna_config=antenna_config)
 
     print('--------------------------------------------')
 
@@ -274,18 +269,18 @@ if __name__ == '__main__':
         if flag_rx_or_tx == '3':
             flag_rx_or_tx_or_C = 'C'
 
-        flag_input_beam_selection = input("Com qual tipo de entreda deseha realizar a selecao de feixe com \n " 
-                                      "\t [1] Coordenadas? \n " 
-                                      "\t [2] LiDAR? \n "
-                                      "\t [3] Coord + LiDAR? \n ")
+        flag_input_beam_selection = input("Com qual tipo de entreda deseja realizar a selecao de feixe com \n "
+                                          "\t [1] Coordenadas? \n "
+                                          "\t [2] LiDAR? \n "
+                                          "\t [3] Coord + LiDAR? \n ")
     else:
         exit()
 
     # SELECIONA BEAMS COM COORD
     if flag_input_beam_selection == '1':
-        a = input("selecionar o beam com as coordenadas pre-processadas em: \n" 
-                              "\t [1] matriz Qs [23 X 250] \n" 
-                              "\t [2] Matriz Qs em linhas [2 X 120] \n")
+        a = input("selecionar o beam com as coordenadas pre-processadas em: \n"
+                  "\t [1] matriz Qs [23 X 250] \n"
+                  "\t [2] Matriz Qs em linhas [2 X 120] \n")
         if a == '1':
             type_of_input = 'coord_in_Qs'
 
@@ -299,18 +294,29 @@ if __name__ == '__main__':
     # SELECIONA BEAMS COM COORD + LIDAR
     if flag_input_beam_selection == '3':
 
-            b = input("selecionar o Beam com as coordenadas pre-processadas em: \n" \
-                      "\t [1] matriz Qs [23 X 250] \n" \
-                      "\t [2] Matriz Qs em linhas [2 X 120] \n")
-            if b == '1':
-                type_of_input = 'coord_in_Qs_+_Lidar'
+        b = input("selecionar o Beam com as coordenadas pre-processadas em: \n" \
+                  "\t [1] matriz Qs [23 X 250] \n" \
+                  "\t [2] Matriz Qs em linhas [2 X 120] \n")
+        if b == '1':
+            type_of_input = 'coord_in_Qs_+_Lidar'
 
-            if b == '2':
-                type_of_input = 'coord_in_Qs_lines_+_Lidar'
+        if b == '2':
+            type_of_input = 'coord_in_Qs_lines_+_Lidar'
+
+    print('type_of_input: ', type_of_input, 'type_of_connection', connection, 'antenna_config', antenna_config,
+          'flag_rx_or_tx', flag_rx_or_tx)
+    beam_selection(type_of_input=type_of_input, type_of_connection=connection, antenna_config=antenna_config,
+                   flag_rx_or_tx=flag_rx_or_tx_or_C)
+
+############# ## MAIN ###############
 
 
-    print('type_of_input: ',type_of_input, 'type_of_connection' , connection , 'antenna_config' , antenna_config, 'flag_rx_or_tx', flag_rx_or_tx)
-    beam_selection(type_of_input=type_of_input, type_of_connection=connection, antenna_config=antenna_config, flag_rx_or_tx=flag_rx_or_tx_or_C)
+    # Press the green button in the gutter to run the script.
+if __name__ == '__main__':
+    print_hi('PyCharm')
+
+    run_simulation()
+
 
 
 

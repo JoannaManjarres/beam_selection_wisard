@@ -57,7 +57,7 @@ def read_Qs_matrix_in_lines_with_NLOS_data():
 
 def read_Qs_matrix_with_LOS_data():
     path = "/Users/Joanna/git/beam_selection_wisard/data/coordinates/processed/"
-    path = "../data/coordinates/processed"
+    path = "../data/coordinates/processed/"
 
     input_cache_file = np.load(path + "LOS_train_coord.npz", allow_pickle=True)
     LOS_coord_train = input_cache_file["coord_LOS_training"]
