@@ -5,6 +5,7 @@ import beam_selection_wisard as obj
 import pre_process_lidar as obj_lidar
 import analyse_data as obj_analyse
 import numpy as np
+import connection_dection_LOS_NLOS as obj_connect_detection
 import os
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -315,6 +316,7 @@ def run_simulation():
 if __name__ == '__main__':
     print_hi('PyCharm')
 
+    obj_connect_detection.read_labels_as_LOS_NLOS()
     run_simulation()
 
 
