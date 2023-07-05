@@ -150,7 +150,6 @@ def relation_coord_with_beams_Plot2D(all_data, set, connection, pp_folder, confi
         plt.savefig(name, transparent=False, dpi=300)
         plt.show()
 
-
 def relation_coord_with_beams_extend_Plot2D(all_data, set, connection, pp_folder, config, user):
     data = pd.DataFrame(all_data, columns=['EpisodeID', 'x', 'y', 'z', 'LOS', 'rxBeams', 'txBeams', 'combinedBeams'])
     #print(data.head())
@@ -238,6 +237,39 @@ def relation_coord_with_beams_extend_Plot2D(all_data, set, connection, pp_folder
         plot.fig.set_figheight(6)
         plt.savefig(name, transparent=False, dpi=300)
         plt.show()
+
+def plot_distribution_beams_displot(beams_tx, beams_rx, pp_folder, connection, set):
+
+    path = pp_folder + 'histogram/'+connection + '/'
+    #plt.Figure(figsize=(32, 8))
+    #sns.set_style('darkgrid')
+    plot = sns.displot(x=beams_tx,
+                y=beams_rx,
+                row_order=range(2),
+                col_order=range(32),
+                binwidth=(2, 2),
+                cmap='Blues',
+                aspect=2.9, #10.67,
+                height=3,#2.5,
+                       cbar=True,
+                       #cbar_kws={'panchor':(0.5,1.0)}
+                )
+
+    plt.title("Distribuicao dos Beams (Tx-Rx) ["+set+"]")
+    plt.xlabel("beams_tx_index")
+    plt.ylabel("beams_rx_index")
+    plt.gca().invert_yaxis()
+
+    plt.subplots_adjust(left=0.08)
+    #plt.subplots_adjust(right=5)
+    plt.subplots_adjust(bottom=0.179)
+    plt.subplots_adjust(top=0.879)
+    #plot.fig.set_figwidth(10)
+    #plot.fig.set_figheight(6)
+    name = path+"Beams_distribution_"+set+".png"
+    print(name)
+    plt.savefig(name, transparent=False, dpi=300)
+    plt.show()
 
 def plot_hist_prob_beam(beam, set, pp_folder, connection, x_label='indice dos beams'):
 
@@ -376,6 +408,20 @@ def beam_analyses(antenna_config, connection, user):
                             set="test",
                             pp_folder=pp_folder,
                             connection=connection)
+
+        plot_distribution_beams_displot(beams_tx=beam_tx_train,
+                                beams_rx=beam_rx_train,
+                                pp_folder=pp_folder,
+                                connection=connection,
+                                set='train')
+
+        plot_distribution_beams_displot(beams_tx=beam_tx_test,
+                                        beams_rx=beam_rx_test,
+                                        pp_folder=pp_folder,
+                                        connection=connection,
+                                        set='test')
+
+
 
     relation_coord_with_beams_Plot2D(all_info_train,
                                      set='train',
