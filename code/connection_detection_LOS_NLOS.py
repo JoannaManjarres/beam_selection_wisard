@@ -4,7 +4,11 @@ import csv
 import matplotlib.pyplot as plt
 import math
 from sklearn.metrics import accuracy_score
-import preprocess as obj_pre_preprocessing
+from sklearn import  svm, metrics
+import preprocesamento as obj_pre_preprocessing
+import pre_process_lidar as obj_read_lidar
+import seaborn as sns
+import pandas as pd
 import numpy as np
 
 
@@ -39,7 +43,14 @@ def redWizard(data_train,
     # when True, WiSARD prints the progress of train() and classify()
     verbose = False
 
-    wsd = wp.Wisard(addressSize, ignoreZero=ignoreZero, verbose=verbose)
+    bleachingActivated = False #this enable or disable the bleaching process on the classification.
+    completeAddressing = True
+    wsd = wp.Wisard(addressSize,
+                    ignoreZero=ignoreZero,
+                    verbose=verbose,
+                    bleachingActivated=bleachingActivated,
+                    completeAddressing=completeAddressing
+                    )
 
     print('\n Training WISARD net ...')
     tic()
@@ -86,7 +97,7 @@ def plotarResultados(x_vector,
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.savefig(ruta, dpi=300, bbox_inches='tight')
-def LOS_NLOS_classification(input_train,
+def LOS_NLOS_WISARD_classification(input_train,
                              input_validation,
                              label_train,
                              label_validation,
@@ -186,11 +197,11 @@ def LOS_NLOS_classification(input_train,
         writer_acuracy = csv.writer(f, delimiter='\t')
         writer_acuracy.writerows(zip(address_size, vector_acuracia_media, vector_acuracia_desvio_padrao))
 
-    with open(path_result + '/processingTime/'+antenna_config+'/'+type_of_input + '/' + user + 'LOS_NLOS_detection/time_train_' + figure_name + '.csv', 'w') as f:
+    with open(path_result + '/processingTime/'+antenna_config+'/'+type_of_input + '/' + user + '/LOS_NLOS_detection/time_train_' + figure_name + '.csv', 'w') as f:
         writer_time_train = csv.writer(f, delimiter='\t')
         writer_time_train.writerows(zip(address_size, vector_acuracia_media, vector_time_train_desvio_padrao))
 
-    with open(path_result + '/processingTime/'+antenna_config+'/'+type_of_input + '/' + user +'LOS_NLOS_detection/time_test_' + figure_name + '.csv', 'w') as f:
+    with open(path_result + '/processingTime/'+antenna_config+'/'+type_of_input + '/' + user +'/LOS_NLOS_detection/time_test_' + figure_name + '.csv', 'w') as f:
         writer_time_test = csv.writer(f, delimiter='\t')
         writer_time_test.writerows(zip(address_size, vector_time_test_media, vector_time_test_desvio_padrao))
 
@@ -205,7 +216,7 @@ def LOS_NLOS_classification(input_train,
                      nombre_curva,
                      "Tamanho da memória",
                      "Acuracia Média (%)",
-                     ruta=path_result + '/accuracy/'+antenna_config+'/'+type_of_input + '/' + user +'LOS_NLOS_detection/acuracia_'+figure_name+'.png')
+                     ruta=path_result + '/accuracy/'+antenna_config+'/'+type_of_input + '/' + user +'/LOS_NLOS_detection/acuracia_'+figure_name+'.png')
 
     plotarResultados(address_size,
                      vector_time_train_media,
@@ -214,7 +225,7 @@ def LOS_NLOS_classification(input_train,
                      nombre_curva,
                      "Tamanho da memória",
                      "Tempo de treinamento Médio (s)",
-                     ruta=path_result + '/processingTime/'+antenna_config+'/'+type_of_input + '/' + user +'LOS_NLOS_detection/time_train_'+figure_name+'.png''')
+                     ruta=path_result + '/processingTime/'+antenna_config+'/'+type_of_input + '/' + user +'/LOS_NLOS_detection/time_train_'+figure_name+'.png''')
 
     plotarResultados(address_size,
                      vector_time_test_media,
@@ -223,12 +234,164 @@ def LOS_NLOS_classification(input_train,
                      nombre_curva,
                      "Tamanho da memória",
                      "Tempo de Teste Médio (s)",
-                     ruta=path_result + '/processingTime/'+antenna_config+'/'+type_of_input + '/' + user +'LOS_NLOS_detection/time_test_'+figure_name+'.png')
+                     ruta=path_result + '/processingTime/'+antenna_config+'/'+type_of_input + '/' + user +'/LOS_NLOS_detection/time_test_'+figure_name+'.png')
 
     return out_red#, df_cm
 
+
+def LOS_NLOS_SVC_classification(X_train, y_train, X_test, y_test):
+
+    clf = svm.SVC(gamma='auto')
+    clf.fit(X_train, y_train)
+    y_pred = clf.predict(X_test)
+    Acuracia = metrics.accuracy_score(y_test, y_pred)
+
+    print("--- PARAMETROS DO MODELO SVC---")
+    model_parameters = clf.get_params(deep=True)
+    gamma = model_parameters.get('gamma')
+    c = model_parameters.get('C')
+
+    print("Gamma: ", gamma)
+    if gamma == 'scale':
+        print("[o valor de Gamma é] 1 / (n_features * X.var())]")
+    elif gamma == 'auto':
+        print("[o valor de Gamma é ]1 / n_features]")
+
+    print("C: ", c)
+
+    print("Acurácia: ", Acuracia)
+
+    return Acuracia
+
+def classificador_KNeighbors():
+
 def read_labels_as_LOS_NLOS():
     all_info_coord_val, coord_train, coord_test = obj_pre_preprocessing.read_valid_coordinates()
-    label_train = coord_train[:, 4]
-    label_test = coord_test[:, 4]
+    label_train_in_str = coord_train[:, 4]
+    label_test_in_str = coord_test[:, 4]
+
+    labels_train_in_binary = []
+    for i in range(len(label_train_in_str)):
+        if label_train_in_str[i] == 'LOS=0':
+            labels_train_in_binary.append(0)
+        else:
+            labels_train_in_binary.append(1)
+
+    labels_test_in_binary = []
+    for i in range(len(label_test_in_str)):
+        if label_test_in_str[i] == 'LOS=0':
+            labels_test_in_binary.append(0)
+        else:
+            labels_test_in_binary.append(1)
+
+    return label_train_in_str, label_test_in_str, labels_train_in_binary, labels_test_in_binary
+
+def relation_coord_with_connection_type(all_data, set):
+    data = pd.DataFrame(all_data, columns=['EpisodeID', 'x', 'y', 'z', 'LOS_str', 'LOS_binary'])
+    #data = pd.DataFrame(all_data, columns=['EpisodeID', 'x', 'y', 'z', 'LOS', 'rxBeams', 'txBeams', 'combinedBeams'])
+    sns.set(style='darkgrid')
+    a=2
+    if a==1:
+        plot = sns.relplot(data=data,
+                       x='x',
+                       y='y',
+                       kind='scatter',
+                       hue='LOS_binary',
+                       palette='dark',
+                       style='LOS_binary',
+                       col='LOS_binary',
+                       size='LOS_binary',
+                       legend=False)
+        plot.fig.suptitle(
+        'Relacao do tipo de conexao com a posicao do Rx \n no dataset de ['+set+']',
+        #'Dist. dos ind. dos Beams do ' + user_type + ' [' + connection + '] em config ' + ' [' + config + ']\n relativo à posição usando dados ' + ' [' + set + ']',
+        fontweight='bold')
+        plot.fig.subplots_adjust(top=0.825, left=0.048)
+
+        plot.fig.set_figwidth(15)
+        plot.fig.set_figheight(6)
+        #plt.savefig(name, transparent=False, dpi=300)
+
+    elif a==2:
+        plot = sns.relplot(data=data,
+                           x='x',
+                           y='y',
+                           kind='scatter',
+                           hue='LOS_binary',
+                           size='LOS_binary',
+                           alpha=0.5,
+                           palette='deep')
+        sns.set(rc={'figure.figsize': (60, 5)})
+
+        plot.fig.suptitle(
+            'Relação do tipo de conexao com a posicao do Rx \n no dataset de ['+set+']',
+            fontweight='bold')
+        plot.fig.subplots_adjust(top=0.90)
+        plot.fig.set_figwidth(6)
+        plot.fig.set_figheight(8)
+        plt.show()
+
+        #plot._legend.text[0].set_text("") #(labels=['LOS', 'NLOS'])
+
+
+    elif a==3:
+        sns.scatterplot(data=data, x='x', y='y', hue='LOS_binary', size='LOS_binary')
+        plt.legend(labels=['LOS', 'NLOS'], title='Tipos de conexao')
+        plt.show()
+
+def plot_histogram_LOS_NLOS_connection(data, title):
+
+    plt.rcParams['figure.figsize'] = [6, 4]
+    plt.hist(data, bins=4)
+    plt.title(title)
+    plt.xticks((0, 1))
+    plt.legend(loc='best',
+               title='Amostras',
+               labels=[str(len(data))])
+
+    plt.show()
+def analyses_data():
+
+    label_train_in_str, label_test_in_str, labels_train_in_binary, labels_test_in_binary = read_labels_as_LOS_NLOS()
+    all_info_coord_val, all_info_coord_train, all_info_coord_test = obj_pre_preprocessing.read_valid_coordinates()
+    coord_train = obj_pre_preprocessing.read_only_coord(all_info_coord_train)
+    coord_test = obj_pre_preprocessing.read_only_coord(all_info_coord_test)
+
+    data_train = np.column_stack((all_info_coord_train, labels_train_in_binary))
+    relation_coord_with_connection_type(all_data=data_train, set='Train')
+
+
+    plot_histogram_LOS_NLOS_connection(data=labels_train_in_binary,
+                                       title="Distribuição das conexões LOS/NLOS dos dados de [TRAIN] \n LOS=1 NLOS=0")
+    plot_histogram_LOS_NLOS_connection(data=labels_test_in_binary,
+                                       title="Distribuição das conexões LOS/NLOS dos dados de [TEST] \n LOS=1 NLOS=0")
+
+    return labels_train_in_binary, labels_test_in_binary, coord_train, coord_test
+
+
+
+def do_LOS_NLOS_detection():
+
+    all_lidar_train, all_lidar_test = obj_read_lidar.read_all_LiDAR_data()
+    label_train, label_test, coord_train, coord_test = analyses_data()
+    #label_train, label_test = read_labels_as_LOS_NLOS()
+
+    svc_accuracy = LOS_NLOS_SVC_classification(X_train=coord_train, y_train=label_train, X_test=coord_test, y_test=label_test)
+
+    LOS_NLOS_WISARD_classification(input_train=all_lidar_train,
+                            input_validation=all_lidar_test,
+                            label_train = label_train,
+                            label_validation = label_test,
+                            figure_name = 'LOS_NLOS_detection',
+                            antenna_config = '8X32',
+                            type_of_input = 'lidar',
+                            titulo_figura = 'Deteção LOS/NLOS',
+                            user = 'All',
+                            enableDebug=False,
+                            )
+
+
+
+
+
     a=0

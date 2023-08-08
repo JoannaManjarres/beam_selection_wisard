@@ -110,7 +110,8 @@ def print_scene(objects, rx, tx):
 ######
 def read_all_LiDAR_data():
 
-    lidar_path = "../data/lidar/process/"
+    #lidar_path = "../data/lidar/process/"
+    lidar_path = "../data/Lidar/ALL/"
 
     input_cache_file = np.load(lidar_path + "all_data_lidar_train.npz", allow_pickle=True)
     all_lidar_train = input_cache_file["lidar_train"]

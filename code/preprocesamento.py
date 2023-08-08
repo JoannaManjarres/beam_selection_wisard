@@ -56,6 +56,12 @@ def read_valid_coordinates():
 
     return all_info_coord_val, coord_train, coord_test
 
+def read_only_coord(all_info_coord_val):
+
+    only_coord = all_info_coord_val[:,[1,2,3]]
+
+    return only_coord
+
 def coord_to_Qs_matrix(coordenadas):
     ''''Este metodo recibe o obj coordenadas com a ordem dos seguintes dados
         (EpisodeID, coord_x, coord_y, coord_z, LOS, val)'''
