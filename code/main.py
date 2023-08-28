@@ -3,6 +3,7 @@ import preprocesamento as preprocess
 import read_data as read
 import beam_selection_wisard as obj
 import pre_process_lidar as obj_lidar
+import beam_selection_wisard_top_k as obj_selection_top_k
 import analyse_data as obj_analyse
 import numpy as np
 import connection_detection_LOS_NLOS as obj_connect_detection
@@ -62,7 +63,7 @@ def do_preprocess(flag_preprocess_coord,
         obj_lidar.separed_data_lidar_LOS_NLOS()
 
 
-def beam_selection(antenna_config, type_of_connection, type_of_input, flag_rx_or_tx):
+def beam_selection(antenna_config, type_of_connection, type_of_input, flag_rx_or_tx, type_of_selection):
 
     #flag_rx_or_tx = input("Realizar a selecao de feixe do: \n " \
     #                      "\t Transmissor [T] ou Receptor [R]\n").upper()
@@ -198,17 +199,27 @@ def beam_selection(antenna_config, type_of_connection, type_of_input, flag_rx_or
 
     title_figure = 'Seleção de Beam do ' + user + ' com antena em config ['+antenna_config+'] \n apartir de dados [' +type_of_input + '] com conexao ' + type_of_connection
     name_figure = 'beam_selection_'+user+'_['+antenna_config+']_'+type_of_input+'_'+type_of_connection
-    obj.select_best_beam(input_train,
-                         input_test,
-                         label_train,
-                         label_test,
-                         figure_name = name_figure,
-                         antenna_config=antenna_config,
-                         type_of_input=type_of_input,
-                         titulo_figura=title_figure,
-                         user=user,
-                         enableDebug=False,
-                         plot_confusion_matrix_enable=False)
+
+    if type_of_selection=='1':
+
+        obj.select_best_beam(input_train,
+                             input_test,
+                             label_train,
+                             label_test,
+                             figure_name = name_figure,
+                             antenna_config=antenna_config,
+                             type_of_input=type_of_input,
+                             titulo_figura=title_figure,
+                             user=user,
+                             enableDebug=False,
+                             plot_confusion_matrix_enable=False)
+
+    elif type_of_selection =='2':
+        obj_selection_top_k.beam_selection_top_k_wisard(x_train=input_train,
+                                                        x_test=input_test,
+                                                        y_train=label_train,
+                                                        y_test=label_test)
+
 
 def beam_analysis(flag_beam_analysis, antenna_config,connection):
 
@@ -258,24 +269,39 @@ def run_simulation():
 
     temporal = input("Realizar a selecao de feixe? [S/N] \n").upper()
     if temporal == 'S':
-        flag_rx_or_tx = input('Escolha sobre qual usuario deseja realizar a selecao do beam \n'
-                              '\t 1. Rx \n'
-                              '\t 2. Tx \n'
-                              '\t 3. Combinados \n')
+        top_k = input("1 - Normal \n"
+                      "2 - Top-k").upper()
 
-        if flag_rx_or_tx == '1':
-            flag_rx_or_tx_or_C = 'R'
-        if flag_rx_or_tx == '2':
-            flag_rx_or_tx_or_C = 'T'
-        if flag_rx_or_tx == '3':
+        if top_k == '1':
+
+            flag_rx_or_tx = input('Escolha sobre qual usuario deseja realizar a selecao do beam \n'
+                                  '\t 1. Rx \n'
+                                  '\t 2. Tx \n'
+                                  '\t 3. Combinados \n')
+
+            if flag_rx_or_tx == '1':
+                flag_rx_or_tx_or_C = 'R'
+            if flag_rx_or_tx == '2':
+                flag_rx_or_tx_or_C = 'T'
+            if flag_rx_or_tx == '3':
+                flag_rx_or_tx_or_C = 'C'
+            else:
+                exit()
+
+        elif top_k == '2':
+            flag_rx_or_tx = '3'
             flag_rx_or_tx_or_C = 'C'
-
-        flag_input_beam_selection = input("Com qual tipo de entreda deseja realizar a selecao de feixe com \n "
-                                          "\t [1] Coordenadas? \n "
-                                          "\t [2] LiDAR? \n "
-                                          "\t [3] Coord + LiDAR? \n ")
+        else:
+            exit()
     else:
         exit()
+
+    flag_input_beam_selection = input("Com qual tipo de entrada deseja realizar a selecao de feixe com \n "
+                                              "\t [1] Coordenadas? \n "
+                                              "\t [2] LiDAR? \n "
+                                              "\t [3] Coord + LiDAR? \n ")
+
+
 
     # SELECIONA BEAMS COM COORD
     if flag_input_beam_selection == '1':
@@ -306,8 +332,11 @@ def run_simulation():
 
     print('type_of_input: ', type_of_input, 'type_of_connection', connection, 'antenna_config', antenna_config,
           'flag_rx_or_tx', flag_rx_or_tx)
+
     beam_selection(type_of_input=type_of_input, type_of_connection=connection, antenna_config=antenna_config,
-                   flag_rx_or_tx=flag_rx_or_tx_or_C)
+                   flag_rx_or_tx=flag_rx_or_tx_or_C, type_of_selection=top_k)
+
+
 
 ############# ## MAIN ###############
 
@@ -316,8 +345,11 @@ def run_simulation():
 if __name__ == '__main__':
     print_hi('PyCharm')
 
-    obj_connect_detection.do_LOS_NLOS_detection()
-    #run_simulation()
+
+
+
+    #obj_connect_detection.do_LOS_NLOS_detection()
+    run_simulation()
 
 
 

@@ -4,12 +4,16 @@ import csv
 import matplotlib.pyplot as plt
 import math
 from sklearn.metrics import accuracy_score
-from sklearn import  svm, metrics
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn import tree
+from sklearn import svm, metrics
 import preprocesamento as obj_pre_preprocessing
 import pre_process_lidar as obj_read_lidar
 import seaborn as sns
 import pandas as pd
 import numpy as np
+import csv
 
 
 
@@ -114,9 +118,9 @@ def LOS_NLOS_WISARD_classification(input_train,
         address_size = [28]
         numero_experimentos = 2
     else:
-        #address_size = [64]
-        address_size = [6,12,18,24,28,34,38,44,48,54,58,64]
-        numero_experimentos = 10
+        address_size = [6,24, 44, 64]
+        #address_size = [6,12,18,24,28,34,38,44,48,54,58,64]
+        numero_experimentos = 3
 
     vector_time_train_media = []
     vector_time_test_media = []
@@ -215,7 +219,7 @@ def LOS_NLOS_WISARD_classification(input_train,
                      titulo,
                      nombre_curva,
                      "Tamanho da memória",
-                     "Acuracia Média (%)",
+                     "Acuracia Média ",
                      ruta=path_result + '/accuracy/'+antenna_config+'/'+type_of_input + '/' + user +'/LOS_NLOS_detection/acuracia_'+figure_name+'.png')
 
     plotarResultados(address_size,
@@ -236,12 +240,12 @@ def LOS_NLOS_WISARD_classification(input_train,
                      "Tempo de Teste Médio (s)",
                      ruta=path_result + '/processingTime/'+antenna_config+'/'+type_of_input + '/' + user +'/LOS_NLOS_detection/time_test_'+figure_name+'.png')
 
-    return out_red#, df_cm
+    return vector_acuracia_media#, df_cm
 
 
 def LOS_NLOS_SVC_classification(X_train, y_train, X_test, y_test):
 
-    clf = svm.SVC(gamma='auto')
+    clf = svm.SVC(gamma='scale')
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
     Acuracia = metrics.accuracy_score(y_test, y_pred)
@@ -263,7 +267,49 @@ def LOS_NLOS_SVC_classification(X_train, y_train, X_test, y_test):
 
     return Acuracia
 
-def classificador_KNeighbors():
+def LOS_NLOS_KNeighbors_classification(X_train, y_train, X_test, y_test):
+    knn = KNeighborsClassifier()
+    knn.fit(X_train, y_train)
+    y_pred = knn.predict(X_test)
+    accuracy = metrics.accuracy_score(y_test, y_pred)
+
+    print("--- PARAMETROS DO MODELO KNeighbors---")
+    model_parameters = knn.get_params(deep=True)
+    print( model_parameters)
+
+    print("Acuracia: ", accuracy)
+
+    return accuracy
+
+def LOS_NLOS_Decision_Tree_classification(X_train, y_train, X_test, y_test):
+    tree_model = tree.DecisionTreeClassifier()
+    tree_model.fit(X_train, y_train)
+    y_pred = tree_model.predict(X_test)
+    accuracy = metrics.accuracy_score(y_test, y_pred)
+
+    print("--- PARAMETROS DO MODELO DECISION TREE ---")
+    model_parameters = tree_model.get_params(deep=True)
+    print(model_parameters)
+
+    print("Acuracia: ", accuracy)
+
+    return accuracy
+
+def LOS_NLOS_Randon_Forest_classification(X_train, y_train, X_test, y_test):
+    forest_model = RandomForestClassifier()
+    forest_model.fit(X_train, y_train)
+    y_predict_1 = forest_model.predict(X_test)
+    accuracy = metrics.accuracy_score(y_test, y_predict_1)
+
+    print("--- PARAMETROS DO MODELO RANDOM FOREST ---")
+    model_parameters = forest_model.get_params(deep=True)
+    print(model_parameters)
+
+    print("Acuracia: ", accuracy)
+
+    return accuracy
+
+
 
 def read_labels_as_LOS_NLOS():
     all_info_coord_val, coord_train, coord_test = obj_pre_preprocessing.read_valid_coordinates()
@@ -366,29 +412,79 @@ def analyses_data():
     plot_histogram_LOS_NLOS_connection(data=labels_test_in_binary,
                                        title="Distribuição das conexões LOS/NLOS dos dados de [TEST] \n LOS=1 NLOS=0")
 
-    return labels_train_in_binary, labels_test_in_binary, coord_train, coord_test
+    return labels_train_in_binary, labels_test_in_binary, label_train_in_str, label_test_in_str,coord_train, coord_test
 
 
 
 def do_LOS_NLOS_detection():
 
+    lidar_data = True
+    coord_data = False
+    wisard_net = True
+
     all_lidar_train, all_lidar_test = obj_read_lidar.read_all_LiDAR_data()
-    label_train, label_test, coord_train, coord_test = analyses_data()
-    #label_train, label_test = read_labels_as_LOS_NLOS()
+    label_train, label_test, label_train_in_str, label_test_in_str, coord_train, coord_test = analyses_data()
+    # label_train, label_test = read_labels_as_LOS_NLOS()
 
-    svc_accuracy = LOS_NLOS_SVC_classification(X_train=coord_train, y_train=label_train, X_test=coord_test, y_test=label_test)
+    if lidar_data:
+        input_train = all_lidar_train
+        input_test = all_lidar_test
+        input_type = "LiDAR"
 
-    LOS_NLOS_WISARD_classification(input_train=all_lidar_train,
-                            input_validation=all_lidar_test,
-                            label_train = label_train,
-                            label_validation = label_test,
-                            figure_name = 'LOS_NLOS_detection',
-                            antenna_config = '8X32',
-                            type_of_input = 'lidar',
-                            titulo_figura = 'Deteção LOS/NLOS',
-                            user = 'All',
-                            enableDebug=False,
-                            )
+    if coord_data:
+        input_train = coord_train
+        input_test = coord_test
+        input_type = "Coord"
+
+    if wisard_net:
+        label_wisard_train =label_train_in_str
+        #label_wisard_test = label_train_in_str
+        label_wisard_test = label_test_in_str
+
+        wisard_accuracy = LOS_NLOS_WISARD_classification(input_train=input_train,
+                                   #input_validation=input_train,
+                                   input_validation=input_test,
+                                   label_train=label_wisard_train,
+                                   label_validation=label_wisard_test,
+                                   figure_name='LOS_NLOS_detection',
+                                   antenna_config='8X32',
+                                   type_of_input='lidar',
+                                   titulo_figura='Deteção LOS/NLOS',
+                                   user='All',
+                                   enableDebug=False,
+                                   )
+
+    #svc_accuracy = LOS_NLOS_SVC_classification(X_train=input_train, y_train=label_train, X_test=input_test, y_test=label_test)
+    knn_accuracy = LOS_NLOS_KNeighbors_classification(X_train=input_train, y_train=label_train, X_test=input_test, y_test=label_test)
+    tree_decision_accuracy = LOS_NLOS_Decision_Tree_classification(X_train=input_train, y_train=label_train, X_test=input_test, y_test=label_test)
+    forest_accuracy = LOS_NLOS_Randon_Forest_classification(X_train=input_train, y_train=label_train, X_test=input_test, y_test=label_test)
+
+    all_accuracy = [wisard_accuracy[0], knn_accuracy, tree_decision_accuracy, forest_accuracy]
+    models = ['WiSARD', 'KNN', 'TREE DECISION', 'RANDOM FOREST']
+
+    filename = "scores_LOS_NLOS_detection.csv"
+    np.savetxt(filename, (models, all_accuracy), delimiter=',', fmt='%s')
+
+    print("Acuracias com entradas: ", input_type)
+    print(models)
+    print(all_accuracy)
+
+    with open(filename) as csvfile:
+        reader = csv.DictReader(csvfile)
+        number_of_rows = len(list(reader))
+
+    '''
+    plt.plot(models, all_accuracy, color='b')
+    plt.xlabel("Modelos")
+    plt.ylabel("Acuracia")
+    plt.title("Detecao de conexao LOS-NLOS com entradas LiDAR", fontsize=11)
+    plt.grid(True)
+    plt.show()
+    '''
+
+
+
+
 
 
 
