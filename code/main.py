@@ -104,6 +104,10 @@ def beam_selection(antenna_config, type_of_connection, type_of_input, flag_rx_or
             all_coord_in_Qs_line_train, all_coord_in_Qs_line_test = read.read_all_Qs_matrix_in_lines()
             input_train = np.column_stack((all_coord_in_Qs_line_train, data_lidar_train))
             input_test = np.column_stack((all_coord_in_Qs_line_test, data_lidar_validation))
+        if type_of_input == 'coord_in_termometro':
+            encondign_coord_train, encondign_coord_test = preprocess.Thermomether()
+            input_train = encondign_coord_train
+            input_test = encondign_coord_test
 
     if type_of_connection == 'LOS':
         print('entre en LOS')
@@ -200,7 +204,7 @@ def beam_selection(antenna_config, type_of_connection, type_of_input, flag_rx_or
     title_figure = 'Seleção de Beam do ' + user + ' com antena em config ['+antenna_config+'] \n apartir de dados [' +type_of_input + '] com conexao ' + type_of_connection
     name_figure = 'beam_selection_'+user+'_['+antenna_config+']_'+type_of_input+'_'+type_of_connection
 
-    if type_of_selection=='1':
+    if type_of_selection == '1':
 
         obj.select_best_beam(input_train,
                              input_test,
@@ -307,12 +311,16 @@ def run_simulation():
     if flag_input_beam_selection == '1':
         a = input("selecionar o beam com as coordenadas pre-processadas em: \n"
                   "\t [1] matriz Qs [23 X 250] \n"
-                  "\t [2] Matriz Qs em linhas [2 X 120] \n")
+                  "\t [2] Matriz Qs em linhas [2 X 120] \n"
+                  "\t [3] Termometro [256 bits] \n")
         if a == '1':
             type_of_input = 'coord_in_Qs'
 
         if a == '2':
             type_of_input = 'coord_in_Qs_lines'
+
+        if a =='3':
+            type_of_input = 'coord_in_termometro'
 
     # SELECIONA BEAMS COM LIDAR
     if flag_input_beam_selection == '2':
@@ -350,9 +358,23 @@ if __name__ == '__main__':
 
     #obj_connect_detection.do_LOS_NLOS_detection()
     run_simulation()
+    #encondign_coord_train, encondign_coord_test= preprocess.Thermomether()
+    #label_train, label_test, label_train_in_str, label_test_in_str, coord_train, coord_test = obj_connect_detection.analyses_data()
+    '''
+    wisard_accuracy = obj_connect_detection.LOS_NLOS_WISARD_classification(input_train=encondign_coord_train,
+                                                     input_validation=input_train,
+                                                     input_validation=encondign_coord_test,
+                                                     label_train=label_train_in_str,
+                                                     label_validation=label_test_in_str,
+                                                     figure_name='LOS_NLOS_detection_encondign_coord',
+                                                     antenna_config='8X32',
+                                                     type_of_input='lidar',
+                                                     titulo_figura='Deteção LOS/NLOS Com coord codificadas via Termometro',
+                                                     user='All',
+                                                     enableDebug=False,
+                                                     )
 
-
-
+'''
 
 
 

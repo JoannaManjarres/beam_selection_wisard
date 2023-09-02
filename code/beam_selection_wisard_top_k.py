@@ -1,6 +1,7 @@
 import numpy as np
 import wisardpkg as wp
 from operator import itemgetter
+
 import numpy as np
 
 def beam_selection_top_k_wisard(x_train, x_test, y_train, y_test):
@@ -30,12 +31,17 @@ def beam_selection_top_k_wisard(x_train, x_test, y_train, y_test):
     ram_index = 0
     #print(wsd.getsizeof(ram_index,content_index))
     #print(wsd.json())
-    print(out)
+    #print(out)
 
-    top_k=[1,5,10,20,30,40,50]
+    #top_k=[1,5,10,20,30,40,50]
+    top_k=[5]
     acerto = 0
     nao_acerto = 0
     acuracia = []
+
+    f = open('file.txt', 'w')
+
+
     for i in range(len(top_k)):
         acerto = 0
         nao_acerto = 0
@@ -43,6 +49,9 @@ def beam_selection_top_k_wisard(x_train, x_test, y_train, y_test):
 
             lista_das_classes =out[amostra_a_avaliar]['classesDegrees']
             dict_com_classes_na_ordem = sorted(lista_das_classes, key=itemgetter('degree'), reverse=True)
+            f.write(str(dict_com_classes_na_ordem))
+
+
 
             classes_na_ordem_descendente = []
             for x in range(len(dict_com_classes_na_ordem)):
@@ -60,6 +69,6 @@ def beam_selection_top_k_wisard(x_train, x_test, y_train, y_test):
     print("len(out):", len(out))
     print("TOP-K: ", top_k)
     print("Acuracia: ",acuracia)
-
+    f.close()
 
     return top_k, acuracia

@@ -552,5 +552,61 @@ def divide_beams_and_coord_in_LOS_or_NLOS_connect(rx_beams, tx_beams, combined_i
 
     return data_train_LOS, data_train_NLOS, data_test_LOS, data_test_NLOS,
 
+def  Thermomether():
+    #int(row['EpisodeID']), float(row['x']), float(row['y']), float(row['z']), row['LOS'], row['Val']
+    all_info_coord_val, coord_train, coord_test = read_valid_coordinates()
+
+    episodios = all_info_coord_val[:,0]
+
+    all_x_coord_str = all_info_coord_val[:,1]
+    all_x_coord = [int(x) for x in all_x_coord_str]
+    all_y_coord_str = all_info_coord_val[:, 2]
+    all_y_coord = [int(y) for y in all_y_coord_str]
+
+
+    min_x_coord = np.min(all_x_coord)
+    max_x_coord = np.max(all_x_coord)
+
+    min_y_coord = np.min(all_y_coord)
+    max_y_coord = np.max(all_y_coord)
+
+    enconding = np.array([len(all_info_coord_val), 20], dtype=int)
+    encoding_x = np.zeros(enconding, dtype=int)
+    encoding_y = np.zeros(np.array([len(all_info_coord_val), 245], dtype=int), dtype=int)
+
+    sample = 0
+    result_x = 0
+    for i in all_x_coord:
+        result_x = i-min_x_coord
+        for j in range(result_x):
+            encoding_x[sample, j] = 1
+
+        sample = sample+1
+
+    sample = 0
+    result_y = 0
+    for i in all_y_coord:
+        result_y = i - min_y_coord
+        for j in range(result_y):
+            encoding_y[sample, j] = 1
+
+        sample = sample + 1
+
+
+    encondig_coord = np.concatenate((encoding_x,encoding_y), axis=1)
+    encoding_coord_and_episode = np.column_stack([episodios, encondig_coord])
+
+    limit_ep_train = 1564
+    encondign_coord_train = encoding_coord_and_episode[(encoding_coord_and_episode[:, 0] < limit_ep_train + 1)]
+    encondign_coord_test = encoding_coord_and_episode[(encoding_coord_and_episode[:, 0] > limit_ep_train)]
+
+    encondign_coord_train = encondign_coord_train[:,1:266]
+    encondign_coord_test = encondign_coord_test[:,1:266]
+
+
+    return encondign_coord_train, encondign_coord_test
+
+
+
 
 
