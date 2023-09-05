@@ -1,6 +1,7 @@
 import numpy as np
 import wisardpkg as wp
 from operator import itemgetter
+import pandas as pd
 
 import numpy as np
 
@@ -12,7 +13,10 @@ def beam_selection_top_k_wisard(x_train, x_test, y_train, y_test):
     #y_test = index_beam_combined_test
 
 
-    addressSize = 6
+    data_input = 'coord_in_termometro'
+    data_set = 'all'
+
+    addressSize = 44
     ignoreZero = False
     verbose = True
     var = True
@@ -33,13 +37,13 @@ def beam_selection_top_k_wisard(x_train, x_test, y_train, y_test):
     #print(wsd.json())
     #print(out)
 
-    #top_k=[1,5,10,20,30,40,50]
-    top_k=[5]
+    top_k=[1,5,10,20,30,40,50]
+    #top_k=[5]
     acerto = 0
     nao_acerto = 0
     acuracia = []
 
-    f = open('file.txt', 'w')
+    f = open('Acurcacia_top_k_wisard.txt', 'w')
 
 
     for i in range(len(top_k)):
@@ -70,5 +74,9 @@ def beam_selection_top_k_wisard(x_train, x_test, y_train, y_test):
     print("TOP-K: ", top_k)
     print("Acuracia: ",acuracia)
     f.close()
+
+    df_acuracia_wisard_top_k = pd.DataFrame(acuracia)
+    ruta="../results/accuracy/8X32/coord_in_termometro/"
+    df_acuracia_wisard_top_k.to_csv(ruta + 'acuracia_wisard_' + data_input + '_' + data_set + '_top_k.csv')
 
     return top_k, acuracia

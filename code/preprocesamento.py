@@ -628,15 +628,15 @@ def  Thermomether_dobro_resolucao():
     min_y_coord = np.min(all_y_coord)
     max_y_coord = np.max(all_y_coord)
 
-    enconding = np.array([len(all_info_coord_val), 640], dtype=int)
+    enconding = np.array([len(all_info_coord_val), 160], dtype=int)
     encoding_x = np.zeros(enconding, dtype=int)
-    encoding_y = np.zeros(np.array([len(all_info_coord_val), 7840], dtype=int), dtype=int)
+    encoding_y = np.zeros(np.array([len(all_info_coord_val), 1960], dtype=int), dtype=int)
 
     sample = 0
     result_x = 0
     for i in all_x_coord:
         result_x = i-min_x_coord
-        for j in range(result_x*32):
+        for j in range(result_x*8):
             encoding_x[sample, j] = 1
 
         sample = sample+1
@@ -645,7 +645,7 @@ def  Thermomether_dobro_resolucao():
     result_y = 0
     for i in all_y_coord:
         result_y = i - min_y_coord
-        for j in range(result_y*32):
+        for j in range(result_y*8):
             encoding_y[sample, j] = 1
 
         sample = sample + 1

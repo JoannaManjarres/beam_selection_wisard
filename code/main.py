@@ -105,7 +105,7 @@ def beam_selection(antenna_config, type_of_connection, type_of_input, flag_rx_or
             input_train = np.column_stack((all_coord_in_Qs_line_train, data_lidar_train))
             input_test = np.column_stack((all_coord_in_Qs_line_test, data_lidar_validation))
         if type_of_input == 'coord_in_termometro':
-            encondign_coord_train, encondign_coord_test = preprocess.Thermomether()
+            encondign_coord_train, encondign_coord_test = preprocess.Thermomether_dobro_resolucao()
             input_train = encondign_coord_train
             input_test = encondign_coord_test
 
