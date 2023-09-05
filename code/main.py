@@ -274,7 +274,7 @@ def run_simulation():
     temporal = input("Realizar a selecao de feixe? [S/N] \n").upper()
     if temporal == 'S':
         top_k = input("1 - Normal \n"
-                      "2 - Top-k").upper()
+                      "2 - Top-k \n").upper()
 
         if top_k == '1':
 
@@ -358,7 +358,8 @@ if __name__ == '__main__':
 
     #obj_connect_detection.do_LOS_NLOS_detection()
     run_simulation()
-    #encondign_coord_train, encondign_coord_test= preprocess.Thermomether()
+    #encondign_coord_train, encondign_coord_test= preprocess.Thermomether_parte_inteira_mais_parte_decimal_1()
+    #a=0
     #label_train, label_test, label_train_in_str, label_test_in_str, coord_train, coord_test = obj_connect_detection.analyses_data()
     '''
     wisard_accuracy = obj_connect_detection.LOS_NLOS_WISARD_classification(input_train=encondign_coord_train,
