@@ -12,7 +12,7 @@ def process_data(enable_plot, num_scene_to_plot):
     data_lidar_process_all, data_position_rx, data_position_tx = read_data(data_path)
     data_lidar_train = pre_process_lidar(data_lidar_process_all, data_position_rx)
 
-    saveInputPath = "../data/lidar/process/"
+    saveInputPath = "../data/lidar/ALL/"
     np.savez(saveInputPath + 'all_data_lidar_train' + '.npz', lidar_train=data_lidar_train)
 
     if enable_plot:
@@ -22,8 +22,29 @@ def process_data(enable_plot, num_scene_to_plot):
     data_lidar_process_all, data_position_rx, data_position_tx = read_data(data_path)
     data_lidar_validation = pre_process_lidar(data_lidar_process_all, data_position_rx)
 
-    saveInputPath = "../data/lidar/process/"
+    saveInputPath = "../data/lidar/ALL/"
     np.savez(saveInputPath + 'all_data_lidar_test' + '.npz', lidar_test=data_lidar_validation)
+
+    return data_lidar_train, data_lidar_validation
+
+def process_data_without_rx(enable_plot, num_scene_to_plot):
+
+    data_path = "../data/lidar/lidar_train_raymobtime.npz"
+    data_lidar_process_all, data_position_rx, data_position_tx = read_data(data_path)
+    data_lidar_train = pre_process_lidar_without_rx(data_lidar_process_all)
+
+    saveInputPath = "../data/lidar/sem_rx/"
+    np.savez(saveInputPath + 'all_data_lidar_sem_rx_train' + '.npz', lidar_train=data_lidar_train)
+
+    if enable_plot:
+        print_scene(data_lidar_process_all[num_scene_to_plot], data_position_rx[num_scene_to_plot], data_position_tx[num_scene_to_plot])
+
+    data_path = "../data/lidar/lidar_validation_raymobtime.npz"
+    data_lidar_process_all, data_position_rx, data_position_tx = read_data(data_path)
+    data_lidar_validation = pre_process_lidar_without_rx(data_lidar_process_all)
+
+    saveInputPath = "../data/lidar/sem_rx/"
+    np.savez(saveInputPath + 'all_data_lidar_sem_rx_test' + '.npz', lidar_test=data_lidar_validation)
 
     return data_lidar_train, data_lidar_validation
 
@@ -64,6 +85,32 @@ def pre_process_lidar(data_lidar_process, data_position_rx):
         all_data[i] = np.concatenate((a,b), axis=1)
 
     return all_data
+
+def pre_process_lidar_without_rx(data_lidar_process):
+
+    x_dimension = len(data_lidar_process[0,:,0,0])
+    y_dimension = len(data_lidar_process[0,0,:,0])
+    z_dimension = len(data_lidar_process[0,0,0,:])
+    dimension_of_coordenadas = x_dimension * y_dimension * z_dimension
+    number_of_samples = data_lidar_process.shape[0]
+    lidar_data_vector = np.zeros([number_of_samples, dimension_of_coordenadas])
+    position_of_rx_vector = np.zeros([number_of_samples, dimension_of_coordenadas])
+
+    all_data = np.zeros([number_of_samples, dimension_of_coordenadas], dtype=np.int8)
+    a = np.zeros(dimension_of_coordenadas,dtype=np.int8)
+
+
+    for i in range(number_of_samples):
+        #lidar_data_vector[i, :] = data_lidar_process[i,:,:,:].reshape(1, dimension_of_coordenadas)
+        #position_of_rx_vector[i,:] = data_position_rx[i,:,:,:].reshape(1, dimension_of_coordenadas)
+
+        a = data_lidar_process[i,:,:,:].reshape(1, dimension_of_coordenadas)
+        #b = data_position_rx[i,:,:,:].reshape(1, dimension_of_coordenadas)
+        all_data[i] = a
+        #all_data[i] = np.concatenate((a,b), axis=1)
+
+    return all_data
+
 
 def print_scene(objects, rx, tx):
     objects = np.array(objects, dtype=bool)
@@ -108,6 +155,21 @@ def print_scene(objects, rx, tx):
 
 
 ######
+
+def read_all_LiDAR_without_rx():
+    lidar_path = "../data/Lidar/sem_rx/"
+
+    #np.savez(saveInputPath + 'all_data_lidar_sem_rx_train' + '.npz', lidar_train=data_lidar_train)
+
+    input_cache_file = np.load(lidar_path + "all_data_lidar_sem_rx_train.npz", allow_pickle=True)
+    all_lidar_train = input_cache_file["lidar_train"]
+    input_cache_file = np.load(lidar_path + "all_data_lidar_sem_rx_test.npz", allow_pickle=True)
+    all_lidar_test = input_cache_file["lidar_test"]
+
+    print('Leu os arquivos npz do lidar')
+
+    return all_lidar_train, all_lidar_test
+
 def read_all_LiDAR_data():
 
     #lidar_path = "../data/lidar/process/"

@@ -61,6 +61,7 @@ def do_preprocess(flag_preprocess_coord,
     if flag_preprocess_LiDAR == 'S':
         obj_lidar.process_data(enable_plot=False, num_scene_to_plot=0)
         obj_lidar.separed_data_lidar_LOS_NLOS()
+        obj_lidar.process_data_without_rx(enable_plot=False, num_scene_to_plot=0)
 
 
 def beam_selection(antenna_config, type_of_connection, type_of_input, flag_rx_or_tx, type_of_selection):
@@ -114,6 +115,13 @@ def beam_selection(antenna_config, type_of_connection, type_of_input, flag_rx_or
             data_lidar_train, data_lidar_validation = obj_lidar.read_all_LiDAR_data()
             input_train = np.column_stack((encondign_coord_train, data_lidar_train))
             input_test = np.column_stack((encondign_coord_test, data_lidar_validation))
+
+        if type_of_input == 'coord_in_termometro_+_Lidar_sem_rx':
+            encondign_coord_train, encondign_coord_test = preprocess.Thermomether_dobro_resolucao()
+            data_lidar_sem_rx_train, data_lidar_sem_rx_validation = obj_lidar.read_all_LiDAR_without_rx()
+            input_train = np.column_stack((encondign_coord_train, data_lidar_sem_rx_train))
+            input_test = np.column_stack((encondign_coord_test, data_lidar_sem_rx_validation))
+
 
     if type_of_connection == 'LOS':
         print('entre en LOS')
@@ -198,6 +206,8 @@ def beam_selection(antenna_config, type_of_connection, type_of_input, flag_rx_or
             input_test = np.column_stack((coord_NLOS_test, LiDAR_NLOS_test))
 
 
+
+
     user = ''
     if flag_rx_or_tx == 'T':
         user = 'Tx'
@@ -228,7 +238,8 @@ def beam_selection(antenna_config, type_of_connection, type_of_input, flag_rx_or
         obj_selection_top_k.beam_selection_top_k_wisard(x_train=input_train,
                                                         x_test=input_test,
                                                         y_train=label_train,
-                                                        y_test=label_test)
+                                                        y_test=label_test,
+                                                        data_input=type_of_input)
 
 
 def beam_analysis(flag_beam_analysis, antenna_config,connection):
@@ -338,7 +349,9 @@ def run_simulation():
         b = input("selecionar o Beam com as coordenadas pre-processadas em: \n" \
                   "\t [1] matriz Qs [23 X 250] \n" \
                   "\t [2] Matriz Qs em linhas [2 X 120] \n"\
-                  "\t [3] Termometro \n")
+                  "\t [3] Termometro \n"
+                  "\t [4] Termometro e LiDAR sem rx \n")
+
         if b == '1':
             type_of_input = 'coord_in_Qs_+_Lidar'
 
@@ -347,6 +360,9 @@ def run_simulation():
 
         if b == '3':
             type_of_input = 'coord_in_termometro_+_Lidar'
+
+        if b =='4':
+            type_of_input = 'coord_in_termometro_+_Lidar_sem_rx'
 
     print('type_of_input: ', type_of_input, 'type_of_connection', connection, 'antenna_config', antenna_config,
           'flag_rx_or_tx', flag_rx_or_tx)

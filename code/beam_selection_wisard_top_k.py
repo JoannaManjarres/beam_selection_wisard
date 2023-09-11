@@ -5,7 +5,7 @@ import pandas as pd
 
 import numpy as np
 
-def beam_selection_top_k_wisard(x_train, x_test, y_train, y_test):
+def beam_selection_top_k_wisard(x_train, x_test, y_train, y_test, data_input):
     #x_train, x_test = obj_read_input.read_all_Qs_matrix()
     #label_rx_LOS_train, label_rx_LOS_test, label_tx_LOS_train, label_tx_LOS_test, label_combined_LOS_train, label_combined_LOS_test = obj_read_label.read_LOS_beams(antenna_config='8X32')
     #index_beam_rx_train, index_beam_rx_test, index_beam_tx_train, index_beam_tx_test, index_beam_combined_train, index_beam_combined_test = obj_read_label.read_all_beams(antenna_config='8X32')
@@ -14,7 +14,7 @@ def beam_selection_top_k_wisard(x_train, x_test, y_train, y_test):
 
 
     #data_input = 'coord_in_termometro'
-    data_input ='coord_in_termometro_+_Lidar'
+    #data_input ='coord_in_termometro_+_Lidar'
     data_set = 'all'
 
     #addressSize = 44
@@ -79,6 +79,7 @@ def beam_selection_top_k_wisard(x_train, x_test, y_train, y_test):
 
     df_acuracia_wisard_top_k = pd.DataFrame(acuracia)
     ruta='../results/accuracy/8X32/'+data_input+'/'
+    print(ruta+'acuracia_wisard_' + data_input + '_' + data_set + '_top_k.csv')
     df_acuracia_wisard_top_k.to_csv(ruta + 'acuracia_wisard_' + data_input + '_' + data_set + '_top_k.csv')
 
     return top_k, acuracia
