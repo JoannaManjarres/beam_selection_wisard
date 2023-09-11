@@ -105,9 +105,15 @@ def beam_selection(antenna_config, type_of_connection, type_of_input, flag_rx_or
             input_train = np.column_stack((all_coord_in_Qs_line_train, data_lidar_train))
             input_test = np.column_stack((all_coord_in_Qs_line_test, data_lidar_validation))
         if type_of_input == 'coord_in_termometro':
-            encondign_coord_train, encondign_coord_test = preprocess.Thermomether_dobro_resolucao()
+            encondign_coord_train, encondign_coord_test = preprocess.Thermomether_parte_inteira_mais_parte_decimal_2()
             input_train = encondign_coord_train
             input_test = encondign_coord_test
+
+        if type_of_input == 'coord_in_termometro_+_Lidar':
+            encondign_coord_train, encondign_coord_test = preprocess.Thermomether_dobro_resolucao()
+            data_lidar_train, data_lidar_validation = obj_lidar.read_all_LiDAR_data()
+            input_train = np.column_stack((encondign_coord_train, data_lidar_train))
+            input_test = np.column_stack((encondign_coord_test, data_lidar_validation))
 
     if type_of_connection == 'LOS':
         print('entre en LOS')
@@ -331,12 +337,16 @@ def run_simulation():
 
         b = input("selecionar o Beam com as coordenadas pre-processadas em: \n" \
                   "\t [1] matriz Qs [23 X 250] \n" \
-                  "\t [2] Matriz Qs em linhas [2 X 120] \n")
+                  "\t [2] Matriz Qs em linhas [2 X 120] \n"\
+                  "\t [3] Termometro \n")
         if b == '1':
             type_of_input = 'coord_in_Qs_+_Lidar'
 
         if b == '2':
             type_of_input = 'coord_in_Qs_lines_+_Lidar'
+
+        if b == '3':
+            type_of_input = 'coord_in_termometro_+_Lidar'
 
     print('type_of_input: ', type_of_input, 'type_of_connection', connection, 'antenna_config', antenna_config,
           'flag_rx_or_tx', flag_rx_or_tx)
@@ -358,7 +368,7 @@ if __name__ == '__main__':
 
     #obj_connect_detection.do_LOS_NLOS_detection()
     run_simulation()
-    #encondign_coord_train, encondign_coord_test= preprocess.Thermomether_parte_inteira_mais_parte_decimal_1()
+    #encondign_coord_train, encondign_coord_test= preprocess.Thermomether_parte_inteira_mais_parte_decimal_2()
     #a=0
     #label_train, label_test, label_train_in_str, label_test_in_str, coord_train, coord_test = obj_connect_detection.analyses_data()
     '''

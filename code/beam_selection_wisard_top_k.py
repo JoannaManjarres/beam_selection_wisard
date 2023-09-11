@@ -13,10 +13,12 @@ def beam_selection_top_k_wisard(x_train, x_test, y_train, y_test):
     #y_test = index_beam_combined_test
 
 
-    data_input = 'coord_in_termometro'
+    #data_input = 'coord_in_termometro'
+    data_input ='coord_in_termometro_+_Lidar'
     data_set = 'all'
 
-    addressSize = 44
+    #addressSize = 44
+    addressSize = 64
     ignoreZero = False
     verbose = True
     var = True
@@ -43,7 +45,7 @@ def beam_selection_top_k_wisard(x_train, x_test, y_train, y_test):
     nao_acerto = 0
     acuracia = []
 
-    f = open('Acurcacia_top_k_wisard.txt', 'w')
+    f = open('../results/accuracy/8X32/'+data_input+'/Acurcacia_top_k_wisard.txt', 'w')
 
 
     for i in range(len(top_k)):
@@ -76,7 +78,7 @@ def beam_selection_top_k_wisard(x_train, x_test, y_train, y_test):
     f.close()
 
     df_acuracia_wisard_top_k = pd.DataFrame(acuracia)
-    ruta="../results/accuracy/8X32/coord_in_termometro/"
+    ruta='../results/accuracy/8X32/'+data_input+'/'
     df_acuracia_wisard_top_k.to_csv(ruta + 'acuracia_wisard_' + data_input + '_' + data_set + '_top_k.csv')
 
     return top_k, acuracia

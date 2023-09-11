@@ -34,7 +34,7 @@ def redWizard(data_train,
 
     # False by default for performance reasons,
     # when True, WiSARD prints the progress of train() and classify()
-    verbose = True
+    verbose = False
 
     wsd = wp.Wisard(addressSize, ignoreZero=ignoreZero, verbose=verbose)
 

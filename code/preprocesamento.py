@@ -885,3 +885,72 @@ def  Thermomether_parte_inteira_mais_parte_decimal_1():
 
 
     return encondign_coord_train, encondign_coord_test
+
+def  Thermomether_parte_inteira_mais_parte_decimal_2():
+    #int(row['EpisodeID']), float(row['x']), float(row['y']), float(row['z']), row['LOS'], row['Val']
+    all_info_coord_val, coord_train, coord_test = read_valid_coordinates()
+
+    episodios = all_info_coord_val[:,0]
+
+    all_x_coord_str = all_info_coord_val[:,1]
+    all_x_coord = [float(x) for x in all_x_coord_str]
+    all_y_coord_str = all_info_coord_val[:, 2]
+    all_y_coord = [float(y) for y in all_y_coord_str]
+
+
+    min_x_coord = np.min(all_x_coord)
+    max_x_coord = np.max(all_x_coord)
+
+    min_y_coord = np.min(all_y_coord)
+    max_y_coord = np.max(all_y_coord)
+
+
+    diff_all_x_coord = np.array((all_x_coord-min_x_coord))
+    diff_all_y_coord = np.array((all_y_coord-min_y_coord))
+
+    n = 0
+
+    enconding = np.array([len(all_info_coord_val), 20+n], dtype=int)
+    #new_enconding = np.array([len(all_info_coord_val), 20+n], dtype='i')
+    encoding_x_whole_part = np.zeros(enconding, dtype=int)
+    encoding_x = np.zeros(np.array([len(all_info_coord_val), 207], dtype=int), dtype=int)
+    encoding_y = np.zeros(np.array([len(all_info_coord_val), 2457], dtype=int), dtype=int)
+    encoding_y_decimal_part = np.zeros(np.array([len(all_info_coord_val), 100], dtype=int), dtype=int)
+
+    sample = 0
+
+
+    for i in diff_all_x_coord:
+
+        #print(i)
+        #print(round(i, 1)*10)
+        number = int(round(i, 1)*10)
+
+        for j in range(number):
+            encoding_x[sample, j] = 1
+        sample = sample+1
+
+
+
+    sample = 0
+    for i in diff_all_y_coord:
+        number = int(round(i, 1) * 10)
+        for j in range(number):
+            encoding_y[sample, j] = 1
+        sample = sample+1
+
+
+
+    encondig_coord = np.concatenate((encoding_x, encoding_y), axis=1)
+    encoding_coord_and_episode = np.column_stack([episodios, encondig_coord])
+
+    limit_ep_train = 1564
+    encondign_coord_train = encoding_coord_and_episode[(encoding_coord_and_episode[:, 0] < limit_ep_train + 1)]
+    encondign_coord_test = encoding_coord_and_episode[(encoding_coord_and_episode[:, 0] > limit_ep_train)]
+
+    size_of_input = encondign_coord_train.shape
+    encondign_coord_train = encondign_coord_train[:,1:size_of_input[1]]
+    encondign_coord_test = encondign_coord_test[:,1:size_of_input[1]]
+
+
+    return encondign_coord_train, encondign_coord_test
