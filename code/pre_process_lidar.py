@@ -27,11 +27,47 @@ def process_data(enable_plot, num_scene_to_plot):
 
     return data_lidar_train, data_lidar_validation
 
+def process_data_rx_like_cube():
+    data_path = "../data/lidar/lidar_train_raymobtime.npz"
+    data_lidar_process_all, data_position_rx, data_position_tx = read_data(data_path)
+
+    a = []
+    for i, v in enumerate(data_position_rx[0, 8, :, :]):
+        a.extend(v)
+
+    b = 0
+
+    x_dimension = len(data_position_rx[0, :, 0, 0])
+    y_dimension = len(data_position_rx[0, 0, :, 0])
+    z_dimension = len(data_position_rx[0, 0, 0, :])
+    dimension_of_coordenadas = x_dimension * y_dimension * z_dimension
+    number_of_samples = data_position_rx.shape[0]
+    lidar_data_vector = np.zeros([number_of_samples, dimension_of_coordenadas])
+    position_of_rx_vector = np.zeros([number_of_samples, dimension_of_coordenadas])
+
+    data = np.zeros([number_of_samples, dimension_of_coordenadas], dtype=np.int8)
+    data = np.zeros([])
+
+    for i, v in enumerate(data_position_rx[0,8,:,:]):
+            if v.any() == 1:  #v é um vetor de 10 posicoes
+                for j, val in enumerate(v):
+                    if v[j] == 1:
+                        print('y=',i,' z=', j, val)
+                        for k in range(200):
+                            for t in range(10):
+                                g=0
+
+
+
+
+
+
 def process_data_without_rx(enable_plot, num_scene_to_plot):
 
     data_path = "../data/lidar/lidar_train_raymobtime.npz"
     data_lidar_process_all, data_position_rx, data_position_tx = read_data(data_path)
-    data_lidar_train = pre_process_lidar_without_rx(data_lidar_process_all)
+    data_lidar_train = pre_process_lidar_without_rx_transposto(data_lidar_process_all)
+    #data_lidar_train = pre_process_lidar_without_rx(data_lidar_process_all)
 
     saveInputPath = "../data/lidar/sem_rx/"
     np.savez(saveInputPath + 'all_data_lidar_sem_rx_train' + '.npz', lidar_train=data_lidar_train)
@@ -105,6 +141,31 @@ def pre_process_lidar_without_rx(data_lidar_process):
         #position_of_rx_vector[i,:] = data_position_rx[i,:,:,:].reshape(1, dimension_of_coordenadas)
 
         a = data_lidar_process[i,:,:,:].reshape(1, dimension_of_coordenadas)
+        #b = data_position_rx[i,:,:,:].reshape(1, dimension_of_coordenadas)
+        all_data[i] = a
+        #all_data[i] = np.concatenate((a,b), axis=1)
+
+    return all_data
+
+def pre_process_lidar_without_rx_transposto(data_lidar_process):
+
+    x_dimension = len(data_lidar_process[0,:,0,0])
+    y_dimension = len(data_lidar_process[0,0,:,0])
+    z_dimension = len(data_lidar_process[0,0,0,:])
+    dimension_of_coordenadas = x_dimension * y_dimension * z_dimension
+    number_of_samples = data_lidar_process.shape[0]
+    lidar_data_vector = np.zeros([number_of_samples, dimension_of_coordenadas])
+    position_of_rx_vector = np.zeros([number_of_samples, dimension_of_coordenadas])
+
+    all_data = np.zeros([number_of_samples, dimension_of_coordenadas], dtype=np.int8)
+    a = np.zeros(dimension_of_coordenadas,dtype=np.int8)
+
+
+    for i in range(number_of_samples):
+        #lidar_data_vector[i, :] = data_lidar_process[i,:,:,:].reshape(1, dimension_of_coordenadas)
+        #position_of_rx_vector[i,:] = data_position_rx[i,:,:,:].reshape(1, dimension_of_coordenadas)
+
+        a = data_lidar_process[i,:,:,:].T.reshape(1, dimension_of_coordenadas)
         #b = data_position_rx[i,:,:,:].reshape(1, dimension_of_coordenadas)
         all_data[i] = a
         #all_data[i] = np.concatenate((a,b), axis=1)
@@ -268,3 +329,4 @@ def separed_data_lidar_LOS_NLOS():
     # LOS test
     np.savez(saveInputPath + 'lidar_NLOS_test' + '.npz', lidar_test=lidar_NLOS_test)
 
+#process_data_rx_like_cube()
