@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.patches as mpatches
 import csv
 from skimage.transform import rescale, resize, downscale_local_mean
@@ -31,9 +32,11 @@ def process_data_rx_like_cube():
     data_path = "../data/lidar/lidar_train_raymobtime.npz"
     data_lidar_process_all, data_position_rx, data_position_tx = read_data(data_path)
 
-    a = []
-    for i, v in enumerate(data_position_rx[0, 8, :, :]):
-        a.extend(v)
+    #a = []
+    #for i, v in enumerate(data_position_rx[0, 8, :, :]):
+    #    a.extend(v)
+
+
 
     b = 0
 
@@ -45,17 +48,58 @@ def process_data_rx_like_cube():
     lidar_data_vector = np.zeros([number_of_samples, dimension_of_coordenadas])
     position_of_rx_vector = np.zeros([number_of_samples, dimension_of_coordenadas])
 
-    data = np.zeros([number_of_samples, dimension_of_coordenadas], dtype=np.int8)
-    data = np.zeros([])
+    data = data_position_rx.copy()
+    data_1 = data*0
 
-    for i, v in enumerate(data_position_rx[0,8,:,:]):
-            if v.any() == 1:  #v é um vetor de 10 posicoes
-                for j, val in enumerate(v):
-                    if v[j] == 1:
-                        print('y=',i,' z=', j, val)
-                        for k in range(200):
-                            for t in range(10):
-                                g=0
+    amostra, x_rx, y_rx, z_rx = np.unravel_index(data_position_rx.argmax(), data_position_rx.shape)
+    data_1[:, 0:x_rx, 0:y_rx, 0:z_rx]=1
+
+
+    '''
+    for amostra in range(1):
+        for plano in range(x_dimension):
+            for i, v in enumerate(data_position_rx[amostra,plano,:,:]):
+                    if v.any() == 1:  #v é um vetor de 10 posicoes
+                        for j, val in enumerate(v):
+                            if v[j] == 1:
+                                print('Amostra',amostra,'y=',i,' z=', j, val)
+                                for a in range(plano+1):
+                                    if a <= plano:
+                                        for k in range(y_dimension):
+                                            if k <= i:
+                                                for t in range(z_dimension):
+                                                    if t <= j:
+                                                        data_1[amostra,a,k,t] = 1
+                                                    else:
+                                                        break
+                                            else:
+                                                break
+                                    else:
+                                        break
+                                        
+    '''
+    nc = data_1[amostra,:,:,:]
+    scenario_complet = data_lidar_process_all[0,:,:,:]
+    #one = np.ones((nc + 1, nc + 1, nc + 1))
+    fig = plt.figure()
+
+    ax = fig.add_subplot(1,2,1, projection='3d')
+    ax.voxels(nc, alpha=0.12, edgecolor=None, shade=True)  # Voxel visualization
+    ax.set_title('Receptor')
+    ax.set_xlabel('x', labelpad=10)
+    ax.set_ylabel('y', labelpad=10)
+    ax.set_zlabel('z', labelpad=10)
+    plt.tight_layout()
+
+    ax = fig.add_subplot(1, 2, 2, projection='3d')
+    ax.voxels(scenario_complet, alpha=0.12, edgecolor=None, shade=True, antialiased = False)  # Voxel visualization
+    ax.set_title('Cenario completo')
+    ax.set_xlabel('x', labelpad=10)
+    ax.set_ylabel('y', labelpad=10)
+    ax.set_zlabel('z', labelpad=10)
+    plt.tight_layout()
+
+    m=0
 
 
 
@@ -329,4 +373,4 @@ def separed_data_lidar_LOS_NLOS():
     # LOS test
     np.savez(saveInputPath + 'lidar_NLOS_test' + '.npz', lidar_test=lidar_NLOS_test)
 
-#process_data_rx_like_cube()
+process_data_rx_like_cube()
