@@ -59,9 +59,21 @@ def do_preprocess(flag_preprocess_coord,
             print("Coordenadas pre processadas em matriz Qs em linhas [2X120] e guardadas")
 
     if flag_preprocess_LiDAR == 'S':
-        obj_lidar.process_data(enable_plot=False, num_scene_to_plot=0)
-        obj_lidar.separed_data_lidar_LOS_NLOS()
-        obj_lidar.process_data_without_rx(enable_plot=False, num_scene_to_plot=0)
+        print("Pre processar os dados LiDAR em:")
+        flag_type_of_pre_process_lidar=input("\t [1] Quantizados [Dataset] + Posicao Rx \n " \
+                                             "\t [2] Separar os dados LiDAR quantizados em LOS e NLOS \n"
+                                             "\t [3] Quantizados[Dataset] sem Rx \n"
+                                             "\t [4] Receptor com um cubo + Quantizados[Dataset] \n"
+                                             )
+
+        if flag_type_of_pre_process_lidar == '1':
+            obj_lidar.process_data(enable_plot=False, num_scene_to_plot=0)
+        if flag_type_of_pre_process_lidar == '2':
+            obj_lidar.separed_data_lidar_LOS_NLOS()
+        if flag_type_of_pre_process_lidar == '3':
+            obj_lidar.process_data_without_rx(enable_plot=False, num_scene_to_plot=0)
+        if flag_type_of_pre_process_lidar == '4':
+            obj_lidar.process_data_rx_like_cube()
 
 
 def beam_selection(antenna_config, type_of_connection, type_of_input, flag_rx_or_tx, type_of_selection):
@@ -91,10 +103,28 @@ def beam_selection(antenna_config, type_of_connection, type_of_input, flag_rx_or
             all_coord_in_Qs_line_train, all_coord_in_Qs_line_test = read.read_all_Qs_matrix_in_lines()
             input_train = all_coord_in_Qs_line_train
             input_test = all_coord_in_Qs_line_test
+
+
+
+
         if type_of_input == 'lidar':
             data_lidar_train, data_lidar_validation = obj_lidar.read_all_LiDAR_data()
             input_train = data_lidar_train
             input_test = data_lidar_validation
+        if type_of_input == 'lidar_LOS_NLOS':
+            data_lidar_LOS_train, data_lidar_LOS_validation = obj_lidar.read_LiDAR_LOS_data()
+            data_lidar_NLOS_train, data_lidar_NLOS_validation = obj_lidar.read_LiDAR_NLOS_data()
+
+        if type_of_input == 'Lidar_sem_rx':
+            data_lidar_sem_rx_train, data_lidar_sem_rx_validation = obj_lidar.read_all_LiDAR_without_rx()
+            input_train = data_lidar_sem_rx_train
+            input_test = data_lidar_sem_rx_validation
+        if type_of_input == 'rx_cubo_+_Lidar':
+            print(type_of_input)
+            data_lidar_rx_like_cube_train, data_lidar_rx_like_cube_validation = obj_lidar.read_LiDAR_with_rx_like_cube()
+            input_train = data_lidar_rx_like_cube_train
+            input_test = data_lidar_rx_like_cube_validation
+
         if type_of_input == 'coord_in_Qs_+_Lidar':
             data_lidar_train, data_lidar_validation = obj_lidar.read_all_LiDAR_data()
             all_coord_train, all_coord_test = read.read_all_Qs_matrix()
@@ -341,7 +371,17 @@ def run_simulation():
 
     # SELECIONA BEAMS COM LIDAR
     if flag_input_beam_selection == '2':
-        type_of_input = 'lidar'
+        c = input("selecionar o Beam com dados LiDAR pre-processadas em: \n" \
+                  "\t [1] Quantizados [Dataset] + Posicao do Rx ? \n" \
+                  "\t [2] Quantizados [Dataset] SEM a Posicao do Rx ? \n" \
+                  "\t [3] Quantizados [Dataset] + Rx como um cubo? \n")
+
+        if c =='1':
+            type_of_input = 'lidar'
+        if c =='2':
+            type_of_input = 'Lidar_sem_rx'
+        if c =='3':
+            type_of_input = 'rx_cubo_+_Lidar'
 
     # SELECIONA BEAMS COM COORD + LIDAR
     if flag_input_beam_selection == '3':
