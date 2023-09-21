@@ -665,7 +665,6 @@ def  Thermomether_dobro_resolucao():
 
     return encondign_coord_train, encondign_coord_test
 
-
 def  Thermomether_parte_inteira_parte_decimal():
     #int(row['EpisodeID']), float(row['x']), float(row['y']), float(row['z']), row['LOS'], row['Val']
     all_info_coord_val, coord_train, coord_test = read_valid_coordinates()
@@ -740,7 +739,6 @@ def  Thermomether_parte_inteira_parte_decimal():
 
 
     return encondign_coord_train, encondign_coord_test
-
 
 def  Thermomether_parte_inteira_mais_parte_decimal():
     #int(row['EpisodeID']), float(row['x']), float(row['y']), float(row['z']), row['LOS'], row['Val']
@@ -954,3 +952,89 @@ def  Thermomether_parte_inteira_mais_parte_decimal_2():
 
 
     return encondign_coord_train, encondign_coord_test
+
+
+def Thermomether_match_coor_x_and_y():
+    # int(row['EpisodeID']), float(row['x']), float(row['y']), float(row['z']), row['LOS'], row['Val']
+    all_info_coord_val, coord_train, coord_test = read_valid_coordinates()
+
+    episodios = all_info_coord_val[:, 0]
+
+    all_x_coord_str = all_info_coord_val[:, 1]
+    all_x_coord = [float(x) for x in all_x_coord_str]
+    all_y_coord_str = all_info_coord_val[:, 2]
+    all_y_coord = [float(y) for y in all_y_coord_str]
+
+    min_x_coord = np.min(all_x_coord)
+    max_x_coord = np.max(all_x_coord)
+
+    min_y_coord = np.min(all_y_coord)
+    max_y_coord = np.max(all_y_coord)
+
+    diff_all_x_coord = np.array((all_x_coord - min_x_coord))
+    diff_all_y_coord = np.array((all_y_coord - min_y_coord))
+
+
+    escala = 8
+    size_of_data_x = 960*escala
+    size_of_data_y = 980*escala
+    enconding_x = np.array([len(all_info_coord_val), size_of_data_x], dtype=int)
+    enconding_y = np.array([len(all_info_coord_val), size_of_data_y], dtype=int)
+
+    encoding_x_whole_part = np.zeros(enconding_x, dtype=int)
+    encoding_x_decimal_part = np.zeros(np.array([len(all_info_coord_val), 100], dtype=int), dtype=int)
+
+    encoding_y_whole_part = np.zeros(enconding_y, dtype=int)
+    encoding_y_decimal_part = np.zeros(np.array([len(all_info_coord_val), 100], dtype=int), dtype=int)
+
+    sample = 0
+    n_x = 12*escala
+    for i in diff_all_x_coord:
+        whole_part = int(i)
+        for j in range(whole_part + n_x):
+            encoding_x_whole_part[sample, j] = 1
+        sample = sample + 1
+
+    '''
+    sample = 0
+    for i in diff_all_x_coord:
+        decimal_part = int(round(modf(i)[0], 2) * 100)
+        for j in range(decimal_part):
+            encoding_x_decimal_part[sample, j] = 1
+        sample = sample + 1
+
+    encondig_x_coord = np.concatenate((encoding_x_whole_part, encoding_x_decimal_part), axis=1)
+    '''
+
+    sample = 0
+    n_y = 4*escala
+    for i in diff_all_y_coord:
+        whole_part = int(i)
+        for j in range(whole_part + n_y):
+            encoding_y_whole_part[sample, j] = 1
+        sample = sample + 1
+
+    '''
+    sample = 0
+    for i in diff_all_y_coord:
+        decimal_part = int(round(modf(i)[0], 2) * 100)
+        for j in range(decimal_part):
+            encoding_y_decimal_part[sample, j] = 1
+        sample = sample + 1
+
+    encondig_y_coord = np.concatenate((encoding_y_whole_part, encoding_y_decimal_part), axis=1)
+    '''
+
+    encondig_coord = np.concatenate((encoding_x_whole_part, encoding_y_whole_part), axis=1)
+    encoding_coord_and_episode = np.column_stack([episodios, encondig_coord])
+
+    limit_ep_train = 1564
+    encondign_coord_train = encoding_coord_and_episode[(encoding_coord_and_episode[:, 0] < limit_ep_train + 1)]
+    encondign_coord_test = encoding_coord_and_episode[(encoding_coord_and_episode[:, 0] > limit_ep_train)]
+
+    size_of_input = encondign_coord_train.shape
+    encondign_coord_train = encondign_coord_train[:, 1:size_of_input[1]]
+    encondign_coord_test = encondign_coord_test[:, 1:size_of_input[1]]
+
+    return encondign_coord_train, encondign_coord_test
+

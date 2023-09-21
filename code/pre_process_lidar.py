@@ -143,7 +143,7 @@ def pre_process_all_data_like_cube(data_lidar_process_all, data_position_rx, dat
         x= (np.argwhere(pos_obj_in_each_sample==1))
 
 
-        position_of_rx_as_cube[i, 0:x_rx, 0:y_rx, 0:z_rx] = 1
+        #position_of_rx_as_cube[i, 0:x_rx, 0:y_rx, 0:z_rx] = 1
 
 
 
@@ -251,6 +251,9 @@ def process_all_data_like_cube():
     all_data_train = pre_process_all_data_like_cube(data_lidar_process_all, data_position_rx, data_position_tx,plot=True, sample_for_plot=0)
 
     a = 0
+
+
+
 def process_data_rx_like_cube():
     data_path = "../data/lidar/lidar_train_raymobtime.npz"
     data_lidar_process_all, data_position_rx, data_position_tx = read_data(data_path)
@@ -549,4 +552,3 @@ def separed_data_lidar_LOS_NLOS():
     np.savez(saveInputPath + 'lidar_NLOS_test' + '.npz', lidar_test=lidar_NLOS_test)
 
 
-process_all_data_like_cube()

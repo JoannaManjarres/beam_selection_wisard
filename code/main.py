@@ -140,6 +140,11 @@ def beam_selection(antenna_config, type_of_connection, type_of_input, flag_rx_or
             input_train = encondign_coord_train
             input_test = encondign_coord_test
 
+        if type_of_input == 'cood_in_termometro_iguais':
+            encondign_coord_train, encondign_coord_test = preprocess.Thermomether_match_coor_x_and_y()
+            input_train = encondign_coord_train
+            input_test = encondign_coord_test
+
         if type_of_input == 'coord_in_termometro_+_Lidar':
             encondign_coord_train, encondign_coord_test = preprocess.Thermomether_dobro_resolucao()
             data_lidar_train, data_lidar_validation = obj_lidar.read_all_LiDAR_data()
@@ -252,6 +257,7 @@ def beam_selection(antenna_config, type_of_connection, type_of_input, flag_rx_or
 
     if type_of_selection == '1':
 
+        print("input: ", np.shape(input_train))
         obj.select_best_beam(input_train,
                              input_test,
                              label_train,
@@ -359,7 +365,9 @@ def run_simulation():
         a = input("selecionar o beam com as coordenadas pre-processadas em: \n"
                   "\t [1] matriz Qs [23 X 250] \n"
                   "\t [2] Matriz Qs em linhas [2 X 120] \n"
-                  "\t [3] Termometro [256 bits] \n")
+                  "\t [3] Termometro [256 bits] \n"
+                  "\t [4] Termometro coord x e y 'iguais' [960X980] \n")
+
         if a == '1':
             type_of_input = 'coord_in_Qs'
 
@@ -368,6 +376,9 @@ def run_simulation():
 
         if a =='3':
             type_of_input = 'coord_in_termometro'
+
+        if a=='4':
+            type_of_input = 'cood_in_termometro_iguais'
 
     # SELECIONA BEAMS COM LIDAR
     if flag_input_beam_selection == '2':
