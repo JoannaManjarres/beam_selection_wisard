@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import csv
 
-rota = '../results/accuracy/8X32/coord_in_termometro/Combined/'
-file_name = 'acuracia_beam_selection_Combined_[8X32]_coord_in_termometro_2_ALL.csv'
+rota = '../results/accuracy/8X32/coord_in_termometro_iguais/Combined/'
+file_name = 'acuracia_beam_selection_Combined_[8X32]_cood_in_termometro_iguais_12_ALL.csv'
 filename = rota+file_name
 
 '''
@@ -27,12 +27,12 @@ df_1 = pd.read_csv(filename,
                  sep='\t',
                  names=['Tamanho_memoria', 'Acuracia', 'intervalo_conf'])
 
-rota = '../results/accuracy/8X32/coord_in_termometro/Combined/'
-j=1
+rota = '../results/accuracy/8X32/coord_in_termometro_iguais/Combined/'
+j=12
 #all_info = [6, 12, 18,24,28,34,38,44,48,54,58,64]
 all_info=[]
-for i in range(1,7):
-    file_name = 'acuracia_beam_selection_Combined_[8X32]_coord_in_termometro_'+str(j)+'_ALL.csv'
+for i in range(1,5):
+    file_name = 'acuracia_beam_selection_Combined_[8X32]_cood_in_termometro_iguais_'+str(j)+'_ALL.csv'
 
     print(file_name)
     filename = rota+file_name
@@ -59,7 +59,7 @@ data = np.random.randint(low=1,
                          size=(10, 10))
 '''
 
-y_axis_labels = [1,2,4,8,16,32]
+y_axis_labels = [12,24,48,96]
 x_axis_labels = [6, 12, 18,24,28,34,38,44,48,54,58,64]
 # plotting the heatmap
 plt.figure(figsize=(6,4))
@@ -77,4 +77,5 @@ hm.set_xlabel('Tamanho da Memoria', fontsize=10)
 hm.set_ylabel('Resolucao do Termometro', fontsize=10)
 # displaying the plotted heatmap
 plt.subplots_adjust(right=1, left=0.09)
+plt.savefig(rota)
 plt.show()

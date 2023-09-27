@@ -121,7 +121,7 @@ def pre_process_data_rx_like_cube(data_lidar_process_all, data_position_rx, data
 
     return all_data
 
-def pre_process_all_data_like_cube(data_lidar_process_all, data_position_rx, data_position_tx, plot=False, sample_for_plot=0):
+def pre_process_all_data_like_cube(data_lidar_process_all, data_position_rx, data_position_tx, plot=True, sample_for_plot=3):
     x_dimension = len(data_position_rx[0, :, 0, 0])
     y_dimension = len(data_position_rx[0, 0, :, 0])
     z_dimension = len(data_position_rx[0, 0, 0, :])
@@ -140,26 +140,16 @@ def pre_process_all_data_like_cube(data_lidar_process_all, data_position_rx, dat
     for i in range(number_of_samples):
         pos_obj_in_each_sample = data_lidar_process_all[i, :, :, :]
 
-        x= (np.argwhere(pos_obj_in_each_sample==1))
-
-
-        #position_of_rx_as_cube[i, 0:x_rx, 0:y_rx, 0:z_rx] = 1
-
-
-
-
         for index, value in enumerate(pos_obj_in_each_sample):
-            for j, val in enumerate(value):
-                for m in range(10):
-                    if val[m] == 1:
-                        print(index, j, m)
-                        indices.append(m)
+            y, z = np.sort(np.where(value == 1))
+            if len(y) == 0:
+                position_of_objetcs_as_cube[i, 0:index, 0:0, 0:0] = 0
+            else:
+                max_y = np.max(y)
+                max_z = np.max(z)
+                position_of_objetcs_as_cube[i, 0:index, 0:max_y, 0:max_z] = 1
 
 
-
-        test = np.argmax(pos_obj_in_each_sample[0,:,:])
-        x_obj, y_obj, z_obj = np.unravel_index(pos_obj_in_each_sample.argmax(), pos_obj_in_each_sample.shape)
-        position_of_objetcs_as_cube[i, 0:x_obj, 0:y_obj, 0:z_obj] = 1
 
     #Transformando a posicao do rx como um cubo
     for i in range(number_of_samples):
@@ -178,7 +168,7 @@ def pre_process_all_data_like_cube(data_lidar_process_all, data_position_rx, dat
 
     if plot:
         # ------- PLOT RX E CENA COMPLETA
-        sample_for_plot = sample_for_plot
+        sample_for_plot = 3
         rx_as_cube = position_of_rx_as_cube[sample_for_plot, :, :, :]
         rx = data_position_rx[sample_for_plot, :, :, :]
         tx = data_position_tx[sample_for_plot,:,:,:]
@@ -243,14 +233,32 @@ def pre_process_all_data_like_cube(data_lidar_process_all, data_position_rx, dat
 
         ax.legend(handles=[c1, c2, c3], loc='center left', bbox_to_anchor=(-0.1, 0.9))
 
+
     return all_data
 
 def process_all_data_like_cube():
     data_path = "../data/lidar/lidar_train_raymobtime.npz"
     data_lidar_process_all, data_position_rx, data_position_tx = read_data(data_path)
-    all_data_train = pre_process_all_data_like_cube(data_lidar_process_all, data_position_rx, data_position_tx,plot=True, sample_for_plot=0)
+    all_data_train = pre_process_all_data_like_cube(data_lidar_process_all,
+                                                    data_position_rx,
+                                                    data_position_tx,
+                                                    plot=True,
+                                                    sample_for_plot=0)
 
-    a = 0
+    saveInputPath = "../data/lidar/all_data_like_cube/"
+    np.savez(saveInputPath + 'all_data_like_cube_train' + '.npz', lidar_train=all_data_train)
+
+    data_path = "../data/lidar/lidar_validation_raymobtime.npz"
+    data_lidar_process_all_test, data_position_rx_test, data_position_tx_test = read_data(data_path)
+    all_data_test = pre_process_all_data_like_cube(data_lidar_process_all_test,
+                                                   data_position_rx_test,
+                                                   data_position_tx_test,
+                                                   plot=True, sample_for_plot=0)
+
+    saveInputPath = "../data/lidar/all_data_like_cube/"
+    np.savez(saveInputPath + 'all_data_like_cube_test' + '.npz', lidar_test=all_data_test)
+
+
 
 
 
@@ -430,6 +438,18 @@ def print_scene(objects, rx, tx):
 
 
 ######
+
+def read_LiDAR_all_data_like_cube():
+    lidar_path = "../data/Lidar/all_data_like_cube/"
+    input_cache_file = np.load(lidar_path + "all_data_like_cube_train.npz", allow_pickle=True)
+
+    all_lidar_train = input_cache_file["lidar_train"]
+    input_cache_file = np.load(lidar_path + "all_data_like_cube_test.npz", allow_pickle=True)
+    all_lidar_test = input_cache_file["lidar_test"]
+
+
+
+    return all_lidar_train, all_lidar_test
 def read_LiDAR_with_rx_like_cube():
     lidar_path = "../data/Lidar/all_data_+_rx_like_cube/"
     input_cache_file = np.load(lidar_path + "all_data_lidar_+_rx_like_cube_train.npz", allow_pickle=True)
@@ -463,7 +483,7 @@ def read_all_LiDAR_data():
     input_cache_file = np.load(lidar_path + "all_data_lidar_test.npz", allow_pickle=True)
     all_lidar_test = input_cache_file["lidar_test"]
 
-    return all_lidar_train,all_lidar_test
+    return all_lidar_train, all_lidar_test
 
 def read_LiDAR_LOS_data():
 
