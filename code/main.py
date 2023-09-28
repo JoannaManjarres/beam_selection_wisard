@@ -66,6 +66,7 @@ def do_preprocess(flag_preprocess_coord,
                                              "\t [4] Receptor com um cubo + Quantizados[Dataset] \n"
                                              "\t [5] Todos os dados como um cubo incluindo o Rx\n"
                                              "\t [6] Dilatar dados do cenario\n"
+                                             "\t [7] Dilatar dados do cenario + rx como um cubo\n"
                                              )
 
         if flag_type_of_pre_process_lidar == '1':
@@ -80,6 +81,8 @@ def do_preprocess(flag_preprocess_coord,
             obj_lidar.process_all_data_like_cube()
         if flag_type_of_pre_process_lidar == '6':
             obj_lidar.process_data_lidar_dilation()
+        if flag_type_of_pre_process_lidar == '7':
+            obj_lidar.process_data_dilation_with_rx_as_cube()
 
 
 def beam_selection(antenna_config, type_of_connection, type_of_input, flag_rx_or_tx, type_of_selection):
@@ -136,6 +139,19 @@ def beam_selection(antenna_config, type_of_connection, type_of_input, flag_rx_or
             data_lidar_like_cube_train, data_lidar_like_cube_validation = obj_lidar.read_LiDAR_all_data_like_cube()
             input_train = data_lidar_like_cube_train
             input_test = data_lidar_like_cube_validation
+
+        if type_of_input == 'all_data_dilated':
+            print('Input: ', type_of_input)
+            data_dilated_train, data_dilated_validation = obj_lidar.read_LiDAR_all_data_dilated()
+            input_train = data_dilated_train
+            input_test = data_dilated_validation
+
+        if type_of_input == 'all_data_dilated_+_rx_as_cube':
+            print('Input: ', type_of_input)
+            data_dilated_with_rx_as_cube_train, data_dilated_with_rx_as_cube_validation = obj_lidar.read_LiDAR_all_data_dilated_with_rx_as_cube()
+            input_train = data_dilated_with_rx_as_cube_train
+            input_test = data_dilated_with_rx_as_cube_validation
+
 
         if type_of_input == 'coord_in_Qs_+_Lidar':
             data_lidar_train, data_lidar_validation = obj_lidar.read_all_LiDAR_data()
@@ -407,7 +423,10 @@ def run_simulation():
                   "\t [1] Quantizados [Dataset] + Posicao do Rx ? \n" \
                   "\t [2] Quantizados [Dataset] SEM a Posicao do Rx ? \n" \
                   "\t [3] Quantizados [Dataset] + Rx como um cubo? \n"
-                  "\t [4] Todos os dados como um cubo + Rx como um cubo? \n")
+                  "\t [4] Todos os dados como um cubo + Rx como um cubo? \n"
+                  "\t [5] Todos os dados do cenario Dilatados? \n"
+                  "\t [6] Todos os dados do cenario Dilatados + Rx como um cubo? \n"
+                  )
 
         if c =='1':
             type_of_input = 'lidar'
@@ -417,6 +436,10 @@ def run_simulation():
             type_of_input = 'rx_cubo_+_Lidar'
         if c =='4':
             type_of_input = 'all_data_like_cube'
+        if c == '5':
+            type_of_input = 'all_data_dilated'
+        if c == '6':
+            type_of_input = 'all_data_dilated_+_rx_as_cube'
 
     # SELECIONA BEAMS COM COORD + LIDAR
     if flag_input_beam_selection == '3':
