@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.patches as mpatches
 import csv
+import cv2
+from scipy import ndimage
 from skimage.transform import rescale, resize, downscale_local_mean
 from skimage import data, color
 
@@ -120,7 +122,21 @@ def pre_process_data_rx_like_cube(data_lidar_process_all, data_position_rx, data
         ax.legend(handles=[c1, c2, c3], loc='center left', bbox_to_anchor=(-0.1, 0.9))
 
     return all_data
+def process_data_rx_like_cube():
+    data_path = "../data/lidar/lidar_train_raymobtime.npz"
+    data_lidar_process_all, data_position_rx, data_position_tx = read_data(data_path)
+    all_data_train = pre_process_data_rx_like_cube(data_lidar_process_all, data_position_rx, data_position_tx, plot=True, sample_for_plot=0)
 
+    saveInputPath = "../data/lidar/all_data_+_rx_like_cube/"
+    np.savez(saveInputPath + 'all_data_lidar_+_rx_like_cube_train' + '.npz', lidar_train=all_data_train)
+
+
+    data_path = "../data/lidar/lidar_validation_raymobtime.npz"
+    data_lidar_process_all_test, data_position_rx_test, data_position_tx_test = read_data(data_path)
+    all_data_test = pre_process_data_rx_like_cube(data_lidar_process_all_test, data_position_rx_test, data_position_tx_test, plot=False, sample_for_plot=0)
+
+    saveInputPath = "../data/lidar/all_data_+_rx_like_cube/"
+    np.savez(saveInputPath + 'all_data_lidar_+_rx_like_cube_test' + '.npz', lidar_test=all_data_test)
 def pre_process_all_data_like_cube(data_lidar_process_all, data_position_rx, data_position_tx, plot=True, sample_for_plot=3):
     x_dimension = len(data_position_rx[0, :, 0, 0])
     y_dimension = len(data_position_rx[0, 0, :, 0])
@@ -235,7 +251,6 @@ def pre_process_all_data_like_cube(data_lidar_process_all, data_position_rx, dat
 
 
     return all_data
-
 def process_all_data_like_cube():
     data_path = "../data/lidar/lidar_train_raymobtime.npz"
     data_lidar_process_all, data_position_rx, data_position_tx = read_data(data_path)
@@ -259,24 +274,104 @@ def process_all_data_like_cube():
     np.savez(saveInputPath + 'all_data_like_cube_test' + '.npz', lidar_test=all_data_test)
 
 
-
-
-
-def process_data_rx_like_cube():
+def process_data_lidar_dilation():
     data_path = "../data/lidar/lidar_train_raymobtime.npz"
     data_lidar_process_all, data_position_rx, data_position_tx = read_data(data_path)
-    all_data_train = pre_process_data_rx_like_cube(data_lidar_process_all, data_position_rx, data_position_tx, plot=True, sample_for_plot=0)
+    all_data_train = pre_process_data_dilation(data_lidar_process_all,
+                                                    data_position_rx,
+                                                    data_position_tx,
+                                                    plot=True,
+                                                    sample_for_plot=0)
 
-    saveInputPath = "../data/lidar/all_data_+_rx_like_cube/"
-    np.savez(saveInputPath + 'all_data_lidar_+_rx_like_cube_train' + '.npz', lidar_train=all_data_train)
-
+    saveInputPath = "../data/lidar/all_data_dilated/"
+    np.savez(saveInputPath + 'all_data_dilated_train' + '.npz', lidar_train=all_data_train)
 
     data_path = "../data/lidar/lidar_validation_raymobtime.npz"
     data_lidar_process_all_test, data_position_rx_test, data_position_tx_test = read_data(data_path)
-    all_data_test = pre_process_data_rx_like_cube(data_lidar_process_all_test, data_position_rx_test, data_position_tx_test, plot=False, sample_for_plot=0)
+    all_data_test = pre_process_data_dilation(data_lidar_process_all_test,
+                                                    data_position_rx_test,
+                                                    data_position_tx_test,
+                                                    plot=True,
+                                                    sample_for_plot=0)
 
-    saveInputPath = "../data/lidar/all_data_+_rx_like_cube/"
-    np.savez(saveInputPath + 'all_data_lidar_+_rx_like_cube_test' + '.npz', lidar_test=all_data_test)
+    saveInputPath = "../data/lidar/all_data_dilated/"
+    np.savez(saveInputPath + 'all_data_dilated_test' + '.npz', lidar_test=all_data_test)
+
+def pre_process_data_dilation(data_lidar_process_all, data_position_rx, data_position_tx, plot=False, sample_for_plot=0):
+    number_of_samples = data_lidar_process_all.shape[0]
+    all_dilated_obj = data_lidar_process_all.copy()*0
+
+    for i in range(number_of_samples):
+        pos_obj_in_each_sample = data_lidar_process_all[i, :, :, :]
+        dilated_obj_per_sample = ndimage.binary_dilation(pos_obj_in_each_sample).astype(pos_obj_in_each_sample.dtype)
+        all_dilated_obj[i,:,:,:] = dilated_obj_per_sample
+
+
+
+
+    sample_for_plot = 0
+    object_dilated = all_dilated_obj[sample_for_plot, :, :, :]
+    rx = data_position_rx[sample_for_plot, :, :, :]
+    tx = data_position_tx[sample_for_plot, :, :, :]
+    scenario_complet = data_lidar_process_all[sample_for_plot, :, :, :]
+    fig = plt.figure()
+
+    ax = fig.add_subplot(1, 2, 1, projection='3d')
+    ax.voxels(object_dilated, alpha=0.20,  edgecolor=None, shade=True, color='grey')  # Voxel visualization
+    ax.set_title('Cenario Dilatado')
+    ax.set_xlabel('x', labelpad=10)
+    ax.set_ylabel('y', labelpad=10)
+    ax.set_zlabel('z', labelpad=10)
+    plt.tight_layout()
+
+    objects = scenario_complet
+    objects = np.array(objects, dtype=bool)
+    rx = np.array(rx, dtype=bool)
+    tx = np.array(tx, dtype=bool)
+
+    voxelarray = objects | rx | tx
+
+    # set the colors of each object
+    colors = np.empty(voxelarray.shape, dtype=object)
+
+    color_object = '#cccccc90'
+    color_rx = 'red'
+    color_tx = 'blue'
+
+    colors[objects] = color_object
+    colors[rx] = color_rx
+    colors[tx] = color_tx
+
+    # and plot everything
+    # ax = plt.figure().add_subplot(projection='3d')
+
+    # Set axes label
+    ax.set_xlabel('x', labelpad=10)
+    ax.set_ylabel('y', labelpad=10)
+    ax.set_zlabel('z', labelpad=10)
+
+    # set predefine rotation
+    # ax.view_init(elev=49, azim=115)
+
+    ax = fig.add_subplot(1, 2, 2, projection='3d')
+    # ax.voxels(voxelarray, alpha=0.5, edgecolor=None, shade=True, antialiased=False,
+    #         color='#cccccc90')  # Voxel visualization
+    ax.voxels(voxelarray, facecolors=colors, edgecolor=None, antialiased=False)
+    ax.set_title('Cenario original')
+    ax.set_xlabel('x', labelpad=10)
+    ax.set_ylabel('y', labelpad=10)
+    ax.set_zlabel('z', labelpad=10)
+    plt.tight_layout()
+
+    c1 = mpatches.Patch(color=color_object, label='Objects')
+    c2 = mpatches.Patch(color=color_rx, label='Rx')
+    c3 = mpatches.Patch(color=color_tx, label='Tx')
+
+    ax.legend(handles=[c1, c2, c3], loc='center left', bbox_to_anchor=(-0.1, 0.9))
+
+    return all_dilated_obj
+
+
 
 
 

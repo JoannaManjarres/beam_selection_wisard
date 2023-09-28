@@ -65,6 +65,7 @@ def do_preprocess(flag_preprocess_coord,
                                              "\t [3] Quantizados[Dataset] sem Rx \n"
                                              "\t [4] Receptor com um cubo + Quantizados[Dataset] \n"
                                              "\t [5] Todos os dados como um cubo incluindo o Rx\n"
+                                             "\t [6] Dilatar dados do cenario\n"
                                              )
 
         if flag_type_of_pre_process_lidar == '1':
@@ -77,6 +78,8 @@ def do_preprocess(flag_preprocess_coord,
             obj_lidar.process_data_rx_like_cube()
         if flag_type_of_pre_process_lidar == '5':
             obj_lidar.process_all_data_like_cube()
+        if flag_type_of_pre_process_lidar == '6':
+            obj_lidar.process_data_lidar_dilation()
 
 
 def beam_selection(antenna_config, type_of_connection, type_of_input, flag_rx_or_tx, type_of_selection):
