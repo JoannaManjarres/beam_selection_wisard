@@ -31,6 +31,68 @@ def process_data(enable_plot, num_scene_to_plot):
     return data_lidar_train, data_lidar_validation
 
 
+def process_data_without_rx(enable_plot, num_scene_to_plot):
+
+    data_path = "../data/lidar/lidar_train_raymobtime.npz"
+    data_lidar_process_all, data_position_rx, data_position_tx = read_data(data_path)
+    data_lidar_train = pre_process_lidar_without_rx_transposto(data_lidar_process_all)
+    #data_lidar_train = pre_process_lidar_without_rx(data_lidar_process_all)
+
+    saveInputPath = "../data/lidar/sem_rx/"
+    np.savez(saveInputPath + 'all_data_lidar_sem_rx_train' + '.npz', lidar_train=data_lidar_train)
+
+    if enable_plot:
+        print_scene(data_lidar_process_all[num_scene_to_plot], data_position_rx[num_scene_to_plot], data_position_tx[num_scene_to_plot])
+
+    data_path = "../data/lidar/lidar_validation_raymobtime.npz"
+    data_lidar_process_all, data_position_rx, data_position_tx = read_data(data_path)
+    data_lidar_validation = pre_process_lidar_without_rx(data_lidar_process_all)
+
+    saveInputPath = "../data/lidar/sem_rx/"
+    np.savez(saveInputPath + 'all_data_lidar_sem_rx_test' + '.npz', lidar_test=data_lidar_validation)
+
+    return data_lidar_train, data_lidar_validation
+def pre_process_lidar_without_rx(data_lidar_process):
+
+    x_dimension = len(data_lidar_process[0,:,0,0])
+    y_dimension = len(data_lidar_process[0,0,:,0])
+    z_dimension = len(data_lidar_process[0,0,0,:])
+    dimension_of_coordenadas = x_dimension * y_dimension * z_dimension
+    number_of_samples = data_lidar_process.shape[0]
+    lidar_data_vector = np.zeros([number_of_samples, dimension_of_coordenadas])
+    position_of_rx_vector = np.zeros([number_of_samples, dimension_of_coordenadas])
+
+    all_data = np.zeros([number_of_samples, dimension_of_coordenadas], dtype=np.int8)
+    a = np.zeros(dimension_of_coordenadas,dtype=np.int8)
+
+
+    for i in range(number_of_samples):
+        #lidar_data_vector[i, :] = data_lidar_process[i,:,:,:].reshape(1, dimension_of_coordenadas)
+        #position_of_rx_vector[i,:] = data_position_rx[i,:,:,:].reshape(1, dimension_of_coordenadas)
+
+        a = data_lidar_process[i,:,:,:].reshape(1, dimension_of_coordenadas)
+        #b = data_position_rx[i,:,:,:].reshape(1, dimension_of_coordenadas)
+        all_data[i] = a
+        #all_data[i] = np.concatenate((a,b), axis=1)
+
+    return all_data
+
+
+def process_data_rx_like_cube():
+    data_path = "../data/lidar/lidar_train_raymobtime.npz"
+    data_lidar_process_all, data_position_rx, data_position_tx = read_data(data_path)
+    all_data_train = pre_process_data_rx_like_cube(data_lidar_process_all, data_position_rx, data_position_tx, plot=True, sample_for_plot=0)
+
+    saveInputPath = "../data/lidar/all_data_+_rx_like_cube/"
+    np.savez(saveInputPath + 'all_data_lidar_+_rx_like_cube_train' + '.npz', lidar_train=all_data_train)
+
+
+    data_path = "../data/lidar/lidar_validation_raymobtime.npz"
+    data_lidar_process_all_test, data_position_rx_test, data_position_tx_test = read_data(data_path)
+    all_data_test = pre_process_data_rx_like_cube(data_lidar_process_all_test, data_position_rx_test, data_position_tx_test, plot=False, sample_for_plot=0)
+
+    saveInputPath = "../data/lidar/all_data_+_rx_like_cube/"
+    np.savez(saveInputPath + 'all_data_lidar_+_rx_like_cube_test' + '.npz', lidar_test=all_data_test)
 def pre_process_data_rx_like_cube(data_lidar_process_all, data_position_rx, data_position_tx, plot=False, sample_for_plot=0):
     x_dimension = len(data_position_rx[0, :, 0, 0])
     y_dimension = len(data_position_rx[0, 0, :, 0])
@@ -122,21 +184,28 @@ def pre_process_data_rx_like_cube(data_lidar_process_all, data_position_rx, data
         ax.legend(handles=[c1, c2, c3], loc='center left', bbox_to_anchor=(-0.1, 0.9))
 
     return all_data
-def process_data_rx_like_cube():
+
+def process_all_data_like_cube():
     data_path = "../data/lidar/lidar_train_raymobtime.npz"
     data_lidar_process_all, data_position_rx, data_position_tx = read_data(data_path)
-    all_data_train = pre_process_data_rx_like_cube(data_lidar_process_all, data_position_rx, data_position_tx, plot=True, sample_for_plot=0)
+    all_data_train = pre_process_all_data_like_cube(data_lidar_process_all,
+                                                    data_position_rx,
+                                                    data_position_tx,
+                                                    plot=True,
+                                                    sample_for_plot=0)
 
-    saveInputPath = "../data/lidar/all_data_+_rx_like_cube/"
-    np.savez(saveInputPath + 'all_data_lidar_+_rx_like_cube_train' + '.npz', lidar_train=all_data_train)
-
+    saveInputPath = "../data/lidar/all_data_like_cube/"
+    np.savez(saveInputPath + 'all_data_like_cube_train' + '.npz', lidar_train=all_data_train)
 
     data_path = "../data/lidar/lidar_validation_raymobtime.npz"
     data_lidar_process_all_test, data_position_rx_test, data_position_tx_test = read_data(data_path)
-    all_data_test = pre_process_data_rx_like_cube(data_lidar_process_all_test, data_position_rx_test, data_position_tx_test, plot=False, sample_for_plot=0)
+    all_data_test = pre_process_all_data_like_cube(data_lidar_process_all_test,
+                                                   data_position_rx_test,
+                                                   data_position_tx_test,
+                                                   plot=True, sample_for_plot=0)
 
-    saveInputPath = "../data/lidar/all_data_+_rx_like_cube/"
-    np.savez(saveInputPath + 'all_data_lidar_+_rx_like_cube_test' + '.npz', lidar_test=all_data_test)
+    saveInputPath = "../data/lidar/all_data_like_cube/"
+    np.savez(saveInputPath + 'all_data_like_cube_test' + '.npz', lidar_test=all_data_test)
 def pre_process_all_data_like_cube(data_lidar_process_all, data_position_rx, data_position_tx, plot=True, sample_for_plot=3):
     x_dimension = len(data_position_rx[0, :, 0, 0])
     y_dimension = len(data_position_rx[0, 0, :, 0])
@@ -251,27 +320,6 @@ def pre_process_all_data_like_cube(data_lidar_process_all, data_position_rx, dat
 
 
     return all_data
-def process_all_data_like_cube():
-    data_path = "../data/lidar/lidar_train_raymobtime.npz"
-    data_lidar_process_all, data_position_rx, data_position_tx = read_data(data_path)
-    all_data_train = pre_process_all_data_like_cube(data_lidar_process_all,
-                                                    data_position_rx,
-                                                    data_position_tx,
-                                                    plot=True,
-                                                    sample_for_plot=0)
-
-    saveInputPath = "../data/lidar/all_data_like_cube/"
-    np.savez(saveInputPath + 'all_data_like_cube_train' + '.npz', lidar_train=all_data_train)
-
-    data_path = "../data/lidar/lidar_validation_raymobtime.npz"
-    data_lidar_process_all_test, data_position_rx_test, data_position_tx_test = read_data(data_path)
-    all_data_test = pre_process_all_data_like_cube(data_lidar_process_all_test,
-                                                   data_position_rx_test,
-                                                   data_position_tx_test,
-                                                   plot=True, sample_for_plot=0)
-
-    saveInputPath = "../data/lidar/all_data_like_cube/"
-    np.savez(saveInputPath + 'all_data_like_cube_test' + '.npz', lidar_test=all_data_test)
 
 
 def process_data_lidar_dilation():
@@ -296,7 +344,6 @@ def process_data_lidar_dilation():
 
     saveInputPath = "../data/lidar/all_data_dilated/"
     np.savez(saveInputPath + 'all_data_dilated_test' + '.npz', lidar_test=all_data_test)
-
 def pre_process_data_dilation(data_lidar_process_all, data_position_rx, data_position_tx, plot=True, sample_for_plot=0):
     number_of_samples = data_lidar_process_all.shape[0]
     all_dilated_obj = data_lidar_process_all.copy()*0
@@ -308,7 +355,7 @@ def pre_process_data_dilation(data_lidar_process_all, data_position_rx, data_pos
 
     for i in range(number_of_samples):
         pos_obj_in_each_sample = data_lidar_process_all[i, :, :, :]
-        dilated_obj_per_sample = ndimage.binary_dilation(pos_obj_in_each_sample, iterations=2).astype(pos_obj_in_each_sample.dtype)
+        dilated_obj_per_sample = ndimage.binary_dilation(pos_obj_in_each_sample, iterations=4).astype(pos_obj_in_each_sample.dtype)
         all_dilated_obj[i,:,:,:] = dilated_obj_per_sample
 
 
@@ -383,6 +430,28 @@ def pre_process_data_dilation(data_lidar_process_all, data_position_rx, data_pos
     return all_data
 
 
+def process_data_dilation_with_rx_as_cube():
+    data_path = "../data/lidar/lidar_train_raymobtime.npz"
+    data_lidar_process_all, data_position_rx, data_position_tx = read_data(data_path)
+    all_data_train = pre_process_data_dilation_with_rx_as_cube(data_lidar_process_all,
+                                               data_position_rx,
+                                               data_position_tx,
+                                               plot=False,
+                                               sample_for_plot=0)
+
+    saveInputPath = "../data/lidar/all_data_dilated_+_rx_as_cube/"
+    np.savez(saveInputPath + 'all_data_dilated_+_rx_as_cube_train' + '.npz', lidar_train=all_data_train)
+
+    data_path = "../data/lidar/lidar_validation_raymobtime.npz"
+    data_lidar_process_all_test, data_position_rx_test, data_position_tx_test = read_data(data_path)
+    all_data_test = pre_process_data_dilation_with_rx_as_cube(data_lidar_process_all_test,
+                                              data_position_rx_test,
+                                              data_position_tx_test,
+                                              plot=False,
+                                              sample_for_plot=0)
+
+    saveInputPath = "../data/lidar/all_data_dilated_+_rx_as_cube/"
+    np.savez(saveInputPath + 'all_data_dilated_+_rx_as_cube_test' + '.npz', lidar_test=all_data_test)
 def pre_process_data_dilation_with_rx_as_cube(data_lidar_process_all, data_position_rx, data_position_tx, plot=True, sample_for_plot=0):
     number_of_samples = data_lidar_process_all.shape[0]
     all_dilated_obj = data_lidar_process_all.copy() * 0
@@ -396,7 +465,7 @@ def pre_process_data_dilation_with_rx_as_cube(data_lidar_process_all, data_posit
 
     for i in range(number_of_samples):
         pos_obj_in_each_sample = data_lidar_process_all[i, :, :, :]
-        dilated_obj_per_sample = ndimage.binary_dilation(pos_obj_in_each_sample, iterations=4).astype(
+        dilated_obj_per_sample = ndimage.binary_dilation(pos_obj_in_each_sample, iterations=1).astype(
             pos_obj_in_each_sample.dtype)
         all_dilated_obj[i, :, :, :] = dilated_obj_per_sample
 
@@ -478,55 +547,290 @@ def pre_process_data_dilation_with_rx_as_cube(data_lidar_process_all, data_posit
     return all_data
 
 
-
-
-
-
-
-def process_data_dilation_with_rx_as_cube():
+def process_all_data_with_rx_like_cube_to_tx():
     data_path = "../data/lidar/lidar_train_raymobtime.npz"
     data_lidar_process_all, data_position_rx, data_position_tx = read_data(data_path)
-    all_data_train = pre_process_data_dilation_with_rx_as_cube(data_lidar_process_all,
-                                               data_position_rx,
-                                               data_position_tx,
-                                               plot=True,
-                                               sample_for_plot=0)
-
-    saveInputPath = "../data/lidar/all_data_dilated_+_rx_as_cube/"
-    np.savez(saveInputPath + 'all_data_dilated_+_rx_as_cube_train' + '.npz', lidar_train=all_data_train)
+    all_data_train = pre_process_all_data_with_rx_like_cube_to_tx(data_lidar_process_all,
+                                                          data_position_rx,
+                                                          data_position_tx,
+                                                          plot=True,
+                                                          sample_for_plot=0)
+    saveInputPath = "../data/lidar/all_data_+_rx_like_cube_to_tx/"
+    np.savez(saveInputPath + 'all_data_+_rx_like_cube_to_tx_train' + '.npz', lidar_train=all_data_train)
 
     data_path = "../data/lidar/lidar_validation_raymobtime.npz"
     data_lidar_process_all_test, data_position_rx_test, data_position_tx_test = read_data(data_path)
-    all_data_test = pre_process_data_dilation_with_rx_as_cube(data_lidar_process_all_test,
-                                              data_position_rx_test,
-                                              data_position_tx_test,
-                                              plot=False,
-                                              sample_for_plot=0)
+    all_data_test = pre_process_all_data_with_rx_like_cube_to_tx(data_lidar_process_all_test,
+                                                              data_position_rx_test,
+                                                              data_position_tx_test,
+                                                              plot=False,
+                                                              sample_for_plot=0)
 
-    saveInputPath = "../data/lidar/all_data_dilated_+_rx_as_cube/"
-    np.savez(saveInputPath + 'all_data_dilated_+_rx_as_cube_test' + '.npz', lidar_test=all_data_test)
+    saveInputPath = "../data/lidar/all_data_+_rx_like_cube_to_tx/"
+    np.savez(saveInputPath + 'all_data_+_rx_like_cube_to_tx_test' + '.npz', lidar_test=all_data_test)
+def pre_process_all_data_with_rx_like_cube_to_tx(data_lidar_process_all,
+                                         data_position_rx,
+                                         data_position_tx,
+                                         plot=True,
+                                         sample_for_plot=3):
 
-def process_data_without_rx(enable_plot, num_scene_to_plot):
+    number_of_samples = data_lidar_process_all.shape[0]
+    x_dimension = len(data_position_rx[0, :, 0, 0])
+    y_dimension = len(data_position_rx[0, 0, :, 0])
+    z_dimension = len(data_position_rx[0, 0, 0, :])
+    dimension_of_coordenadas = x_dimension * y_dimension * z_dimension
 
+    #position_of_rx_as_cube = data_position_rx.copy() * 0
+    position_of_rx_as_cube = np.zeros([number_of_samples, x_dimension, y_dimension, z_dimension], dtype=np.int8)
+
+
+    for i in range(number_of_samples):
+        pos_obj_in_each_sample = data_lidar_process_all[i, :, :, :]
+        #dilated_obj_per_sample = ndimage.binary_dilation(pos_obj_in_each_sample, iterations=4).astype(
+        #    pos_obj_in_each_sample.dtype)
+        #all_dilated_obj[i, :, :, :] = dilated_obj_per_sample
+
+        pos_rx_in_each_sample = data_position_rx[i, :, :, :]
+        x_rx, y_rx, z_rx = np.unravel_index(pos_rx_in_each_sample.argmax(), pos_rx_in_each_sample.shape)
+
+        pos_tx_in_each_sample = data_position_tx[i, :, :]
+        x_tx, y_tx, z_tx = np.unravel_index(pos_tx_in_each_sample.argmax(), pos_tx_in_each_sample.shape)
+        #position_of_rx_as_cube_1[i, 0:x_rx, 0:y_rx, 0:z_rx] = 1
+        if x_rx > x_tx:
+            if y_rx > y_tx:
+                position_of_rx_as_cube[i, x_tx:x_rx+1, y_tx:y_rx+1, z_rx:z_tx+1] = 1
+            else:
+                position_of_rx_as_cube[i, x_tx:x_rx+1, y_rx:y_tx + 1, z_rx:z_tx + 1] = 1
+        else:
+            if y_rx > y_tx:
+                position_of_rx_as_cube[i, x_rx:x_tx+1, y_tx:y_rx, z_rx:z_tx] = 1
+            else:
+                position_of_rx_as_cube[i, x_rx:x_tx+1, y_rx:y_tx, z_rx:z_tx] = 1
+
+        a=0
+
+    all_data = np.zeros([number_of_samples, dimension_of_coordenadas * 2], dtype=np.int8)
+
+    # convertendo as matrizes num vetor
+    for i in range(number_of_samples):
+        #all_dilated_obj_as_vector = all_dilated_obj[i, :, :, :].reshape(1, dimension_of_coordenadas)
+        position_of_rx_cube_as_vector = position_of_rx_as_cube[i, :, :, :].reshape(1, dimension_of_coordenadas)
+        position_of_all_obj_as_vector = data_lidar_process_all[i, :, :, :].reshape(1, dimension_of_coordenadas)
+        all_data[i] = np.concatenate((position_of_rx_cube_as_vector, position_of_all_obj_as_vector), axis=1)
+
+    if plot:
+        print("plot")
+        sample_for_plot = 3
+        #object_dilated = all_dilated_obj[sample_for_plot, :, :, :]
+        rx_as_cube = position_of_rx_as_cube[sample_for_plot, :, :, :]
+        rx = data_position_rx[sample_for_plot, :, :, :]
+        tx = data_position_tx[sample_for_plot, :, :, :]
+        scenario_complet = data_lidar_process_all[sample_for_plot, :, :, :]
+        fig = plt.figure()
+
+        ax = fig.add_subplot(1, 2, 1, projection='3d')
+        ax.voxels(rx_as_cube, alpha=0.10, edgecolor=None, shade=True, color='red')  # Voxel visualization
+        ax.set_title('Receptor')
+        ax.set_xlabel('x', labelpad=10)
+        ax.set_ylabel('y', labelpad=10)
+        ax.set_zlabel('z', labelpad=10)
+        plt.tight_layout()
+
+
+        objects = scenario_complet
+        objects = np.array(objects, dtype=bool)
+        rx = np.array(rx, dtype=bool)
+        tx = np.array(tx, dtype=bool)
+
+        voxelarray = objects | rx | tx
+
+        # set the colors of each object
+        colors = np.empty(voxelarray.shape, dtype=object)
+
+        color_object = '#cccccc90'
+        color_rx = 'red'
+        color_tx = 'blue'
+
+        colors[objects] = color_object
+        colors[rx] = color_rx
+        colors[tx] = color_tx
+
+        # and plot everything
+        # ax = plt.figure().add_subplot(projection='3d')
+
+        # Set axes label
+        ax.set_xlabel('x', labelpad=10)
+        ax.set_ylabel('y', labelpad=10)
+        ax.set_zlabel('z', labelpad=10)
+
+        # set predefine rotation
+        # ax.view_init(elev=49, azim=115)
+
+        ax = fig.add_subplot(1, 2, 2, projection='3d')
+        # ax.voxels(voxelarray, alpha=0.5, edgecolor=None, shade=True, antialiased=False,
+        #         color='#cccccc90')  # Voxel visualization
+        ax.voxels(voxelarray, facecolors=colors, edgecolor=None, antialiased=False)
+        ax.set_title('Cenario Original')
+        ax.set_xlabel('x', labelpad=10)
+        ax.set_ylabel('y', labelpad=10)
+        ax.set_zlabel('z', labelpad=10)
+        plt.tight_layout()
+
+        c1 = mpatches.Patch(color=color_object, label='Objects')
+        c2 = mpatches.Patch(color=color_rx, label='Rx')
+        c3 = mpatches.Patch(color=color_tx, label='Tx')
+
+        ax.legend(handles=[c1, c2, c3], loc='center left', bbox_to_anchor=(-0.1, 0.9))
+
+
+
+    return all_data
+
+
+
+
+def process_all_data_dilated_with_rx_like_cube_to_tx():
     data_path = "../data/lidar/lidar_train_raymobtime.npz"
     data_lidar_process_all, data_position_rx, data_position_tx = read_data(data_path)
-    data_lidar_train = pre_process_lidar_without_rx_transposto(data_lidar_process_all)
-    #data_lidar_train = pre_process_lidar_without_rx(data_lidar_process_all)
-
-    saveInputPath = "../data/lidar/sem_rx/"
-    np.savez(saveInputPath + 'all_data_lidar_sem_rx_train' + '.npz', lidar_train=data_lidar_train)
-
-    if enable_plot:
-        print_scene(data_lidar_process_all[num_scene_to_plot], data_position_rx[num_scene_to_plot], data_position_tx[num_scene_to_plot])
+    all_data_train = pre_process_all_data_dilated_with_rx_like_cube_to_tx(data_lidar_process_all,
+                                                          data_position_rx,
+                                                          data_position_tx,
+                                                          plot=False,
+                                                          sample_for_plot=0)
+    saveInputPath = "../data/lidar/all_data_lidar_dilated_+_rx_like_cube_to_tx/"
+    np.savez(saveInputPath + 'all_data_lidar_dilated_+_rx_like_cube_to_tx_train' + '.npz', lidar_train=all_data_train)
 
     data_path = "../data/lidar/lidar_validation_raymobtime.npz"
-    data_lidar_process_all, data_position_rx, data_position_tx = read_data(data_path)
-    data_lidar_validation = pre_process_lidar_without_rx(data_lidar_process_all)
+    data_lidar_process_all_test, data_position_rx_test, data_position_tx_test = read_data(data_path)
+    all_data_test = pre_process_all_data_with_rx_like_cube_to_tx(data_lidar_process_all_test,
+                                                                 data_position_rx_test,
+                                                                 data_position_tx_test,
+                                                                 plot=False,
+                                                                 sample_for_plot=0)
 
-    saveInputPath = "../data/lidar/sem_rx/"
-    np.savez(saveInputPath + 'all_data_lidar_sem_rx_test' + '.npz', lidar_test=data_lidar_validation)
+    saveInputPath = "../data/lidar/all_data_lidar_dilated_+_rx_like_cube_to_tx/"
+    np.savez(saveInputPath + 'all_data_lidar_dilated_+_rx_like_cube_to_tx_test' + '.npz', lidar_test=all_data_test)
 
-    return data_lidar_train, data_lidar_validation
+
+def pre_process_all_data_dilated_with_rx_like_cube_to_tx(data_lidar_process_all,
+                                         data_position_rx,
+                                         data_position_tx,
+                                         plot=False,
+                                         sample_for_plot=3):
+
+    number_of_samples = data_lidar_process_all.shape[0]
+    x_dimension = len(data_position_rx[0, :, 0, 0])
+    y_dimension = len(data_position_rx[0, 0, :, 0])
+    z_dimension = len(data_position_rx[0, 0, 0, :])
+    dimension_of_coordenadas = x_dimension * y_dimension * z_dimension
+
+    #position_of_rx_as_cube = data_position_rx.copy() * 0
+    position_of_rx_as_cube = np.zeros([number_of_samples, x_dimension, y_dimension, z_dimension], dtype=np.int8)
+    all_dilated_obj = np.zeros([number_of_samples, x_dimension, y_dimension, z_dimension], dtype=np.int8)
+
+
+    for i in range(number_of_samples):
+        pos_obj_in_each_sample = data_lidar_process_all[i, :, :, :]
+        dilated_obj_per_sample = ndimage.binary_dilation(pos_obj_in_each_sample, iterations=4).astype(
+            pos_obj_in_each_sample.dtype)
+        all_dilated_obj[i, :, :, :] = dilated_obj_per_sample
+
+        pos_rx_in_each_sample = data_position_rx[i, :, :, :]
+        x_rx, y_rx, z_rx = np.unravel_index(pos_rx_in_each_sample.argmax(), pos_rx_in_each_sample.shape)
+
+        pos_tx_in_each_sample = data_position_tx[i, :, :]
+        x_tx, y_tx, z_tx = np.unravel_index(pos_tx_in_each_sample.argmax(), pos_tx_in_each_sample.shape)
+
+        if x_rx > x_tx:
+            if y_rx > y_tx:
+                position_of_rx_as_cube[i, x_tx:x_rx+1, y_tx:y_rx+1, z_rx:z_tx+1] = 1
+            else:
+                position_of_rx_as_cube[i, x_tx:x_rx+1, y_rx:y_tx + 1, z_rx:z_tx + 1] = 1
+        else:
+            if y_rx > y_tx:
+                position_of_rx_as_cube[i, x_rx:x_tx+1, y_tx:y_rx, z_rx:z_tx] = 1
+            else:
+                position_of_rx_as_cube[i, x_rx:x_tx+1, y_rx:y_tx, z_rx:z_tx] = 1
+
+
+
+    all_data = np.zeros([number_of_samples, dimension_of_coordenadas * 2], dtype=np.int8)
+
+    # convertendo as matrizes num vetor
+    for i in range(number_of_samples):
+        all_dilated_obj_as_vector = all_dilated_obj[i, :, :, :].reshape(1, dimension_of_coordenadas)
+        position_of_rx_cube_as_vector = position_of_rx_as_cube[i, :, :, :].reshape(1, dimension_of_coordenadas)
+        #position_of_all_obj_as_vector = data_lidar_process_all[i, :, :, :].reshape(1, dimension_of_coordenadas)
+        all_data[i] = np.concatenate((position_of_rx_cube_as_vector, all_dilated_obj_as_vector), axis=1)
+
+    if plot:
+        print("plot")
+        sample_for_plot = 0
+        object_dilated = all_dilated_obj[sample_for_plot, :, :, :]
+        rx_as_cube = position_of_rx_as_cube[sample_for_plot, :, :, :]
+        rx = data_position_rx[sample_for_plot, :, :, :]
+        tx = data_position_tx[sample_for_plot, :, :, :]
+        scenario_complet = data_lidar_process_all[sample_for_plot, :, :, :]
+        fig = plt.figure()
+
+        ax = fig.add_subplot(1, 2, 1, projection='3d')
+        ax.voxels(rx_as_cube, alpha=0.10, edgecolor=None, shade=True, color='red')  # Voxel visualization
+        ax.set_title('Receptor')
+        ax.set_xlabel('x', labelpad=10)
+        ax.set_ylabel('y', labelpad=10)
+        ax.set_zlabel('z', labelpad=10)
+        plt.tight_layout()
+
+
+        objects = object_dilated
+        objects = np.array(objects, dtype=bool)
+        rx = np.array(rx, dtype=bool)
+        tx = np.array(tx, dtype=bool)
+
+        voxelarray = objects | rx | tx
+
+        # set the colors of each object
+        colors = np.empty(voxelarray.shape, dtype=object)
+
+        color_object = '#cccccc90'
+        color_rx = 'red'
+        color_tx = 'blue'
+
+        colors[objects] = color_object
+        colors[rx] = color_rx
+        colors[tx] = color_tx
+
+        # and plot everything
+        # ax = plt.figure().add_subplot(projection='3d')
+
+        # Set axes label
+        ax.set_xlabel('x', labelpad=10)
+        ax.set_ylabel('y', labelpad=10)
+        ax.set_zlabel('z', labelpad=10)
+
+        # set predefine rotation
+        # ax.view_init(elev=49, azim=115)
+
+        ax = fig.add_subplot(1, 2, 2, projection='3d')
+        # ax.voxels(voxelarray, alpha=0.5, edgecolor=None, shade=True, antialiased=False,
+        #         color='#cccccc90')  # Voxel visualization
+        ax.voxels(voxelarray, facecolors=colors, edgecolor=None, antialiased=False)
+        ax.set_title('Cenario Dilatado')
+        ax.set_xlabel('x', labelpad=10)
+        ax.set_ylabel('y', labelpad=10)
+        ax.set_zlabel('z', labelpad=10)
+        plt.tight_layout()
+
+        c1 = mpatches.Patch(color=color_object, label='Objects')
+        c2 = mpatches.Patch(color=color_rx, label='Rx')
+        c3 = mpatches.Patch(color=color_tx, label='Tx')
+
+        ax.legend(handles=[c1, c2, c3], loc='center left', bbox_to_anchor=(-0.1, 0.9))
+
+
+
+    return all_data
+
 
 def read_data(data_path):
     label_cache_file = np.load(data_path)
@@ -566,30 +870,6 @@ def pre_process_lidar(data_lidar_process, data_position_rx):
 
     return all_data
 
-def pre_process_lidar_without_rx(data_lidar_process):
-
-    x_dimension = len(data_lidar_process[0,:,0,0])
-    y_dimension = len(data_lidar_process[0,0,:,0])
-    z_dimension = len(data_lidar_process[0,0,0,:])
-    dimension_of_coordenadas = x_dimension * y_dimension * z_dimension
-    number_of_samples = data_lidar_process.shape[0]
-    lidar_data_vector = np.zeros([number_of_samples, dimension_of_coordenadas])
-    position_of_rx_vector = np.zeros([number_of_samples, dimension_of_coordenadas])
-
-    all_data = np.zeros([number_of_samples, dimension_of_coordenadas], dtype=np.int8)
-    a = np.zeros(dimension_of_coordenadas,dtype=np.int8)
-
-
-    for i in range(number_of_samples):
-        #lidar_data_vector[i, :] = data_lidar_process[i,:,:,:].reshape(1, dimension_of_coordenadas)
-        #position_of_rx_vector[i,:] = data_position_rx[i,:,:,:].reshape(1, dimension_of_coordenadas)
-
-        a = data_lidar_process[i,:,:,:].reshape(1, dimension_of_coordenadas)
-        #b = data_position_rx[i,:,:,:].reshape(1, dimension_of_coordenadas)
-        all_data[i] = a
-        #all_data[i] = np.concatenate((a,b), axis=1)
-
-    return all_data
 
 def pre_process_lidar_without_rx_transposto(data_lidar_process):
 
@@ -662,6 +942,29 @@ def print_scene(objects, rx, tx):
 
 
 ######
+
+
+def read_LiDAR_all_data_dilated_with_rx_like_cube_to_tx():
+    lidar_path = "../data/Lidar/all_data_lidar_dilated_+_rx_like_cube_to_tx/"
+
+    input_cache_file = np.load(lidar_path + "all_data_lidar_dilated_+_rx_like_cube_to_tx_train.npz", allow_pickle=True)
+    all_lidar_train = input_cache_file["lidar_train"]
+
+    input_cache_file = np.load(lidar_path + "all_data_lidar_dilated_+_rx_like_cube_to_tx_test.npz", allow_pickle=True)
+    all_lidar_test = input_cache_file["lidar_test"]
+
+    return all_lidar_train, all_lidar_test
+
+def read_LiDAR_all_data_with_rx_like_cube_to_tx():
+    lidar_path = "../data/Lidar/all_data_+_rx_like_cube_to_tx/"
+    input_cache_file = np.load(lidar_path + "all_data_+_rx_like_cube_to_tx_train.npz", allow_pickle=True)
+    all_lidar_train = input_cache_file["lidar_train"]
+
+    input_cache_file = np.load(lidar_path + "all_data_+_rx_like_cube_to_tx_test.npz", allow_pickle=True)
+    all_lidar_test = input_cache_file["lidar_test"]
+
+    return all_lidar_train, all_lidar_test
+
 
 def read_LiDAR_all_data_dilated_with_rx_as_cube():
     lidar_path = "../data/Lidar/all_data_dilated_+_rx_as_cube/"

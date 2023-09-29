@@ -79,7 +79,7 @@ def plotarResultados(x_vector,
                      ruta="figura.png"):
     plt.figure()
     plt.errorbar(x_vector, y_vector, yerr=desvio_padrao_vector, fmt='o', label=nombre_curva, capsize=5, ecolor='red')
-
+    plt.grid()
     plt.legend(loc="best")
     plt.title(titulo)
     plt.xlabel(x_label)
@@ -103,9 +103,9 @@ def select_best_beam(input_train,
         address_size = [28]
         numero_experimentos = 2
     else:
-        address_size = [6,64]
-        #address_size = [6,12,18,24,28,34,38,44,48,54,58,64]
-        numero_experimentos = 1
+        #address_size = [6,64]
+        address_size = [6,12,18,24,28,34,38,44,48,54,58,64]
+        numero_experimentos = 5
 
     vector_time_train_media = []
     vector_time_test_media = []
