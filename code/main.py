@@ -46,8 +46,14 @@ def do_preprocess(flag_preprocess_coord,
     if flag_preprocess_coord =='S':
 
         print("pre processar em:")
-        flag_matriz_type = input("\t [1] matriz Qs ou \n " \
-                                 "\t [2] matriz Qs em linhas ")
+        flag_matriz_type = input("\t [1] matriz Qs  \n " \
+                                 "\t [2] matriz Qs em linhas \n"
+                                 "\t [3] Termometro com as coord x e y de tamanhos iguais \n "
+                                 "\t [4] Termometro com as coord x e y de tamanhos iguais incluindo a parte decimal \n "
+                                 "\t [5] Termometro com as corrd x e y desbalanceadas \n "
+                                 "\t [6] Termometro com as corrd x e y desbalanceadas incluindo a parte decimal \n "
+                                 )
+
         if (flag_matriz_type == '1'):
             coord = preprocess.read_all_coordinates()
             train, test, coordenadas_LOS_train, coordenadas_NLOS_train, coordenadas_LOS_test, coordenadas_NLOS_test = preprocess.coord_to_Qs_matrix(coord)
@@ -57,6 +63,24 @@ def do_preprocess(flag_preprocess_coord,
         if (flag_matriz_type == '2'):
             preprocess.pre_process_coordinates_in_lines(separed_coord_LOS=True)
             print("Coordenadas pre processadas em matriz Qs em linhas [2X120] e guardadas")
+
+        if flag_matriz_type == '3':
+            preprocess.process_coord_in_Thermomether_match_coor_x_and_y()
+            print("Coordenadas pre processadas em termometro, com coord x e y de tamanhos iguais")
+
+        if flag_matriz_type == '4':
+            preprocess.process_coord_in_Thermomether_match_coor_x_and_y_include_decimal()
+            print("Coordenadas pre processadas em termometro, com coord x e y de tamanhos iguais incluindo a parte decimal")
+
+        if flag_matriz_type == '5':
+            preprocess.process_coord_in_Thermomether_x_y_unbalanced()
+            print("Coordenadas pre processadas em termometro, com coord x e y desbalanceadas")
+
+        if flag_matriz_type == '6':
+            preprocess.process_coord_in_Thermomether_x_y_unbalanced_with_decimal_part()
+            print("Coordenadas pre processadas em termometro, com coord x e y desbalanceadas incluindo a parte decimal")
+
+
 
     if flag_preprocess_LiDAR == 'S':
         print("Pre processar os dados LiDAR em:")
@@ -115,10 +139,32 @@ def beam_selection(antenna_config, type_of_connection, type_of_input, flag_rx_or
             all_coord_train, all_coord_test = read.read_all_Qs_matrix()
             input_train = all_coord_train
             input_test = all_coord_test
+
         if type_of_input == 'coord_in_Qs_lines':
             all_coord_in_Qs_line_train, all_coord_in_Qs_line_test = read.read_all_Qs_matrix_in_lines()
             input_train = all_coord_in_Qs_line_train
             input_test = all_coord_in_Qs_line_test
+
+        if type_of_input == 'coord_in_termometro_iguais':
+            all_coord_in_match_thermometer_train, all_coord_in_match_thermometer_test = preprocess.read_coord_in_Thermomether_match_coor_x_and_y()
+            input_train = all_coord_in_match_thermometer_train
+            input_test = all_coord_in_match_thermometer_test
+
+        if type_of_input == 'coord_in_termometro_iguais_com_decimal':
+            all_coord_in_match_thermometer_with_decimal_train, all_coord_in_match_thermometer_with_decimal_test = preprocess.read_coord_in_Thermomether_match_coor_x_and_y_include_decimal()
+            input_train = all_coord_in_match_thermometer_with_decimal_train
+            input_test = all_coord_in_match_thermometer_with_decimal_test
+
+        if type_of_input == 'coord_in_Thermomether_x_y_unbalanced':
+            all_coord_in_Thermomether_x_y_unbalanced_train, all_coord_in_Thermomether_x_y_unbalanced_test = preprocess.read_coord_in_Thermomether_x_y_unbalanced()
+            input_train = all_coord_in_Thermomether_x_y_unbalanced_train
+            input_test = all_coord_in_Thermomether_x_y_unbalanced_test
+
+        if type_of_input == 'coord_in_Thermomether_x_y_unbalanced_with_decimal_part':
+            all_coord_in_Thermomether_x_y_unbalanced_with_decimal_part_train, all_coord_in_Thermomether_x_y_unbalanced_with_decimal_part_test = preprocess.read_coord_in_Thermomether_x_y_unbalanced_with_decimal_part()
+            input_train = all_coord_in_Thermomether_x_y_unbalanced_with_decimal_part_train
+            input_test = all_coord_in_Thermomether_x_y_unbalanced_with_decimal_part_test
+
 
 
 
@@ -193,9 +239,11 @@ def beam_selection(antenna_config, type_of_connection, type_of_input, flag_rx_or
             input_test = encondign_coord_test
 
         if type_of_input == 'coord_in_termometro_iguais':
-            encondign_coord_train, encondign_coord_test = preprocess.Thermomether_match_coor_x_and_y_include_decimal()
+            encondign_coord_train, encondign_coord_test = preprocess.read_coord_in_Thermomether_match_coor_x_and_y()
             input_train = encondign_coord_train
             input_test = encondign_coord_test
+
+
 
         if type_of_input == 'coord_in_termometro_+_Lidar':
             encondign_coord_train, encondign_coord_test = preprocess.Thermomether_dobro_resolucao()
@@ -215,6 +263,39 @@ def beam_selection(antenna_config, type_of_connection, type_of_input, flag_rx_or
             encondign_coord_train, encondign_coord_test = preprocess.Thermomether_match_coor_x_and_y_include_decimal()
             input_train = np.column_stack((encondign_coord_train, data_lidar_rx_like_cube_train))
             input_test = np.column_stack((encondign_coord_test, data_lidar_rx_like_cube_validation))
+
+        if type_of_input == 'coord_in_termometro_iguais_+_rx_cubo_+_Lidar':
+            print(type_of_input)
+            data_lidar_rx_like_cube_train, data_lidar_rx_like_cube_validation = obj_lidar.read_LiDAR_with_rx_like_cube()
+            all_coord_in_match_thermometer_train, all_coord_in_match_thermometer_test = preprocess.read_coord_in_Thermomether_match_coor_x_and_y()
+
+            input_train = np.column_stack((all_coord_in_match_thermometer_train, data_lidar_rx_like_cube_train))
+            input_test = np.column_stack((all_coord_in_match_thermometer_test, data_lidar_rx_like_cube_validation))
+
+        if type_of_input == 'coord_in_termometro_iguais_com_decimal_+_rx_cubo_+_Lidar':
+            print(type_of_input)
+            data_lidar_rx_like_cube_train, data_lidar_rx_like_cube_validation = obj_lidar.read_LiDAR_with_rx_like_cube()
+            all_coord_in_match_thermometer_with_decimal_train, all_coord_in_match_thermometer_with_decimal_test = preprocess.read_coord_in_Thermomether_match_coor_x_and_y_include_decimal()
+
+            input_train = np.column_stack((all_coord_in_match_thermometer_with_decimal_train, data_lidar_rx_like_cube_train))
+            input_test = np.column_stack((all_coord_in_match_thermometer_with_decimal_test, data_lidar_rx_like_cube_validation))
+
+        if type_of_input == 'coord_in_Thermomether_x_y_unbalanced_+_rx_cubo_+_Lidar':
+            print(type_of_input)
+            data_lidar_rx_like_cube_train, data_lidar_rx_like_cube_validation = obj_lidar.read_LiDAR_with_rx_like_cube()
+            all_coord_in_Thermomether_x_y_unbalanced_train, all_coord_in_Thermomether_x_y_unbalanced_test = preprocess.read_coord_in_Thermomether_x_y_unbalanced()
+
+            input_train = np.column_stack((all_coord_in_Thermomether_x_y_unbalanced_train, data_lidar_rx_like_cube_train))
+            input_test = np.column_stack((all_coord_in_Thermomether_x_y_unbalanced_test, data_lidar_rx_like_cube_validation))
+
+        if type_of_input == 'coord_in_Thermomether_x_y_unbalanced_with_decimal_part_+_rx_cubo_+_Lidar':
+            print(type_of_input)
+            data_lidar_rx_like_cube_train, data_lidar_rx_like_cube_validation = obj_lidar.read_LiDAR_with_rx_like_cube()
+            all_coord_in_Thermomether_x_y_unbalanced_with_decimal_part_train, all_coord_in_Thermomether_x_y_unbalanced_with_decimal_part_test = preprocess.read_coord_in_Thermomether_x_y_unbalanced_with_decimal_part()
+
+            input_train = np.column_stack((all_coord_in_Thermomether_x_y_unbalanced_with_decimal_part_train, data_lidar_rx_like_cube_train))
+            input_test = np.column_stack((all_coord_in_Thermomether_x_y_unbalanced_with_decimal_part_test, data_lidar_rx_like_cube_validation))
+
 
 
 
@@ -426,7 +507,10 @@ def run_simulation():
                   "\t [1] matriz Qs [23 X 250] \n"
                   "\t [2] Matriz Qs em linhas [2 X 120] \n"
                   "\t [3] Termometro [256 bits] \n"
-                  "\t [4] Termometro coord x e y 'iguais' [960X980] \n")
+                  "\t [4] Termometro coord x e y 'iguais' [960X980] \n"
+                  "\t [5] Termometro coord x e y 'iguais' com a parte decimal \n"
+                  "\t [6] Termometro coord x e y desbalanceadas \n"
+                  "\t [7] Termometro coord x e y desbalanceadas com a parte decimal \n")
 
         if a == '1':
             type_of_input = 'coord_in_Qs'
@@ -439,6 +523,15 @@ def run_simulation():
 
         if a=='4':
             type_of_input = 'coord_in_termometro_iguais'
+
+        if a =='5':
+            type_of_input = 'coord_in_termometro_iguais_com_decimal'
+
+        if a =='6':
+            type_of_input = 'coord_in_Thermomether_x_y_unbalanced'
+
+        if a == '7':
+            type_of_input = 'coord_in_Thermomether_x_y_unbalanced_with_decimal_part'
 
     # SELECIONA BEAMS COM LIDAR
     if flag_input_beam_selection == '2':
@@ -480,22 +573,32 @@ def run_simulation():
                   "\t [2] Matriz Qs em linhas [2 X 120] \n"\
                   "\t [3] Termometro \n"
                   "\t [4] Termometro e LiDAR sem rx \n"
-                  "\t [5] Termometro (int, decimal) + Rx como um cubo + LiDAR\n")
+                  "\t [5] Termometro (int, decimal) + Rx como um cubo + LiDAR\n"
+                  "\t [6] Termometro (int, x e y iguais) + Rx como um cubo + LiDAR\n"
+                  "\t [7] Termometro (int, x e y iguais com decimal) + Rx como um cubo + LiDAR \n"
+                  "\t [8] Termometro (int, x e y desbalanceados) + Rx como um cubo + LiDAR \n"
+                  "\t [9] Termometro (int, x e y desbalanceados considerando a parte decimal) + Rx como um cubo + LiDAR \n"
+                      )
 
 
         if b == '1':
             type_of_input = 'coord_in_Qs_+_Lidar'
-
         if b == '2':
             type_of_input = 'coord_in_Qs_lines_+_Lidar'
-
         if b == '3':
             type_of_input = 'coord_in_termometro_+_Lidar'
-
         if b =='4':
             type_of_input = 'coord_in_termometro_+_Lidar_sem_rx'
         if b=='5':
             type_of_input = 'coord_in_termometro_int_decimal_+_rx_cubo_+_Lidar'
+        if b == '6':
+            type_of_input = 'coord_in_termometro_iguais_+_rx_cubo_+_Lidar'
+        if b == '7':
+            type_of_input = 'coord_in_termometro_iguais_com_decimal_+_rx_cubo_+_Lidar'
+        if b == '8':
+            type_of_input = 'coord_in_Thermomether_x_y_unbalanced_+_rx_cubo_+_Lidar'
+        if b == '9':
+            type_of_input = 'coord_in_Thermomether_x_y_unbalanced_with_decimal_part_+_rx_cubo_+_Lidar'
 
     print('type_of_input: ', type_of_input, 'type_of_connection', connection, 'antenna_config', antenna_config,
           'flag_rx_or_tx', flag_rx_or_tx)

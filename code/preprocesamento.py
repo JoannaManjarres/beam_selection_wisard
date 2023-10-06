@@ -610,7 +610,9 @@ def  Thermomether():
 
     return encondign_coord_train, encondign_coord_test
 
-def  Thermomether_dobro_resolucao():
+
+
+def  Thermomether_coord_x_y_unbalanced():
     #int(row['EpisodeID']), float(row['x']), float(row['y']), float(row['z']), row['LOS'], row['Val']
     all_info_coord_val, coord_train, coord_test = read_valid_coordinates()
 
@@ -623,35 +625,38 @@ def  Thermomether_dobro_resolucao():
 
 
     min_x_coord = np.min(all_x_coord)
-    max_x_coord = np.max(all_x_coord)
-
     min_y_coord = np.min(all_y_coord)
-    max_y_coord = np.max(all_y_coord)
 
-    enconding = np.array([len(all_info_coord_val), 160], dtype=int)
-    encoding_x = np.zeros(enconding, dtype=int)
-    encoding_y = np.zeros(np.array([len(all_info_coord_val), 1960], dtype=int), dtype=int)
+
+    diff_all_x_coord = np.array((all_x_coord - min_x_coord))
+    diff_all_y_coord = np.array((all_y_coord - min_y_coord))
+
+    escala = 1
+    size_of_data_x = 20 * escala
+    size_of_data_y = 245 * escala
+    enconding_x = np.array([len(all_info_coord_val), size_of_data_x], dtype=int)
+    enconding_y = np.array([len(all_info_coord_val), size_of_data_y], dtype=int)
+
+    encoding_x_vector = np.zeros(enconding_x, dtype=int)
+    encoding_y_vector = np.zeros(enconding_y, dtype=int)
+
+    n_x = 1 * escala
 
     sample = 0
-    result_x = 0
-    for i in all_x_coord:
-        result_x = i-min_x_coord
-        for j in range(result_x*8):
-            encoding_x[sample, j] = 1
-
-        sample = sample+1
+    for i in diff_all_x_coord:
+        for j in range(i * n_x):
+            encoding_x_vector[sample, j] = 1
+        sample = sample + 1
 
     sample = 0
-    result_y = 0
-    for i in all_y_coord:
-        result_y = i - min_y_coord
-        for j in range(result_y*8):
-            encoding_y[sample, j] = 1
 
+    for i in diff_all_y_coord:
+        for j in range(i * n_x):
+            encoding_y_vector[sample, j] = 1
         sample = sample + 1
 
 
-    encondig_coord = np.concatenate((encoding_x,encoding_y), axis=1)
+    encondig_coord = np.concatenate((encoding_x_vector, encoding_y_vector), axis=1)
     encoding_coord_and_episode = np.column_stack([episodios, encondig_coord])
 
     limit_ep_train = 1564
@@ -664,6 +669,180 @@ def  Thermomether_dobro_resolucao():
 
 
     return encondign_coord_train, encondign_coord_test
+def process_coord_in_Thermomether_x_y_unbalanced():
+
+    encondign_coord_train, encondign_coord_test = Thermomether_coord_x_y_unbalanced()
+    saveInputPath = "../data/coordinates/coord_in_Thermomether_x_y_unbalanced/"
+
+    big_file = False
+
+    if big_file:
+        a = encondign_coord_train[0:4000, :]
+        a1 = encondign_coord_train[4000:9234, :]
+
+        b = encondign_coord_test[0:4000, :]
+        b_1 = encondign_coord_test[4000:9234, :]
+
+        np.savez(saveInputPath + 'coord_in_Thermomether_x_y_unbalanced_train_part_1' + '.npz', coord_train_1=a)
+        np.savez(saveInputPath + 'coord_in_Thermomether_x_y_unbalanced_train_part_2' + '.npz', coord_train_2=a1)
+        np.savez(saveInputPath + 'coord_in_Thermomether_x_y_unbalanced_test_part_1' + '.npz', coord_test_1=b)
+        np.savez(saveInputPath + 'coord_in_Thermomether_x_y_unbalanced_test_part_2' + '.npz', coord_test_2=b_1)
+
+    else:
+
+        np.savez(saveInputPath + 'coord_in_Thermomether_x_y_unbalanced_train' + '.npz', coord_train=encondign_coord_train)
+        np.savez(saveInputPath + 'coord_in_Thermomether_x_y_unbalanced_test' + '.npz', coord_test=encondign_coord_test)
+def read_coord_in_Thermomether_x_y_unbalanced():
+    coord_path = "../data/coordinates/coord_in_Thermomether_x_y_unbalanced/"
+    big_file = True
+
+    if big_file:
+
+        input_cache_file = np.load(coord_path + "coord_in_Thermomether_x_y_unbalanced_train_part_1.npz", allow_pickle=True)
+        all_coord_train_parte_1 = input_cache_file["coord_train_1"]
+
+        input_cache_file = np.load(coord_path + "coord_in_Thermomether_x_y_unbalanced_train_part_2.npz", allow_pickle=True)
+        all_coord_train_parte_2 = input_cache_file["coord_train_2"]
+
+        all_coord_train = np.concatenate((all_coord_train_parte_1, all_coord_train_parte_2), axis=0)
+
+        input_cache_file = np.load(coord_path + "coord_in_Thermomether_x_y_unbalanced_test_part_1.npz", allow_pickle=True)
+        all_coord_test_parte_1 = input_cache_file["coord_test_1"]
+
+        input_cache_file = np.load(coord_path + "coord_in_Thermomether_x_y_unbalanced_test_part_2.npz", allow_pickle=True)
+        all_coord_test_parte_2 = input_cache_file["coord_test_2"]
+
+        all_coord_test = np.concatenate((all_coord_test_parte_1, all_coord_test_parte_2), axis=0)
+
+    else:
+        input_cache_file = np.load(coord_path + "coord_in_Thermomether_x_y_unbalanced_train.npz", allow_pickle=True)
+        all_coord_train = input_cache_file["coord_train"]
+
+        input_cache_file = np.load(coord_path + "coord_in_Thermomether_x_y_unbalanced_test.npz", allow_pickle=True)
+        all_coord_test = input_cache_file["coord_test"]
+
+
+    return all_coord_train, all_coord_test
+
+
+
+def  Thermomether_coord_x_y_unbalanced_with_decimal_part():
+    #int(row['EpisodeID']), float(row['x']), float(row['y']), float(row['z']), row['LOS'], row['Val']
+    all_info_coord_val, coord_train, coord_test = read_valid_coordinates()
+
+    episodios = all_info_coord_val[:,0]
+
+    all_x_coord_str = all_info_coord_val[:,1]
+    all_x_coord = [float(x) for x in all_x_coord_str]
+    all_y_coord_str = all_info_coord_val[:, 2]
+    all_y_coord = [float(y) for y in all_y_coord_str]
+
+
+    min_x_coord = np.min(all_x_coord)
+    min_y_coord = np.min(all_y_coord)
+
+    diff_all_x_coord = np.array((all_x_coord-min_x_coord))
+    diff_all_y_coord = np.array((all_y_coord-min_y_coord))
+
+
+    escala = 32
+    size_of_data_x = 207 * escala
+    size_of_data_y = 2457 * escala
+    enconding_x = np.array([len(all_info_coord_val), size_of_data_x], dtype=int)
+    enconding_y = np.array([len(all_info_coord_val), size_of_data_y], dtype=int)
+
+    encoding_x_vector = np.zeros(enconding_x, dtype=int)
+    encoding_y_vector = np.zeros(enconding_y, dtype=int)
+
+    n_x = 1 * escala
+
+    sample = 0
+    for i in diff_all_x_coord:
+        number = int(round(i, 1) * 10)
+        for j in range(number * n_x):
+            encoding_x_vector[sample, j] = 1
+        sample = sample + 1
+
+    sample = 0
+    for i in diff_all_y_coord:
+        number = int(round(i, 1) * 10)
+        for j in range(number * n_x):
+            encoding_y_vector[sample, j] = 1
+        sample = sample + 1
+
+
+    encondig_coord = np.concatenate((encoding_x_vector, encoding_y_vector), axis=1)
+    encoding_coord_and_episode = np.column_stack([episodios, encondig_coord])
+
+    limit_ep_train = 1564
+    encondign_coord_train = encoding_coord_and_episode[(encoding_coord_and_episode[:, 0] < limit_ep_train + 1)]
+    encondign_coord_test = encoding_coord_and_episode[(encoding_coord_and_episode[:, 0] > limit_ep_train)]
+
+    size_of_input = encondign_coord_train.shape
+    encondign_coord_train = encondign_coord_train[:,1:size_of_input[1]]
+    encondign_coord_test = encondign_coord_test[:,1:size_of_input[1]]
+
+
+    return encondign_coord_train, encondign_coord_test
+def process_coord_in_Thermomether_x_y_unbalanced_with_decimal_part():
+
+    encondign_coord_train, encondign_coord_test = Thermomether_coord_x_y_unbalanced_with_decimal_part()
+    saveInputPath = "../data/coordinates/coord_in_Thermomether_x_y_unbalanced_with_decimal_part/"
+
+    big_file = False
+
+    if big_file:
+        a = encondign_coord_train[0:4000, :]
+        a1 = encondign_coord_train[4000:9234, :]
+
+        b = encondign_coord_test[0:4000, :]
+        b_1 = encondign_coord_test[4000:9234, :]
+
+        np.savez(saveInputPath + 'coord_in_Thermomether_x_y_unbalanced_with_decimal_part_train_part_1' + '.npz', coord_train_1=a)
+        np.savez(saveInputPath + 'coord_in_Thermomether_x_y_unbalanced_with_decimal_part_train_part_2' + '.npz', coord_train_2=a1)
+        np.savez(saveInputPath + 'coord_in_Thermomether_x_y_unbalanced_with_decimal_part_test_part_1' + '.npz', coord_test_1=b)
+        np.savez(saveInputPath + 'coord_in_Thermomether_x_y_unbalanced_with_decimal_part_test_part_2' + '.npz', coord_test_2=b_1)
+
+    else:
+
+        np.savez(saveInputPath + 'coord_in_Thermomether_x_y_unbalanced_with_decimal_part_train' + '.npz', coord_train=encondign_coord_train)
+        np.savez(saveInputPath + 'coord_in_Thermomether_x_y_unbalanced_with_decimal_part_test' + '.npz', coord_test=encondign_coord_test)
+def read_coord_in_Thermomether_x_y_unbalanced_with_decimal_part():
+    coord_path = "../data/coordinates/coord_in_Thermomether_x_y_unbalanced_with_decimal_part/"
+    big_file = False
+
+    if big_file:
+
+        input_cache_file = np.load(coord_path + "coord_in_Thermomether_x_y_unbalanced_with_decimal_part_train_part_1.npz",
+                                   allow_pickle=True)
+        all_coord_train_parte_1 = input_cache_file["coord_train_1"]
+
+        input_cache_file = np.load(coord_path + "coord_in_Thermomether_x_y_unbalanced_with_decimal_part_train_part_2.npz",
+                                   allow_pickle=True)
+        all_coord_train_parte_2 = input_cache_file["coord_train_2"]
+
+        all_coord_train = np.concatenate((all_coord_train_parte_1, all_coord_train_parte_2), axis=0)
+
+        input_cache_file = np.load(coord_path + "coord_in_Thermomether_x_y_unbalanced_with_decimal_part_test_part_1.npz",
+                                   allow_pickle=True)
+        all_coord_test_parte_1 = input_cache_file["coord_test_1"]
+
+        input_cache_file = np.load(coord_path + "coord_in_Thermomether_x_y_unbalanced_with_decimal_part_test_part_2.npz",
+                                   allow_pickle=True)
+        all_coord_test_parte_2 = input_cache_file["coord_test_2"]
+
+        all_coord_test = np.concatenate((all_coord_test_parte_1, all_coord_test_parte_2), axis=0)
+
+    else:
+        input_cache_file = np.load(coord_path + "coord_in_Thermomether_x_y_unbalanced_with_decimal_part_train.npz", allow_pickle=True)
+        all_coord_train = input_cache_file["coord_train"]
+
+        input_cache_file = np.load(coord_path + "coord_in_Thermomether_x_y_unbalanced_with_decimal_part_test.npz", allow_pickle=True)
+        all_coord_test = input_cache_file["coord_test"]
+
+    return all_coord_train, all_coord_test
+
+
 
 def  Thermomether_parte_inteira_parte_decimal():
     #int(row['EpisodeID']), float(row['x']), float(row['y']), float(row['z']), row['LOS'], row['Val']
@@ -954,6 +1133,57 @@ def  Thermomether_parte_inteira_mais_parte_decimal_2():
     return encondign_coord_train, encondign_coord_test
 
 
+def read_coord_in_Thermomether_match_coor_x_and_y():
+    coord_path = "../data/coordinates/coord_in_Thermomether_match_coord_x_and_y/"
+
+    input_cache_file = np.load(coord_path + "coord_in_termometro_iguais_train_parte1.npz", allow_pickle=True)
+    all_coord_train_parte_1 = input_cache_file["coord_train"]
+
+    input_cache_file = np.load(coord_path + "coord_in_termometro_iguais_train_parte2.npz", allow_pickle=True)
+    all_coord_train_parte_2 = input_cache_file["coord_train"]
+
+    all_coord_train = np.concatenate((all_coord_train_parte_1, all_coord_train_parte_2), axis=0)
+
+    input_cache_file = np.load(coord_path + "coord_in_termometro_iguais_test_parte1.npz", allow_pickle=True)
+    all_coord_test_parte_1 = input_cache_file["coord_test"]
+
+    input_cache_file = np.load(coord_path + "coord_in_termometro_iguais_test_parte2.npz", allow_pickle=True)
+    all_coord_test_parte_2 = input_cache_file["coord_test"]
+
+    all_coord_test = np.concatenate((all_coord_test_parte_1, all_coord_test_parte_2), axis=0)
+
+
+
+
+
+    #input_cache_file = np.load(coord_path + "coord_in_termometro_iguais_train.npz", allow_pickle=True)
+    #all_coord_train = input_cache_file["coord_train"]
+
+    #input_cache_file = np.load(coord_path + "coord_in_termometro_iguais_test.npz", allow_pickle=True)
+    #all_coord_test = input_cache_file["coord_test"]
+
+
+
+    return all_coord_train, all_coord_test
+def process_coord_in_Thermomether_match_coor_x_and_y():
+
+    encondign_coord_train, encondign_coord_test = Thermomether_match_coor_x_and_y()
+
+    a = encondign_coord_train[0:4000, :]
+    a1 = encondign_coord_train[4000:9234, :]
+
+    b = encondign_coord_test[0:4000, :]
+    b_1 = encondign_coord_test[4000:9234, :]
+
+
+    saveInputPath = "../data/coordinates/coord_in_Thermomether_match_coord_x_and_y/"
+    np.savez(saveInputPath + 'coord_in_termometro_iguais_train_parte1' + '.npz', coord_train=a)
+    np.savez(saveInputPath + 'coord_in_termometro_iguais_train_parte2' + '.npz', coord_train=a1)
+
+
+    #np.savez(saveInputPath + 'coord_in_termometro_iguais_test' + '.npz', coord_test=encondign_coord_test)
+    np.savez(saveInputPath + 'coord_in_termometro_iguais_test_parte1' + '.npz', coord_test=b)
+    np.savez(saveInputPath + 'coord_in_termometro_iguais_test_parte2' + '.npz', coord_test=b_1)
 def Thermomether_match_coor_x_and_y():
     # int(row['EpisodeID']), float(row['x']), float(row['y']), float(row['z']), row['LOS'], row['Val']
     all_info_coord_val, coord_train, coord_test = read_valid_coordinates()
@@ -975,7 +1205,7 @@ def Thermomether_match_coor_x_and_y():
     diff_all_y_coord = np.array((all_y_coord - min_y_coord))
 
 
-    escala = 8
+    escala = 64
     size_of_data_x = 960*escala
     size_of_data_y = 980*escala
     enconding_x = np.array([len(all_info_coord_val), size_of_data_x], dtype=int)
@@ -986,6 +1216,9 @@ def Thermomether_match_coor_x_and_y():
 
     encoding_y_whole_part = np.zeros(enconding_y, dtype=int)
     encoding_y_decimal_part = np.zeros(np.array([len(all_info_coord_val), 100], dtype=int), dtype=int)
+
+
+
 
     sample = 0
     n_x = 12*escala
@@ -1038,7 +1271,94 @@ def Thermomether_match_coor_x_and_y():
 
     return encondign_coord_train, encondign_coord_test
 
+
+
+def read_coord_in_Thermomether_match_coor_x_and_y_include_decimal():
+    coord_path = "../data/coordinates/coord_in_Thermomether_match_coor_x_and_y_include_decimal/"
+
+    input_cache_file = np.load(coord_path + "coord_in_termometro_iguais_with_decimal_train.npz", allow_pickle=True)
+    all_coord_train = input_cache_file["coord_train"]
+
+    input_cache_file = np.load(coord_path + "coord_in_termometro_iguais_with_decimal_test.npz", allow_pickle=True)
+    all_coord_test = input_cache_file["coord_train"]
+
+    return all_coord_train, all_coord_test
+def process_coord_in_Thermomether_match_coor_x_and_y_include_decimal():
+    encondign_coord_train, encondign_coord_test = Thermomether_match_coor_x_and_y_include_decimal()
+
+
+    saveInputPath = "../data/coordinates/coord_in_Thermomether_match_coor_x_and_y_include_decimal/"
+    np.savez(saveInputPath + 'coord_in_termometro_iguais_with_decimal_train' + '.npz', coord_train=encondign_coord_train)
+    np.savez(saveInputPath + 'coord_in_termometro_iguais_with_decimal_test' + '.npz', coord_train=encondign_coord_test)
 def Thermomether_match_coor_x_and_y_include_decimal():
+    # int(row['EpisodeID']), float(row['x']), float(row['y']), float(row['z']), row['LOS'], row['Val']
+    all_info_coord_val, coord_train, coord_test = read_valid_coordinates()
+
+    episodios = all_info_coord_val[:, 0]
+
+    all_x_coord_str = all_info_coord_val[:, 1]
+    all_x_coord = [float(x) for x in all_x_coord_str]
+    all_y_coord_str = all_info_coord_val[:, 2]
+    all_y_coord = [float(y) for y in all_y_coord_str]
+
+    min_x_coord = np.min(all_x_coord)
+    max_x_coord = np.max(all_x_coord)
+
+    min_y_coord = np.min(all_y_coord)
+    max_y_coord = np.max(all_y_coord)
+
+    diff_all_x_coord = np.array((all_x_coord - min_x_coord))  # max 20.73
+    diff_all_y_coord = np.array((all_y_coord - min_y_coord))  # max 245.74
+
+
+    escala = 8
+    size_of_data_x = 2073*escala
+    size_of_data_y = 2457*escala
+    enconding_x = np.array([len(all_info_coord_val), size_of_data_x], dtype=int)
+    enconding_y = np.array([len(all_info_coord_val), size_of_data_y], dtype=int)
+
+    encoding_x_whole_part = np.zeros(enconding_x, dtype=int)
+    encoding_x_decimal_part = np.zeros(np.array([len(all_info_coord_val), 100], dtype=int), dtype=int)
+
+    encoding_y_whole_part = np.zeros(enconding_y, dtype=int)
+    encoding_y_decimal_part = np.zeros(np.array([len(all_info_coord_val), 100], dtype=int), dtype=int)
+
+    sample = 0
+    n_x = 1*escala
+    #n_x = 0
+    for i in diff_all_x_coord:
+        whole_part = int(i*100)
+        for j in range(whole_part + n_x):
+            encoding_x_whole_part[sample, j] = 1
+        sample = sample + 1
+
+
+
+    sample = 0
+    #n_y = 4*escala
+    n_y = 0
+    for i in diff_all_y_coord:
+        whole_part = int(i*10)
+        for j in range(whole_part + n_y):
+            encoding_y_whole_part[sample, j] = 1
+        sample = sample + 1
+
+
+    encondig_coord = np.concatenate((encoding_x_whole_part, encoding_y_whole_part), axis=1)
+    encoding_coord_and_episode = np.column_stack([episodios, encondig_coord])
+
+    limit_ep_train = 1564
+    encondign_coord_train = encoding_coord_and_episode[(encoding_coord_and_episode[:, 0] < limit_ep_train + 1)]
+    encondign_coord_test = encoding_coord_and_episode[(encoding_coord_and_episode[:, 0] > limit_ep_train)]
+
+    size_of_input = encondign_coord_train.shape
+    encondign_coord_train = encondign_coord_train[:, 1:size_of_input[1]]
+    encondign_coord_test = encondign_coord_test[:, 1:size_of_input[1]]
+
+    return encondign_coord_train, encondign_coord_test
+
+
+def Thermomether_match_coor_x_and_y_include_decimal_1():
     # int(row['EpisodeID']), float(row['x']), float(row['y']), float(row['z']), row['LOS'], row['Val']
     all_info_coord_val, coord_train, coord_test = read_valid_coordinates()
 
@@ -1124,4 +1444,4 @@ def Thermomether_match_coor_x_and_y_include_decimal():
 
     return encondign_coord_train, encondign_coord_test
 
-#Thermomether_match_coor_x_and_y_include_decimal()
+
