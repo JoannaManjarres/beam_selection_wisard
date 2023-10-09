@@ -61,8 +61,6 @@ def beam_selection_commite(x_train, x_test, y_train, y_test,addressSize):
         a.append(dict_com_classes_na_ordem)
 
     return a
-
-
 def commite(beam_selection_for_coord, beam_selection_for_lidar, label_validation):
 
     #number_of_samples = beam_selection_for_coord.shape[0]
@@ -124,29 +122,31 @@ def commite(beam_selection_for_coord, beam_selection_for_lidar, label_validation
                 beam_selection.append(beam_coord[0]['class'])
 
     acuracia = accuracy_score(label_validation, beam_selection)
-    print('acuracia: ', acuracia)
-
-    return beam_selection
-
-index_beam_combined_train, index_beam_combined_test = read_labels()
 
 
-coord_train, coord_test = read_coordinates()
-print('selecionando feixes a partir das coordenadas')
-print('   coord train: ', coord_train.shape)
-beam_selection_for_coord = beam_selection_commite(x_train=coord_train,
-                                                  x_test=coord_test,
-                                                  y_train=index_beam_combined_train,
-                                                  y_test=index_beam_combined_test,
-                                                  addressSize=44)
+    return acuracia
+def committe_mojority_vote():
+    index_beam_combined_train, index_beam_combined_test = read_labels()
 
-lidar_train, lidar_test = read_Lidar()
-print('selecionando feixes a partir do Lidar')
-print('   Lidar train: ', lidar_train.shape)
-beam_selection_for_lidar = beam_selection_commite(x_train=lidar_train,
-                                                  x_test=lidar_test,
-                                                  y_train=index_beam_combined_train,
-                                                  y_test=index_beam_combined_test,
-                                                  addressSize=64)
+    coord_train, coord_test = read_coordinates()
+    print('selecionando feixes a partir das coordenadas')
+    print('   coord train: ', coord_train.shape)
+    beam_selection_for_coord = beam_selection_commite(x_train=coord_train,
+                                                      x_test=coord_test,
+                                                      y_train=index_beam_combined_train,
+                                                      y_test=index_beam_combined_test,
+                                                      addressSize=44)
 
-commite(beam_selection_for_coord, beam_selection_for_lidar, label_validation=index_beam_combined_test)
+    lidar_train, lidar_test = read_Lidar()
+    print('selecionando feixes a partir do Lidar')
+    print('   Lidar train: ', lidar_train.shape)
+    beam_selection_for_lidar = beam_selection_commite(x_train=lidar_train,
+                                                      x_test=lidar_test,
+                                                      y_train=index_beam_combined_train,
+                                                      y_test=index_beam_combined_test,
+                                                      addressSize=64)
+
+    acuraccy = commite(beam_selection_for_coord, beam_selection_for_lidar, label_validation=index_beam_combined_test)
+    print('acuracia: ', acuraccy)
+
+
