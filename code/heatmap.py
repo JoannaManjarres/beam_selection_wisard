@@ -190,7 +190,7 @@ def read_coord_in_Thermomether_x_y_unbalanced():
     # all_info = [6, 12, 18,24,28,34,38,44,48,54,58,64]
     all_info = []
     resolucao = []
-    for i in range(1, 6):
+    for i in range(1,11):
         file_name = 'acuracia_beam_selection_Combined_[8X32]_coord_in_Thermomether_x_y_unbalanced_' + str(
             j) + '_ALL.csv'
 
@@ -220,9 +220,46 @@ def read_coord_in_Thermomether_x_y_unbalanced():
     plot_headmap(all_info, size_memory, resolucao, 'Tamanho da memoria', 'Resolução', rota,
                  'read_coord_in_Thermomether_x_y_unbalanced')
 
+
+def read_coord_in_Thermomether_x_y_unbalanced_with_decimal_part():
+    rota = '../results/accuracy/8X32/coord_in_Thermomether_x_y_unbalanced_with_decimal_part/Combined/'
+    j = 1
+    # all_info = [6, 12, 18,24,28,34,38,44,48,54,58,64]
+    all_info = []
+    resolucao = []
+    for i in range(1,7):
+        file_name = 'acuracia_beam_selection_Combined_[8X32]_coord_in_Thermomether_x_y_unbalanced_with_decimal_part_' + str(
+            j) + '_ALL.csv'
+
+        print(file_name)
+        filename = rota + file_name
+        name_1 = 'Tamanho_memoria_' + str(j)
+        name_2 = 'Acuracia_' + str(j)
+        name_3 = 'intervalo_conf_' + str(j)
+        df = pd.read_csv(filename,
+                         sep='\t',
+                         names=[name_1, name_2, name_3])
+
+        data = df[name_2].to_numpy()
+        all_info.append(data)
+
+        resolucao.append(j)
+        j = j * 2
+        # all_info = pd.concat([all_info, pd], axis=1)
+
+    # print(df_1)
+    # print(df_2)
+
+    print(all_info)
+    size_memory = [6, 12, 18, 24, 28, 34, 38, 44, 48, 54, 58, 64]
+    # resolucao = [12, 24, 3, 4]
+
+    plot_headmap(all_info, size_memory, resolucao, 'Tamanho da memoria', 'Resolução', rota,
+                 'coord_in_Thermomether_x_y_unbalanced_with_decimal_part')
+
 #read_data_for_coord_in_termometro()
 #read_data_for_coord_in_termometro_iguais_com_decimal()
-read_coord_in_Thermomether_x_y_unbalanced()
+read_coord_in_Thermomether_x_y_unbalanced_with_decimal_part()
 
 folder = 'all_data_dilated'
 folder = 'all_data_dilated_+_rx_as_cube'

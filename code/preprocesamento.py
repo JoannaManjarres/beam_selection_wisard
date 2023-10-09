@@ -694,7 +694,7 @@ def process_coord_in_Thermomether_x_y_unbalanced():
         np.savez(saveInputPath + 'coord_in_Thermomether_x_y_unbalanced_test' + '.npz', coord_test=encondign_coord_test)
 def read_coord_in_Thermomether_x_y_unbalanced():
     coord_path = "../data/coordinates/coord_in_Thermomether_x_y_unbalanced/"
-    big_file = True
+    big_file = False
 
     if big_file:
 
