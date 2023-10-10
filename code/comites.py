@@ -125,7 +125,7 @@ def commite(beam_selection_for_coord, beam_selection_for_lidar, label_validation
 
 
     return acuracia
-def committe_mojority_vote():
+def committe_majority_vote():
     index_beam_combined_train, index_beam_combined_test = read_labels()
 
     coord_train, coord_test = read_coordinates()
@@ -149,4 +149,110 @@ def committe_mojority_vote():
     acuraccy = commite(beam_selection_for_coord, beam_selection_for_lidar, label_validation=index_beam_combined_test)
     print('acuracia: ', acuraccy)
 
+def committe_using_wisard():
 
+    coord_train, coord_test = read_coordinates()
+    x_train =coord_train
+    x_test = coord_test
+
+    index_beam_combined_train, index_beam_combined_test = read_labels()
+    y_train = index_beam_combined_train
+    y_test = index_beam_combined_test
+
+    print('selecionando feixes a partir das coordenadas')
+    print('   coord train: ', coord_train.shape)
+    beam_selection_for_coord = beam_selection_commite(x_train=coord_train,
+                                                      x_test=coord_test,
+                                                      y_train=index_beam_combined_train,
+                                                      y_test=index_beam_combined_test,
+                                                      addressSize=44)
+
+    b = []
+    #b=np.zeros([1960,2300], dtype=int)
+    all_beams_in_thermometer_vector = []
+    for sample in range(len(beam_selection_for_coord)):                             #len(beam_selection_for_coord) = 1960
+        all_beam_for_sample = beam_selection_for_coord[sample]                      #len(beam_selection_for_coord[sample] ) = 143
+        list_of_class = np.array([int(d['class']) for d in all_beam_for_sample if 'class' in d])
+        list_of_degree = np.array([(d['degree']) for d in all_beam_for_sample if 'degree' in d])
+        data_for_thermometer = np.rint(np.multiply(list_of_class, list_of_degree)).astype(int)  #len(data_for_thermometer) = 143
+
+        size_of_thermometer = np.array([len(data_for_thermometer), max(data_for_thermometer)], dtype=int)
+        all_beams_in_thermomether = np.zeros(size_of_thermometer, dtype=int)
+
+        sample_in_sample = 0
+        for i in data_for_thermometer:
+            for j in range(i):
+                all_beams_in_thermomether[sample_in_sample, j] = 1
+            sample_in_sample = sample_in_sample + 1
+
+        a = all_beams_in_thermomether.reshape(1, (len(data_for_thermometer) * max(data_for_thermometer)))
+
+        all_beams_in_thermometer_vector.append(a)
+
+    for i in range(len(all_beams_in_thermometer_vector)):
+        #b[i] = all_beams_in_thermometer_vector[i][0]
+        b.append(all_beams_in_thermometer_vector[i][0])
+
+
+        #coord_val_Qs.append([episodio_val, flag_LOS_or_NLOS_val, Qs_val.reshape(1, num_positions_of_internal_matrix)])
+
+        #for i in range(len(data_for_thermometer)):
+            #all_beams_in_thermomether[i][0:data_for_thermometer[i]] = 1
+         #   all_beams_in_thermomether[i, 0:data_for_thermometer[i]] = 1
+
+
+        #all_beams_in_thermometer_vector.append(all_beams_in_thermomether.reshape(1, (len(data_for_thermometer)*max(data_for_thermometer))))
+
+    #test = all_beams_in_thermometer_vector.tolist()
+    all_beams_in_thermometer_vector_train = b[0:1000]
+    all_beams_in_thermometer_vector_test = b[1000:1960]
+
+    new_labels_train = y_test[0:1000]
+    new_labels_test = y_test[1000:1960]
+
+    x_train_1 = all_beams_in_thermometer_vector_train
+    x_test_1 =all_beams_in_thermometer_vector_test
+
+    y_train_1 = new_labels_train
+    y_test_1 = new_labels_test
+
+    ignoreZero = False
+    addressSize = 64
+    verbose = True
+    var = True
+    wsd = wp.Wisard(addressSize,
+                    ignoreZero=ignoreZero,
+                    verbose=verbose,
+                    returnConfidence=var,
+                    returnActivationDegree=var,
+                    returnClassesDegrees=var)
+    wsd.train(x_train_1, y_train_1)
+
+    # the output is a list of string, this represent the classes attributed to each input
+    out = wsd.classify(x_test_1)
+
+    acuracia = accuracy_score(y_test_1, out)
+    print(acuracia)
+
+
+    #all_beams_in_thermomether.reshape(1, 2002)
+
+
+    lidar_train, lidar_test = read_Lidar()
+    print('selecionando feixes a partir do Lidar')
+    print('   Lidar train: ', lidar_train.shape)
+    beam_selection_for_lidar = beam_selection_commite(x_train=lidar_train,
+                                                      x_test=lidar_test,
+                                                      y_train=index_beam_combined_train,
+                                                      y_test=index_beam_combined_test,
+                                                      addressSize=64)
+
+
+    a=0
+
+
+
+
+#committe_using_wisard()
+
+committe_majority_vote()
