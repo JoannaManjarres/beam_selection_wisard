@@ -73,8 +73,11 @@ def do_preprocess(flag_preprocess_coord,
             print("Coordenadas pre processadas em termometro, com coord x e y de tamanhos iguais incluindo a parte decimal")
 
         if flag_matriz_type == '5':
-            preprocess.process_coord_in_Thermomether_x_y_unbalanced()
+            escala = int(input("Digite a Escala: \n"))
+            preprocess.process_coord_in_Thermomether_x_y_unbalanced(escala)
+
             print("Coordenadas pre processadas em termometro, com coord x e y desbalanceadas")
+
 
         if flag_matriz_type == '6':
             preprocess.process_coord_in_Thermomether_x_y_unbalanced_with_decimal_part()
@@ -87,7 +90,7 @@ def do_preprocess(flag_preprocess_coord,
         flag_type_of_pre_process_lidar=input("\t [1] Quantizados [Dataset] + Posicao Rx \n " \
                                              "\t [2] Separar os dados LiDAR quantizados em LOS e NLOS \n"
                                              "\t [3] Quantizados[Dataset] sem Rx \n"
-                                             "\t [4] Receptor com um cubo + Quantizados[Dataset] \n"
+                                             "\t [4] *** Receptor com um cubo + Quantizados[Dataset] ***\n"
                                              "\t [5] Todos os dados como um cubo incluindo o Rx\n"
                                              "\t [6] Dilatar dados do cenario\n"
                                              "\t [7] Dilatar dados do cenario + rx como um cubo\n"
@@ -116,14 +119,20 @@ def do_preprocess(flag_preprocess_coord,
             obj_lidar.process_all_data_dilated_with_rx_like_cube_to_tx()
 
 
-def beam_selection(antenna_config, type_of_connection, type_of_input, flag_rx_or_tx, type_of_selection):
+def beam_selection(antenna_config,
+                   type_of_connection,
+                   type_of_input,
+                   flag_rx_or_tx,
+                   type_of_selection,
+                   input_train,
+                   input_test):
 
     #flag_rx_or_tx = input("Realizar a selecao de feixe do: \n " \
     #                      "\t Transmissor [T] ou Receptor [R]\n").upper()
-    print("entre en BeamSelection")
+    #print("entre en BeamSelection")
 
     if type_of_connection == 'ALL':
-        print("entre en all")
+        #print("entre en all")
         index_beam_rx_train, index_beam_rx_test, index_beam_tx_train, index_beam_tx_test, index_beam_combined_train, index_beam_combined_test = read.read_all_beams(antenna_config)
         if flag_rx_or_tx == 'R':
             label_train = index_beam_rx_train
@@ -134,7 +143,7 @@ def beam_selection(antenna_config, type_of_connection, type_of_input, flag_rx_or
         if flag_rx_or_tx == 'C':
             label_train = index_beam_combined_train
             label_test = index_beam_combined_test
-
+        '''
         if type_of_input == 'coord_in_Qs':
             all_coord_train, all_coord_test = read.read_all_Qs_matrix()
             input_train = all_coord_train
@@ -283,7 +292,8 @@ def beam_selection(antenna_config, type_of_connection, type_of_input, flag_rx_or
         if type_of_input == 'coord_in_Thermomether_x_y_unbalanced_+_rx_cubo_+_Lidar':
             print(type_of_input)
             data_lidar_rx_like_cube_train, data_lidar_rx_like_cube_validation = obj_lidar.read_LiDAR_with_rx_like_cube()
-            all_coord_in_Thermomether_x_y_unbalanced_train, all_coord_in_Thermomether_x_y_unbalanced_test = preprocess.read_coord_in_Thermomether_x_y_unbalanced()
+            escala = int(input("Digite a escala do termometro das coord: "))
+            all_coord_in_Thermomether_x_y_unbalanced_train, all_coord_in_Thermomether_x_y_unbalanced_test = preprocess.read_coord_in_Thermomether_x_y_unbalanced(escala)
 
             input_train = np.column_stack((all_coord_in_Thermomether_x_y_unbalanced_train, data_lidar_rx_like_cube_train))
             input_test = np.column_stack((all_coord_in_Thermomether_x_y_unbalanced_test, data_lidar_rx_like_cube_validation))
@@ -297,7 +307,7 @@ def beam_selection(antenna_config, type_of_connection, type_of_input, flag_rx_or
             input_test = np.column_stack((all_coord_in_Thermomether_x_y_unbalanced_with_decimal_part_test, data_lidar_rx_like_cube_validation))
 
 
-
+    '''
 
     if type_of_connection == 'LOS':
         print('entre en LOS')
@@ -382,8 +392,6 @@ def beam_selection(antenna_config, type_of_connection, type_of_input, flag_rx_or
             input_test = np.column_stack((coord_NLOS_test, LiDAR_NLOS_test))
 
 
-
-
     user = ''
     if flag_rx_or_tx == 'T':
         user = 'Tx'
@@ -426,8 +434,275 @@ def beam_analysis(flag_beam_analysis, antenna_config,connection):
               '\t 1. Rx \n'
               '\t 2. Tx \n'
               '\t 3. Combinados \n')
+
         obj_analyse.beam_analyses(antenna_config, connection, user)
 
+
+
+
+def selection_of_beam_with_coord(type_of_connection):
+
+    a = input("selecionar o beam com as coordenadas pre-processadas em: \n"
+                  "\t [1] matriz Qs [23 X 250] \n"
+                  "\t [2] Matriz Qs em linhas [2 X 120] \n"
+                  "\t [3] Termometro [256 bits] \n"
+                  "\t [4] Termometro coord x e y 'iguais' [960X980] \n"
+                  "\t [5] Termometro coord x e y 'iguais' com a parte decimal \n"
+                  "\t [6] Termometro coord x e y desbalanceadas \n"
+                  "\t [7] Termometro coord x e y desbalanceadas com a parte decimal \n")
+
+    if type_of_connection == 'ALL':
+        if a == '1':
+            type_of_input = 'coord_in_Qs'
+
+        if a == '2':
+            type_of_input = 'coord_in_Qs_lines'
+
+        if a == '3':
+            type_of_input = 'coord_in_termometro'
+
+        if a == '4':
+            type_of_input = 'coord_in_termometro_iguais'
+
+        if a == '5':
+            type_of_input = 'coord_in_termometro_iguais_com_decimal'
+
+        if a == '6':
+            type_of_input = 'coord_in_Thermomether_x_y_unbalanced'
+            scale_for_themometer = int(input('Digite a escala do termometro das coord: '))
+            all_coord_in_Thermomether_x_y_unbalanced_train, all_coord_in_Thermomether_x_y_unbalanced_test = preprocess.read_coord_in_Thermomether_x_y_unbalanced(scale_for_themometer)
+            input_train = all_coord_in_Thermomether_x_y_unbalanced_train
+            input_test = all_coord_in_Thermomether_x_y_unbalanced_test
+
+        if a == '7':
+            type_of_input = 'coord_in_Thermomether_x_y_unbalanced_with_decimal_part'
+            scale_for_themometer = int(input('Digite a escala do termometro das coord: '))
+            all_coord_in_Thermomether_x_y_unbalanced_with_decimal_part_train, all_coord_in_Thermomether_x_y_unbalanced_with_decimal_part_test = preprocess.read_coord_in_Thermomether_x_y_unbalanced_with_decimal_part(scale_for_themometer)
+            input_train = all_coord_in_Thermomether_x_y_unbalanced_with_decimal_part_train
+            input_test = all_coord_in_Thermomether_x_y_unbalanced_with_decimal_part_test
+
+
+    print('Tipo de Entrada: ', type_of_input)
+    return input_train, input_test, type_of_input
+
+def selection_of_beam_with_lidar(type_of_connection):
+    lidar_configuration = input("selecionar o Beam com dados LiDAR pre-processadas em: \n" \
+              "\t [1] Quantizados [Dataset] + Posicao do Rx ? \n" \
+              "\t [2] Quantizados [Dataset] SEM a Posicao do Rx ? \n" \
+              "\t [3] Quantizados [Dataset] + Rx como um cubo? \n"
+              "\t [4] Todos os dados como um cubo + Rx como um cubo? \n"
+              "\t [5] Todos os dados do cenario Dilatados? \n"
+              "\t [6] Todos os dados do cenario Dilatados + Rx como um cubo? \n"
+              "\t [7] Quantizados [Dataset]  + Rx como um cubo até o Tx? \n"
+              "\t [8] Todos os dados do cenario Dilatados  + Rx como um cubo até o Tx? \n")
+
+    if type_of_connection =='ALL':
+        if lidar_configuration == '1':
+            type_of_input = 'lidar'
+            data_lidar_train, data_lidar_validation = obj_lidar.read_all_LiDAR_data()
+            input_train = data_lidar_train
+            input_test = data_lidar_validation
+
+        if lidar_configuration == '2':
+            type_of_input = 'Lidar_sem_rx'
+            data_lidar_sem_rx_train, data_lidar_sem_rx_validation = obj_lidar.read_all_LiDAR_without_rx()
+            input_train = data_lidar_sem_rx_train
+            input_test = data_lidar_sem_rx_validation
+
+        if lidar_configuration == '3':
+            type_of_input = 'rx_cubo_+_Lidar'
+            data_lidar_rx_like_cube_train, data_lidar_rx_like_cube_validation = obj_lidar.read_LiDAR_with_rx_like_cube()
+            input_train = data_lidar_rx_like_cube_train
+            input_test = data_lidar_rx_like_cube_validation
+
+        if lidar_configuration == '4':
+            type_of_input = 'all_data_like_cube'
+            data_lidar_like_cube_train, data_lidar_like_cube_validation = obj_lidar.read_LiDAR_all_data_like_cube()
+            input_train = data_lidar_like_cube_train
+            input_test = data_lidar_like_cube_validation
+
+        if lidar_configuration == '5':
+            type_of_input = 'all_data_dilated'
+            data_dilated_train, data_dilated_validation = obj_lidar.read_LiDAR_all_data_dilated()
+            input_train = data_dilated_train
+            input_test = data_dilated_validation
+
+        if lidar_configuration == '6':
+            type_of_input = 'all_data_dilated_+_rx_as_cube'
+            data_dilated_with_rx_as_cube_train, data_dilated_with_rx_as_cube_validation = obj_lidar.read_LiDAR_all_data_dilated_with_rx_as_cube()
+            input_train = data_dilated_with_rx_as_cube_train
+            input_test = data_dilated_with_rx_as_cube_validation
+
+        if lidar_configuration == '7':
+            type_of_input = 'all_data_lidar_+_rx_as_cube_to_tx'
+            data_lidar_with_rx_as_cube_to_tx_train, data_lidar_with_rx_as_cube_to_tx_test = obj_lidar.read_LiDAR_all_data_with_rx_like_cube_to_tx()
+            input_train = data_lidar_with_rx_as_cube_to_tx_train
+            input_test = data_lidar_with_rx_as_cube_to_tx_test
+
+        if lidar_configuration == '8':
+            type_of_input = 'all_data_lidar_dilated_+_rx_like_cube_to_tx'
+            data_lidar_dilated_with_rx_as_cube_to_tx_train, data_lidar_dilated_with_rx_as_cube_to_tx_test = obj_lidar.read_LiDAR_all_data_dilated_with_rx_like_cube_to_tx()
+            input_train = data_lidar_dilated_with_rx_as_cube_to_tx_train
+            input_test = data_lidar_dilated_with_rx_as_cube_to_tx_test
+
+    print(type_of_input)
+    return input_train, input_test, type_of_input
+
+
+
+def selection_of_beam_with_coord_and_lidar(type_of_connection):
+    b = input("selecionar o Beam com as coordenadas pre-processadas em: \n" \
+              "\t [1] matriz Qs [23 X 250] \n" \
+              "\t [2] Matriz Qs em linhas [2 X 120] \n" \
+              "\t [3] Termometro + lidar\n"
+              "\t [4] Termometro e LiDAR sem rx \n"
+              "\t [5] Termometro (int, decimal) + Rx como um cubo + LiDAR\n"
+              "\t [6] Termometro (int, x e y iguais) + Rx como um cubo + LiDAR\n"
+              "\t [7] Termometro (int, x e y iguais com decimal) + Rx como um cubo + LiDAR \n"
+              "\t [8] Termometro (int, x e y desbalanceados) + Rx como um cubo + LiDAR \n"
+              "\t [9] Termometro (int, x e y desbalanceados considerando a parte decimal) + Rx como um cubo + LiDAR \n"
+              )
+    print("tipo de conexao: ", type_of_connection)
+    if type_of_connection == 'ALL':
+        if b == '1':
+            type_of_input = 'coord_in_Qs_+_Lidar'
+            data_lidar_train, data_lidar_validation = obj_lidar.read_all_LiDAR_data()
+            all_coord_train, all_coord_test = read.read_all_Qs_matrix()
+            input_train = np.column_stack((all_coord_train, data_lidar_train))
+            input_test = np.column_stack((all_coord_test, data_lidar_validation))
+
+        if b == '2':
+            type_of_input = 'coord_in_Qs_lines_+_Lidar'
+            data_lidar_train, data_lidar_validation = obj_lidar.read_all_LiDAR_data()
+            all_coord_in_Qs_line_train, all_coord_in_Qs_line_test = read.read_all_Qs_matrix_in_lines()
+            input_train = np.column_stack((all_coord_in_Qs_line_train, data_lidar_train))
+            input_test = np.column_stack((all_coord_in_Qs_line_test, data_lidar_validation))
+
+        if b == '3':
+            type_of_input = 'coord_in_termometro_+_Lidar'
+            encondign_coord_train, encondign_coord_test = preprocess.Thermomether_dobro_resolucao()
+            data_lidar_train, data_lidar_validation = obj_lidar.read_all_LiDAR_data()
+            input_train = np.column_stack((encondign_coord_train, data_lidar_train))
+            input_test = np.column_stack((encondign_coord_test, data_lidar_validation))
+
+        if b == '4':
+            type_of_input = 'coord_in_termometro_+_Lidar_sem_rx'
+            encondign_coord_train, encondign_coord_test = preprocess.Thermomether_dobro_resolucao()
+            data_lidar_sem_rx_train, data_lidar_sem_rx_validation = obj_lidar.read_all_LiDAR_without_rx()
+            input_train = np.column_stack((encondign_coord_train, data_lidar_sem_rx_train))
+            input_test = np.column_stack((encondign_coord_test, data_lidar_sem_rx_validation))
+
+        if b == '5':
+            type_of_input = 'coord_in_termometro_int_decimal_+_rx_cubo_+_Lidar'
+            data_lidar_rx_like_cube_train, data_lidar_rx_like_cube_validation = obj_lidar.read_LiDAR_with_rx_like_cube()
+            encondign_coord_train, encondign_coord_test = preprocess.Thermomether_match_coor_x_and_y_include_decimal()
+            input_train = np.column_stack((encondign_coord_train, data_lidar_rx_like_cube_train))
+            input_test = np.column_stack((encondign_coord_test, data_lidar_rx_like_cube_validation))
+
+        if b == '6':
+            type_of_input = 'coord_in_termometro_iguais_+_rx_cubo_+_Lidar'
+            data_lidar_rx_like_cube_train, data_lidar_rx_like_cube_validation = obj_lidar.read_LiDAR_with_rx_like_cube()
+            all_coord_in_match_thermometer_train, all_coord_in_match_thermometer_test = preprocess.read_coord_in_Thermomether_match_coor_x_and_y()
+
+            input_train = np.column_stack((all_coord_in_match_thermometer_train, data_lidar_rx_like_cube_train))
+            input_test = np.column_stack((all_coord_in_match_thermometer_test, data_lidar_rx_like_cube_validation))
+
+        if b == '7':
+            type_of_input = 'coord_in_termometro_iguais_com_decimal_+_rx_cubo_+_Lidar'
+            data_lidar_rx_like_cube_train, data_lidar_rx_like_cube_validation = obj_lidar.read_LiDAR_with_rx_like_cube()
+            all_coord_in_match_thermometer_with_decimal_train, all_coord_in_match_thermometer_with_decimal_test = preprocess.read_coord_in_Thermomether_match_coor_x_and_y_include_decimal()
+
+            input_train = np.column_stack(
+                (all_coord_in_match_thermometer_with_decimal_train, data_lidar_rx_like_cube_train))
+            input_test = np.column_stack(
+                (all_coord_in_match_thermometer_with_decimal_test, data_lidar_rx_like_cube_validation))
+
+        if b == '8':
+            type_of_input = 'coord_in_Thermomether_x_y_unbalanced_+_rx_cubo_+_Lidar'
+            data_lidar_rx_like_cube_train, data_lidar_rx_like_cube_validation = obj_lidar.read_LiDAR_with_rx_like_cube()
+            escala = int(input("Digite a escala do termometro das coord: "))
+            all_coord_in_Thermomether_x_y_unbalanced_train, all_coord_in_Thermomether_x_y_unbalanced_test = preprocess.read_coord_in_Thermomether_x_y_unbalanced(
+                escala)
+
+            input_train = np.column_stack((all_coord_in_Thermomether_x_y_unbalanced_train, data_lidar_rx_like_cube_train))
+            input_test = np.column_stack(
+                (all_coord_in_Thermomether_x_y_unbalanced_test, data_lidar_rx_like_cube_validation))
+
+        if b == '9':
+            type_of_input = 'coord_in_Thermomether_x_y_unbalanced_with_decimal_part_+_rx_cubo_+_Lidar'
+            data_lidar_rx_like_cube_train, data_lidar_rx_like_cube_validation = obj_lidar.read_LiDAR_with_rx_like_cube()
+            escala = int(input("Digite a escala do termometro das coord: "))
+            all_coord_in_Thermomether_x_y_unbalanced_with_decimal_part_train, all_coord_in_Thermomether_x_y_unbalanced_with_decimal_part_test = preprocess.read_coord_in_Thermomether_x_y_unbalanced_with_decimal_part(escala)
+
+            input_train = np.column_stack(
+                (all_coord_in_Thermomether_x_y_unbalanced_with_decimal_part_train, data_lidar_rx_like_cube_train))
+            input_test = np.column_stack(
+                (all_coord_in_Thermomether_x_y_unbalanced_with_decimal_part_test, data_lidar_rx_like_cube_validation))
+
+
+
+        print(type_of_input)
+    return input_train, input_test, type_of_input
+
+
+def parameter_for_beam_selection(temporal, connection, antenna_config):
+    if temporal == 'S':
+        top_k = input("1 - Normal \n"
+                      "2 - Top-k \n").upper()
+
+        if top_k == '1':
+
+            flag_rx_or_tx = input('Escolha sobre qual usuario deseja realizar a selecao do beam \n'
+                                  '\t 1. Rx \n'
+                                  '\t 2. Tx \n'
+                                  '\t 3. Combinados \n')
+
+            if flag_rx_or_tx == '1':
+                flag_rx_or_tx_or_C = 'R'
+            if flag_rx_or_tx == '2':
+                flag_rx_or_tx_or_C = 'T'
+            if flag_rx_or_tx == '3':
+                flag_rx_or_tx_or_C = 'C'
+            else:
+                exit()
+
+        elif top_k == '2':
+            flag_rx_or_tx = '3'
+            flag_rx_or_tx_or_C = 'C'
+        else:
+            exit()
+    else:
+        exit()
+
+    flag_input_beam_selection = input("Com qual tipo de entrada deseja realizar a selecao de feixe com \n "
+                                              "\t [1] Coordenadas? \n "
+                                              "\t [2] LiDAR? \n "
+                                              "\t [3] Coord + LiDAR? \n ")
+
+    # SELECIONA BEAMS COM COORD
+    if flag_input_beam_selection == '1':
+        input_train, input_test, type_of_input = selection_of_beam_with_coord(connection)
+
+    # SELECIONA BEAMS COM LIDAR
+    if flag_input_beam_selection == '2':
+        input_train, input_test, type_of_input = selection_of_beam_with_lidar(connection)
+
+    # SELECIONA BEAMS COM COORD + LIDAR
+    if flag_input_beam_selection == '3':
+        print("conexao: ", connection)
+        input_train, input_test, type_of_input = selection_of_beam_with_coord_and_lidar(connection)
+
+    print('type_of_input: ', type_of_input, 'type_of_connection', connection, 'antenna_config', antenna_config,
+          'flag_rx_or_tx', flag_rx_or_tx)
+
+    beam_selection(type_of_input=type_of_input,
+                   type_of_connection=connection,
+                   antenna_config=antenna_config,
+                   flag_rx_or_tx=flag_rx_or_tx_or_C,
+                   type_of_selection=top_k,
+                   input_train=input_train,
+                   input_test=input_test
+                   )
 
 def run_simulation():
     print("Escolha a configuracao das antenas Rx-Tx")
@@ -466,145 +741,8 @@ def run_simulation():
     print('--------------------------------------------')
 
     temporal = input("Realizar a selecao de feixe? [S/N] \n").upper()
-    if temporal == 'S':
-        top_k = input("1 - Normal \n"
-                      "2 - Top-k \n").upper()
+    parameter_for_beam_selection(temporal, antenna_config=antenna_config, connection=connection)
 
-        if top_k == '1':
-
-            flag_rx_or_tx = input('Escolha sobre qual usuario deseja realizar a selecao do beam \n'
-                                  '\t 1. Rx \n'
-                                  '\t 2. Tx \n'
-                                  '\t 3. Combinados \n')
-
-            if flag_rx_or_tx == '1':
-                flag_rx_or_tx_or_C = 'R'
-            if flag_rx_or_tx == '2':
-                flag_rx_or_tx_or_C = 'T'
-            if flag_rx_or_tx == '3':
-                flag_rx_or_tx_or_C = 'C'
-            else:
-                exit()
-
-        elif top_k == '2':
-            flag_rx_or_tx = '3'
-            flag_rx_or_tx_or_C = 'C'
-        else:
-            exit()
-    else:
-        exit()
-
-    flag_input_beam_selection = input("Com qual tipo de entrada deseja realizar a selecao de feixe com \n "
-                                              "\t [1] Coordenadas? \n "
-                                              "\t [2] LiDAR? \n "
-                                              "\t [3] Coord + LiDAR? \n ")
-
-
-
-    # SELECIONA BEAMS COM COORD
-    if flag_input_beam_selection == '1':
-        a = input("selecionar o beam com as coordenadas pre-processadas em: \n"
-                  "\t [1] matriz Qs [23 X 250] \n"
-                  "\t [2] Matriz Qs em linhas [2 X 120] \n"
-                  "\t [3] Termometro [256 bits] \n"
-                  "\t [4] Termometro coord x e y 'iguais' [960X980] \n"
-                  "\t [5] Termometro coord x e y 'iguais' com a parte decimal \n"
-                  "\t [6] Termometro coord x e y desbalanceadas \n"
-                  "\t [7] Termometro coord x e y desbalanceadas com a parte decimal \n")
-
-        if a == '1':
-            type_of_input = 'coord_in_Qs'
-
-        if a == '2':
-            type_of_input = 'coord_in_Qs_lines'
-
-        if a =='3':
-            type_of_input = 'coord_in_termometro'
-
-        if a=='4':
-            type_of_input = 'coord_in_termometro_iguais'
-
-        if a =='5':
-            type_of_input = 'coord_in_termometro_iguais_com_decimal'
-
-        if a =='6':
-            type_of_input = 'coord_in_Thermomether_x_y_unbalanced'
-
-        if a == '7':
-            type_of_input = 'coord_in_Thermomether_x_y_unbalanced_with_decimal_part'
-
-    # SELECIONA BEAMS COM LIDAR
-    if flag_input_beam_selection == '2':
-        c = input("selecionar o Beam com dados LiDAR pre-processadas em: \n" \
-                  "\t [1] Quantizados [Dataset] + Posicao do Rx ? \n" \
-                  "\t [2] Quantizados [Dataset] SEM a Posicao do Rx ? \n" \
-                  "\t [3] Quantizados [Dataset] + Rx como um cubo? \n"
-                  "\t [4] Todos os dados como um cubo + Rx como um cubo? \n"
-                  "\t [5] Todos os dados do cenario Dilatados? \n"
-                  "\t [6] Todos os dados do cenario Dilatados + Rx como um cubo? \n"
-                  "\t [7] Quantizados [Dataset]  + Rx como um cubo até o Tx? \n"
-                  "\t [8] Todos os dados do cenario Dilatados  + Rx como um cubo até o Tx? \n"
-
-                  )
-
-        if c == '1':
-            type_of_input = 'lidar'
-        if c == '2':
-            type_of_input = 'Lidar_sem_rx'
-        if c == '3':
-            type_of_input = 'rx_cubo_+_Lidar'
-        if c == '4':
-            type_of_input = 'all_data_like_cube'
-        if c == '5':
-            type_of_input = 'all_data_dilated'
-        if c == '6':
-            type_of_input = 'all_data_dilated_+_rx_as_cube'
-        if c == '7':
-            type_of_input = 'all_data_lidar_+_rx_as_cube_to_tx'
-        if c == '8':
-            type_of_input = 'all_data_lidar_dilated_+_rx_like_cube_to_tx'
-
-
-    # SELECIONA BEAMS COM COORD + LIDAR
-    if flag_input_beam_selection == '3':
-
-        b = input("selecionar o Beam com as coordenadas pre-processadas em: \n" \
-                  "\t [1] matriz Qs [23 X 250] \n" \
-                  "\t [2] Matriz Qs em linhas [2 X 120] \n"\
-                  "\t [3] Termometro \n"
-                  "\t [4] Termometro e LiDAR sem rx \n"
-                  "\t [5] Termometro (int, decimal) + Rx como um cubo + LiDAR\n"
-                  "\t [6] Termometro (int, x e y iguais) + Rx como um cubo + LiDAR\n"
-                  "\t [7] Termometro (int, x e y iguais com decimal) + Rx como um cubo + LiDAR \n"
-                  "\t [8] Termometro (int, x e y desbalanceados) + Rx como um cubo + LiDAR \n"
-                  "\t [9] Termometro (int, x e y desbalanceados considerando a parte decimal) + Rx como um cubo + LiDAR \n"
-                      )
-
-
-        if b == '1':
-            type_of_input = 'coord_in_Qs_+_Lidar'
-        if b == '2':
-            type_of_input = 'coord_in_Qs_lines_+_Lidar'
-        if b == '3':
-            type_of_input = 'coord_in_termometro_+_Lidar'
-        if b =='4':
-            type_of_input = 'coord_in_termometro_+_Lidar_sem_rx'
-        if b=='5':
-            type_of_input = 'coord_in_termometro_int_decimal_+_rx_cubo_+_Lidar'
-        if b == '6':
-            type_of_input = 'coord_in_termometro_iguais_+_rx_cubo_+_Lidar'
-        if b == '7':
-            type_of_input = 'coord_in_termometro_iguais_com_decimal_+_rx_cubo_+_Lidar'
-        if b == '8':
-            type_of_input = 'coord_in_Thermomether_x_y_unbalanced_+_rx_cubo_+_Lidar'
-        if b == '9':
-            type_of_input = 'coord_in_Thermomether_x_y_unbalanced_with_decimal_part_+_rx_cubo_+_Lidar'
-
-    print('type_of_input: ', type_of_input, 'type_of_connection', connection, 'antenna_config', antenna_config,
-          'flag_rx_or_tx', flag_rx_or_tx)
-
-    beam_selection(type_of_input=type_of_input, type_of_connection=connection, antenna_config=antenna_config,
-                   flag_rx_or_tx=flag_rx_or_tx_or_C, type_of_selection=top_k)
 
 
 

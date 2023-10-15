@@ -93,6 +93,8 @@ def process_data_rx_like_cube():
 
     saveInputPath = "../data/lidar/all_data_+_rx_like_cube/"
     np.savez(saveInputPath + 'all_data_lidar_+_rx_like_cube_test' + '.npz', lidar_test=all_data_test)
+
+    print(saveInputPath)
 def pre_process_data_rx_like_cube(data_lidar_process_all, data_position_rx, data_position_tx, plot=False, sample_for_plot=0):
     x_dimension = len(data_position_rx[0, :, 0, 0])
     y_dimension = len(data_position_rx[0, 0, :, 0])
@@ -206,6 +208,8 @@ def process_all_data_like_cube():
 
     saveInputPath = "../data/lidar/all_data_like_cube/"
     np.savez(saveInputPath + 'all_data_like_cube_test' + '.npz', lidar_test=all_data_test)
+
+    print(saveInputPath)
 def pre_process_all_data_like_cube(data_lidar_process_all, data_position_rx, data_position_tx, plot=True, sample_for_plot=3):
     x_dimension = len(data_position_rx[0, :, 0, 0])
     y_dimension = len(data_position_rx[0, 0, :, 0])
@@ -1004,6 +1008,7 @@ def read_LiDAR_with_rx_like_cube():
     input_cache_file = np.load(lidar_path + "all_data_lidar_+_rx_like_cube_test.npz", allow_pickle=True)
     all_lidar_test = input_cache_file["lidar_test"]
 
+    print(lidar_path)
     return all_lidar_train, all_lidar_test
 
 def read_all_LiDAR_without_rx():

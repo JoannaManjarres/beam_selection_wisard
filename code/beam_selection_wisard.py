@@ -81,7 +81,7 @@ def plotarResultados(x_vector,
     plt.errorbar(x_vector, y_vector, yerr=desvio_padrao_vector, fmt='o', label=nombre_curva, capsize=5, ecolor='red')
     plt.grid()
     plt.legend(loc="best")
-    plt.title(titulo)
+    #plt.title(titulo)
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.savefig(ruta, dpi=300, bbox_inches='tight')
@@ -105,7 +105,7 @@ def select_best_beam(input_train,
     else:
         #address_size = [64]
         address_size = [6,12,18,24,28,34,38,44,48,54,58,64]
-        numero_experimentos = 1
+        numero_experimentos = 5
 
     vector_time_train_media = []
     vector_time_test_media = []
@@ -204,7 +204,7 @@ def select_best_beam(input_train,
                      titulo,
                      nombre_curva,
                      "Tamanho da memória",
-                     "Acuracia Média (%)",
+                     "Acuracia Média",
                      ruta=path_result + '/accuracy/'+antenna_config+'/'+type_of_input + '/' + user +'/acuracia_'+figure_name+'.png')
 
     plotarResultados(address_size,

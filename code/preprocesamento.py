@@ -612,7 +612,7 @@ def  Thermomether():
 
 
 
-def  Thermomether_coord_x_y_unbalanced():
+def  Thermomether_coord_x_y_unbalanced(escala):
     #int(row['EpisodeID']), float(row['x']), float(row['y']), float(row['z']), row['LOS'], row['Val']
     all_info_coord_val, coord_train, coord_test = read_valid_coordinates()
 
@@ -631,7 +631,7 @@ def  Thermomether_coord_x_y_unbalanced():
     diff_all_x_coord = np.array((all_x_coord - min_x_coord))
     diff_all_y_coord = np.array((all_y_coord - min_y_coord))
 
-    escala = 1
+    escala = escala
     size_of_data_x = 20 * escala
     size_of_data_y = 245 * escala
     enconding_x = np.array([len(all_info_coord_val), size_of_data_x], dtype=int)
@@ -667,66 +667,69 @@ def  Thermomether_coord_x_y_unbalanced():
     encondign_coord_train = encondign_coord_train[:,1:size_of_input[1]]
     encondign_coord_test = encondign_coord_test[:,1:size_of_input[1]]
 
+    print("Coordenadas pre processadas com esacala: ", escala)
+
 
     return encondign_coord_train, encondign_coord_test
-def process_coord_in_Thermomether_x_y_unbalanced():
+def process_coord_in_Thermomether_x_y_unbalanced(escala):
 
-    encondign_coord_train, encondign_coord_test = Thermomether_coord_x_y_unbalanced()
+    encondign_coord_train, encondign_coord_test = Thermomether_coord_x_y_unbalanced(escala)
     saveInputPath = "../data/coordinates/coord_in_Thermomether_x_y_unbalanced/"
 
-    big_file = False
+    #big_file = False
 
-    if big_file:
+    if escala > 512:
         a = encondign_coord_train[0:4000, :]
         a1 = encondign_coord_train[4000:9234, :]
 
         b = encondign_coord_test[0:4000, :]
         b_1 = encondign_coord_test[4000:9234, :]
 
-        np.savez(saveInputPath + 'coord_in_Thermomether_x_y_unbalanced_train_part_1' + '.npz', coord_train_1=a)
-        np.savez(saveInputPath + 'coord_in_Thermomether_x_y_unbalanced_train_part_2' + '.npz', coord_train_2=a1)
-        np.savez(saveInputPath + 'coord_in_Thermomether_x_y_unbalanced_test_part_1' + '.npz', coord_test_1=b)
-        np.savez(saveInputPath + 'coord_in_Thermomether_x_y_unbalanced_test_part_2' + '.npz', coord_test_2=b_1)
+        np.savez(saveInputPath + 'coord_in_Thermomether_x_y_unbalanced_'+str(escala)+'_train_part_1' + '.npz', coord_train_1=a)
+        np.savez(saveInputPath + 'coord_in_Thermomether_x_y_unbalanced_'+str(escala)+'_train_part_2' + '.npz', coord_train_2=a1)
+        np.savez(saveInputPath + 'coord_in_Thermomether_x_y_unbalanced_'+str(escala)+'_test_part_1' + '.npz', coord_test_1=b)
+        np.savez(saveInputPath + 'coord_in_Thermomether_x_y_unbalanced_'+str(escala)+'_test_part_2' + '.npz', coord_test_2=b_1)
 
     else:
 
-        np.savez(saveInputPath + 'coord_in_Thermomether_x_y_unbalanced_train' + '.npz', coord_train=encondign_coord_train)
-        np.savez(saveInputPath + 'coord_in_Thermomether_x_y_unbalanced_test' + '.npz', coord_test=encondign_coord_test)
-def read_coord_in_Thermomether_x_y_unbalanced():
+        np.savez(saveInputPath + 'coord_in_Thermomether_x_y_unbalanced_'+str(escala)+'_train' + '.npz', coord_train=encondign_coord_train)
+        np.savez(saveInputPath + 'coord_in_Thermomether_x_y_unbalanced_'+str(escala)+'_test' + '.npz', coord_test=encondign_coord_test)
+def read_coord_in_Thermomether_x_y_unbalanced(escala):
     coord_path = "../data/coordinates/coord_in_Thermomether_x_y_unbalanced/"
     big_file = False
 
-    if big_file:
+    if escala >= 512:
 
-        input_cache_file = np.load(coord_path + "coord_in_Thermomether_x_y_unbalanced_train_part_1.npz", allow_pickle=True)
+        input_cache_file = np.load(coord_path + "coord_in_Thermomether_x_y_unbalanced_"+str(escala)+"_train_part_1.npz", allow_pickle=True)
         all_coord_train_parte_1 = input_cache_file["coord_train_1"]
 
-        input_cache_file = np.load(coord_path + "coord_in_Thermomether_x_y_unbalanced_train_part_2.npz", allow_pickle=True)
+        input_cache_file = np.load(coord_path + "coord_in_Thermomether_x_y_unbalanced_"+str(escala)+"_train_part_2.npz", allow_pickle=True)
         all_coord_train_parte_2 = input_cache_file["coord_train_2"]
 
         all_coord_train = np.concatenate((all_coord_train_parte_1, all_coord_train_parte_2), axis=0)
 
-        input_cache_file = np.load(coord_path + "coord_in_Thermomether_x_y_unbalanced_test_part_1.npz", allow_pickle=True)
+        input_cache_file = np.load(coord_path + "coord_in_Thermomether_x_y_unbalanced_"+str(escala)+"_test_part_1.npz", allow_pickle=True)
         all_coord_test_parte_1 = input_cache_file["coord_test_1"]
 
-        input_cache_file = np.load(coord_path + "coord_in_Thermomether_x_y_unbalanced_test_part_2.npz", allow_pickle=True)
+        input_cache_file = np.load(coord_path + "coord_in_Thermomether_x_y_unbalanced_"+str(escala)+"_test_part_2.npz", allow_pickle=True)
         all_coord_test_parte_2 = input_cache_file["coord_test_2"]
 
         all_coord_test = np.concatenate((all_coord_test_parte_1, all_coord_test_parte_2), axis=0)
 
     else:
-        input_cache_file = np.load(coord_path + "coord_in_Thermomether_x_y_unbalanced_train.npz", allow_pickle=True)
+        input_cache_file = np.load(coord_path + "coord_in_Thermomether_x_y_unbalanced_"+str(escala)+"_train.npz", allow_pickle=True)
         all_coord_train = input_cache_file["coord_train"]
 
-        input_cache_file = np.load(coord_path + "coord_in_Thermomether_x_y_unbalanced_test.npz", allow_pickle=True)
+        input_cache_file = np.load(coord_path + "coord_in_Thermomether_x_y_unbalanced_"+str(escala)+"_test.npz", allow_pickle=True)
         all_coord_test = input_cache_file["coord_test"]
 
+        print("   coordenadas lidas desde a pasta: ", coord_path)
 
     return all_coord_train, all_coord_test
 
 
 
-def  Thermomether_coord_x_y_unbalanced_with_decimal_part():
+def  Thermomether_coord_x_y_unbalanced_with_decimal_part(escala):
     #int(row['EpisodeID']), float(row['x']), float(row['y']), float(row['z']), row['LOS'], row['Val']
     all_info_coord_val, coord_train, coord_test = read_valid_coordinates()
 
@@ -745,7 +748,7 @@ def  Thermomether_coord_x_y_unbalanced_with_decimal_part():
     diff_all_y_coord = np.array((all_y_coord-min_y_coord))
 
 
-    escala = 32
+    escala = escala
     size_of_data_x = 207 * escala
     size_of_data_y = 2457 * escala
     enconding_x = np.array([len(all_info_coord_val), size_of_data_x], dtype=int)
@@ -784,60 +787,60 @@ def  Thermomether_coord_x_y_unbalanced_with_decimal_part():
 
 
     return encondign_coord_train, encondign_coord_test
-def process_coord_in_Thermomether_x_y_unbalanced_with_decimal_part():
+def process_coord_in_Thermomether_x_y_unbalanced_with_decimal_part(escala):
 
-    encondign_coord_train, encondign_coord_test = Thermomether_coord_x_y_unbalanced_with_decimal_part()
+    encondign_coord_train, encondign_coord_test = Thermomether_coord_x_y_unbalanced_with_decimal_part(escala)
     saveInputPath = "../data/coordinates/coord_in_Thermomether_x_y_unbalanced_with_decimal_part/"
 
     big_file = False
 
-    if big_file:
+    if escala > 32:
         a = encondign_coord_train[0:4000, :]
         a1 = encondign_coord_train[4000:9234, :]
 
         b = encondign_coord_test[0:4000, :]
         b_1 = encondign_coord_test[4000:9234, :]
 
-        np.savez(saveInputPath + 'coord_in_Thermomether_x_y_unbalanced_with_decimal_part_train_part_1' + '.npz', coord_train_1=a)
-        np.savez(saveInputPath + 'coord_in_Thermomether_x_y_unbalanced_with_decimal_part_train_part_2' + '.npz', coord_train_2=a1)
-        np.savez(saveInputPath + 'coord_in_Thermomether_x_y_unbalanced_with_decimal_part_test_part_1' + '.npz', coord_test_1=b)
-        np.savez(saveInputPath + 'coord_in_Thermomether_x_y_unbalanced_with_decimal_part_test_part_2' + '.npz', coord_test_2=b_1)
+        np.savez(saveInputPath + 'coord_in_Thermomether_x_y_unbalanced_with_decimal_part_'+str(escala)+'_train_part_1' + '.npz', coord_train_1=a)
+        np.savez(saveInputPath + 'coord_in_Thermomether_x_y_unbalanced_with_decimal_part_'+str(escala)+'_train_part_2' + '.npz', coord_train_2=a1)
+        np.savez(saveInputPath + 'coord_in_Thermomether_x_y_unbalanced_with_decimal_part_'+str(escala)+'_test_part_1' + '.npz', coord_test_1=b)
+        np.savez(saveInputPath + 'coord_in_Thermomether_x_y_unbalanced_with_decimal_part_'+str(escala)+'_test_part_2' + '.npz', coord_test_2=b_1)
 
     else:
 
-        np.savez(saveInputPath + 'coord_in_Thermomether_x_y_unbalanced_with_decimal_part_train' + '.npz', coord_train=encondign_coord_train)
-        np.savez(saveInputPath + 'coord_in_Thermomether_x_y_unbalanced_with_decimal_part_test' + '.npz', coord_test=encondign_coord_test)
-def read_coord_in_Thermomether_x_y_unbalanced_with_decimal_part():
+        np.savez(saveInputPath + 'coord_in_Thermomether_x_y_unbalanced_with_decimal_part_'+str(escala)+'_train' + '.npz', coord_train=encondign_coord_train)
+        np.savez(saveInputPath + 'coord_in_Thermomether_x_y_unbalanced_with_decimal_part_'+str(escala)+'_test' + '.npz', coord_test=encondign_coord_test)
+def read_coord_in_Thermomether_x_y_unbalanced_with_decimal_part(escala):
     coord_path = "../data/coordinates/coord_in_Thermomether_x_y_unbalanced_with_decimal_part/"
     big_file = False
 
-    if big_file:
+    if escala > 32:
 
-        input_cache_file = np.load(coord_path + "coord_in_Thermomether_x_y_unbalanced_with_decimal_part_train_part_1.npz",
+        input_cache_file = np.load(coord_path + "coord_in_Thermomether_x_y_unbalanced_with_decimal_part_"+str(escala)+"_train_part_1.npz",
                                    allow_pickle=True)
         all_coord_train_parte_1 = input_cache_file["coord_train_1"]
 
-        input_cache_file = np.load(coord_path + "coord_in_Thermomether_x_y_unbalanced_with_decimal_part_train_part_2.npz",
+        input_cache_file = np.load(coord_path + "coord_in_Thermomether_x_y_unbalanced_with_decimal_part_"+str(escala)+"_train_part_2.npz",
                                    allow_pickle=True)
         all_coord_train_parte_2 = input_cache_file["coord_train_2"]
 
         all_coord_train = np.concatenate((all_coord_train_parte_1, all_coord_train_parte_2), axis=0)
 
-        input_cache_file = np.load(coord_path + "coord_in_Thermomether_x_y_unbalanced_with_decimal_part_test_part_1.npz",
+        input_cache_file = np.load(coord_path + "coord_in_Thermomether_x_y_unbalanced_with_decimal_part_"+str(escala)+"_test_part_1.npz",
                                    allow_pickle=True)
         all_coord_test_parte_1 = input_cache_file["coord_test_1"]
 
-        input_cache_file = np.load(coord_path + "coord_in_Thermomether_x_y_unbalanced_with_decimal_part_test_part_2.npz",
+        input_cache_file = np.load(coord_path + "coord_in_Thermomether_x_y_unbalanced_with_decimal_part_test_"+str(escala)+"_part_2.npz",
                                    allow_pickle=True)
         all_coord_test_parte_2 = input_cache_file["coord_test_2"]
 
         all_coord_test = np.concatenate((all_coord_test_parte_1, all_coord_test_parte_2), axis=0)
 
     else:
-        input_cache_file = np.load(coord_path + "coord_in_Thermomether_x_y_unbalanced_with_decimal_part_train.npz", allow_pickle=True)
+        input_cache_file = np.load(coord_path + "coord_in_Thermomether_x_y_unbalanced_with_decimal_part_"+str(escala)+"_train.npz", allow_pickle=True)
         all_coord_train = input_cache_file["coord_train"]
 
-        input_cache_file = np.load(coord_path + "coord_in_Thermomether_x_y_unbalanced_with_decimal_part_test.npz", allow_pickle=True)
+        input_cache_file = np.load(coord_path + "coord_in_Thermomether_x_y_unbalanced_with_decimal_part_"+str(escala)+"_test.npz", allow_pickle=True)
         all_coord_test = input_cache_file["coord_test"]
 
     return all_coord_train, all_coord_test

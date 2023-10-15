@@ -329,7 +329,7 @@ def committe_score_mean(beam_selection_for_coord, beam_selection_for_lidar, labe
     return beam_selection
 
 
-    a=0
+    
 
 
 

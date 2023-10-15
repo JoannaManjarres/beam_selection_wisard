@@ -51,7 +51,7 @@ def plot_headmap(all_data,
                  'color': "k"}
 
     hm = sns.heatmap(data=all_data,
-                     annot=True,
+                     annot=False,
                      cmap="YlGnBu",
                      xticklabels=x_axis_labels,
                      yticklabels=y_axis_labels,
@@ -61,7 +61,7 @@ def plot_headmap(all_data,
 
     # displaying the plotted heatmap
     plt.subplots_adjust(right=1, left=0.09)
-    plt.savefig(path+'headmap_'+folder)
+    plt.savefig(path+'1_headmap_'+folder)
     plt.show()
 def read_data_for_coord_in_termometro():
 
@@ -259,6 +259,7 @@ def read_coord_in_Thermomether_x_y_unbalanced_with_decimal_part():
 
 #read_data_for_coord_in_termometro()
 #read_data_for_coord_in_termometro_iguais_com_decimal()
+read_coord_in_Thermomether_x_y_unbalanced()
 read_coord_in_Thermomether_x_y_unbalanced_with_decimal_part()
 
 folder = 'all_data_dilated'

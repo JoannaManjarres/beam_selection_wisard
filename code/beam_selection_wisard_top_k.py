@@ -18,7 +18,7 @@ def beam_selection_top_k_wisard(x_train, x_test, y_train, y_test, data_input):
     data_set = 'all'
 
     #addressSize = 44
-    addressSize = 64
+    addressSize = 58
     ignoreZero = False
     verbose = True
     var = True
