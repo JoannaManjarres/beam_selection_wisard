@@ -7,9 +7,12 @@ import preprocesamento as obj_coord
 import pre_process_lidar as obj_lidar
 import read_data as read_labels
 import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 def read_coordinates():
-    all_coord_in_Thermomether_x_y_unbalanced_train, all_coord_in_Thermomether_x_y_unbalanced_test = obj_coord.read_coord_in_Thermomether_x_y_unbalanced()
+    escala = 8
+    all_coord_in_Thermomether_x_y_unbalanced_train, all_coord_in_Thermomether_x_y_unbalanced_test = obj_coord.read_coord_in_Thermomether_x_y_unbalanced(escala)
     input_train = all_coord_in_Thermomether_x_y_unbalanced_train
     input_test = all_coord_in_Thermomether_x_y_unbalanced_test
 
@@ -299,16 +302,22 @@ def committe_score_mean(beam_selection_for_coord, beam_selection_for_lidar, labe
 
 
         # extrai todas as classes que estao no dicionario
-        list_of_class_of_beam_coord = [d['class'] for d in beam_coord if 'class' in d]
+        #list_of_class_of_beam_coord = [d['class'] for d in beam_coord if 'class' in d]
+        list_of_class_of_beam_coord = [int(d['class']) for d in beam_coord if 'class' in d]
+        list_of_class_of_beam_lidar = [int(d['class']) for d in beam_lidar if 'class' in d]
+
 
         list_of_classes = []
         list_of_classes_degree = []
         list_of_classes_degree_1=[]
-        for i in range(len(beam_lidar)):
+        #for i in range(len(beam_lidar)):
+        for i in range(len(list_of_class_of_beam_lidar)):
             for index, value in enumerate(list_of_class_of_beam_coord):
-                if beam_lidar[i]['class'] == value:
+                #if beam_lidar[i]['class'] == value:
+                if int(beam_lidar[i]['class']) == value:
                     mean_of_degree_norm_per_class = (beam_coord[index]['norm'] + beam_lidar[i]['norm'])/2
-                    classe = beam_lidar[i]['class']
+                    #classe = beam_lidar[i]['class']
+                    classe = int(beam_lidar[i]['class'])
                     list_of_classes_degree.append([classe, mean_of_degree_norm_per_class])
                     list_of_classes_degree_1.append((classe, mean_of_degree_norm_per_class))
 
@@ -324,12 +333,55 @@ def committe_score_mean(beam_selection_for_coord, beam_selection_for_lidar, labe
     #pro top-k
     #beam_selection_by_comitte = np.array(beam_selection)[:,0:5]
 
-    acuracia = accuracy_score(label_validation, beam_selection_by_comitte)
+    #beam_selection_int = [int(i) for i in beam_selection[:][0]]
+    label_validation_int = [int(i) for i in label_validation]
+    acuracia_1 = accuracy_score(label_validation_int, beam_selection_by_comitte)
+
+    top_k = [1, 5, 10, 20, 30, 40, 50]
+
+    acuracia = []
+
+    for i in range(len(top_k)):
+        acerto = 0
+        nao_acerto = 0
+        for amostra_a_avaliar in range(len(beam_selection)):
+            group = np.array(beam_selection)[:,0:top_k[i]]
+            if (label_validation_int[amostra_a_avaliar] in group[amostra_a_avaliar]):
+                acerto = acerto + 1
+            else:
+                nao_acerto = nao_acerto + 1
+
+        acuracia.append(acerto / len(beam_selection))
+
+    plot_results(x_data=top_k, y_data=acuracia, name_committe='media do Score')
 
     return beam_selection
 
 
-    
+def plot_results(x_data,
+                 y_data,
+                 name_committe,
+                 ):
+
+    sns.set()
+
+    path='../results/accuracy/8X32/committe/'
+    title_figure = "Desempenho do comite " + name_committe
+
+    plt.plot(x_data, y_data, color='g', linestyle='dashed')#, label=label_1)  # linestyle = 'solid'
+    plt.plot(x_data, y_data, 'go')
+
+
+    plt.xlabel('top-k')
+    plt.ylabel('Acuracia')
+    # plt.text(x_pos_tex, y_pos_tex, text)
+    # plt.ylim(min_y_lim, max_y_lim)
+    plt.title(title_figure, fontsize=11)
+    plt.legend()
+    plt.grid(True)
+    plt.savefig(path + name_committe, dpi=300, bbox_inches='tight')
+    plt.show()
+
 
 
 
