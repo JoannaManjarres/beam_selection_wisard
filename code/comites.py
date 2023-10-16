@@ -254,7 +254,7 @@ def committe_using_wisard():
     a=0
 
 
-def committe_using_score_mean():
+def committe():
     index_beam_combined_train, index_beam_combined_test = read_labels()
 
     coord_train, coord_test = read_coordinates()
@@ -275,7 +275,15 @@ def committe_using_score_mean():
                                                       y_test=index_beam_combined_test,
                                                       addressSize=64)
 
-    committe_score_mean(beam_selection_for_coord, beam_selection_for_lidar, label_validation=index_beam_combined_test)
+    acuracia_score_mean, name_committe_score = committe_score_mean(beam_selection_for_coord, beam_selection_for_lidar, label_validation=index_beam_combined_test)
+    acuracia_position_mean, name_committe_pos = committe_position_mean(beam_selection_for_coord, beam_selection_for_lidar, label_validation=index_beam_combined_test)
+
+    plot_results(x_data_1=acuracia_score_mean,
+                 name_committe_1=name_committe_score,
+                 x_data_2=acuracia_position_mean,
+                 name_committe_2=name_committe_pos)
+
+
 def committe_score_mean(beam_selection_for_coord, beam_selection_for_lidar, label_validation):
 
     # number_of_samples = beam_selection_for_coord.shape[0]
@@ -353,15 +361,97 @@ def committe_score_mean(beam_selection_for_coord, beam_selection_for_lidar, labe
 
         acuracia.append(acerto / len(beam_selection))
 
-    plot_results(x_data=top_k, y_data=acuracia, name_committe='media do Score')
+    name_committe = 'media do Score'
+    df_acuracia_comite_top_k = pd.DataFrame(acuracia)
+    path = '../results/accuracy/8X32/committe/'
+    df_acuracia_comite_top_k.to_csv(path + 'acuracia_comite_' + name_committe + '_top_k.csv')
 
-    return beam_selection
+    #plot_results_each_committe(x_data=top_k, y_data=acuracia, name_committe='media do Score')
+
+    return acuracia, name_committe
+def committe_position_mean(beam_selection_for_coord, beam_selection_for_lidar, label_validation):
+
+    # number_of_samples = beam_selection_for_coord.shape[0]
+    number_of_samples = len(beam_selection_for_coord)
 
 
-def plot_results(x_data,
-                 y_data,
-                 name_committe,
-                 ):
+    beam_selection = []
+
+    for i in range(number_of_samples):
+        beam_coord = beam_selection_for_coord[i]
+        beam_lidar = beam_selection_for_lidar[i]
+
+        #max_degree_coord = max(beam_coord, key=itemgetter('degree'))
+        max_degree_coord = max([d['degree'] for d in beam_coord if 'degree' in d])
+        max_degree_lidar = max([d['degree'] for d in beam_lidar if 'degree' in d])
+
+        coord_degree_norm = [d['degree']/max_degree_coord for d in beam_coord if 'degree' in d]
+        lidar_degree_norm = [d['degree']/max_degree_lidar for d in beam_lidar if 'degree' in d]
+
+        # Adiciona a ponderacao no dicionario
+        for j in range(len(beam_coord)):
+            beam_coord[j]['norm'] = coord_degree_norm[j]
+            beam_lidar[j]['norm'] = lidar_degree_norm[j]
+
+
+        # extrai todas as classes que estao no dicionario
+        #list_of_class_of_beam_coord = [d['class'] for d in beam_coord if 'class' in d]
+        list_of_class_of_beam_coord = [int(d['class']) for d in beam_coord if 'class' in d]
+        list_of_class_of_beam_lidar = [int(d['class']) for d in beam_lidar if 'class' in d]
+
+
+        list_of_classes = []
+        list_of_classes_postion = []
+        list_of_classes_degree_1=[]
+        #for i in range(len(beam_lidar)):
+
+        for index, value in enumerate(list_of_class_of_beam_coord):
+            if list_of_class_of_beam_lidar[index] in list_of_class_of_beam_coord:
+                index_of_class_in_coord = list_of_class_of_beam_coord.index(list_of_class_of_beam_lidar[index])
+                index_of_class_in_lidar = index
+                mean_of_position_per_class = (index_of_class_in_coord + index_of_class_in_lidar)/2
+                classe = int(beam_lidar[index]['class'])
+                list_of_classes_postion.append([classe, mean_of_position_per_class])
+
+        order_list_of_classes = sorted(list_of_classes_postion, key=itemgetter(1), reverse=False)
+
+        list_of_classes = np.array(order_list_of_classes)[:,0]
+
+        beam_selection.append(list_of_classes)
+
+    beam_selection_by_comitte = np.array(beam_selection)[:,0]
+    #pro top-k
+    #beam_selection_by_comitte = np.array(beam_selection)[:,0:5]
+
+    #beam_selection_int = [int(i) for i in beam_selection[:][0]]
+    label_validation_int = [int(i) for i in label_validation]
+    acuracia_1 = accuracy_score(label_validation_int, beam_selection_by_comitte)
+
+    top_k = [1, 5, 10, 20, 30, 40, 50]
+
+    acuracia = []
+
+    for i in range(len(top_k)):
+        acerto = 0
+        nao_acerto = 0
+        for amostra_a_avaliar in range(len(beam_selection)):
+            group = np.array(beam_selection)[:,0:top_k[i]]
+            if (label_validation_int[amostra_a_avaliar] in group[amostra_a_avaliar]):
+                acerto = acerto + 1
+            else:
+                nao_acerto = nao_acerto + 1
+
+        acuracia.append(acerto / len(beam_selection))
+
+    name_committe = 'media da posicao'
+    df_acuracia_comite_top_k = pd.DataFrame(acuracia)
+    path='../results/accuracy/8X32/committe/'
+    df_acuracia_comite_top_k.to_csv(path + 'acuracia_comite_' + name_committe + '_top_k.csv')
+
+    #plot_results_each_committe(x_data=top_k, y_data=acuracia, name_committe='media da posicao')
+
+    return acuracia, name_committe
+def plot_results_each_committe(x_data, y_data, name_committe,):
 
     sns.set()
 
@@ -383,9 +473,82 @@ def plot_results(x_data,
     plt.show()
 
 
+def plot_results(x_data_1,
+                 name_committe_1,
+                 x_data_2,
+                 name_committe_2):
+    top_k = [1, 5, 10, 20, 30, 40, 50]
+    sns.set()
+
+    path='../results/accuracy/8X32/committe/'
+    title_figure = "comparacao de Desempenho de comites "
+
+    plt.plot(top_k, x_data_1, color='g', linestyle='dashed', label=name_committe_1)  # linestyle = 'solid'
+    plt.plot(top_k, x_data_1, 'go')
+    plt.plot(top_k, x_data_2, color='b', linestyle='dashed', label=name_committe_2)  # linestyle = 'solid'
+    plt.plot(top_k, x_data_2, 'bo')
 
 
-committe_using_score_mean()
+    plt.xlabel('top-k')
+    plt.ylabel('Acuracia')
+    # plt.text(x_pos_tex, y_pos_tex, text)
+    # plt.ylim(min_y_lim, max_y_lim)
+    plt.title(title_figure, fontsize=11)
+    plt.legend()
+    plt.grid(True)
+    plt.savefig(path + 'comparacao_comites', dpi=300, bbox_inches='tight')
+    plt.show()
+
+def plot_results_from_csv():
+
+
+    top_k = [1, 5, 10, 20, 30, 40, 50]
+
+    # Read files
+    path='../results/accuracy/8X32/committe/'
+
+    file_postion = 'acuracia_comite_media da posicao_top_k'
+    file = path + file_postion + '.csv'
+    data = pd.read_csv(file, usecols=[1])
+    data_of_postion_committe = data.to_numpy()
+    name_committe_1 = 'media da posicao'
+
+    file_score = 'acuracia_comite_media do Score_top_k'
+    file = path + file_score + '.csv'
+    data = pd.read_csv(file, usecols=[1])
+    data_of_score_committe = data.to_numpy()
+    name_committe_2 = 'media do Score'
+
+    sns.set()
+
+    path = '../results/accuracy/8X32/committe/'
+
+
+    title_figure = "comparacao de Desempenho de comites "
+
+    plt.plot(top_k, data_of_postion_committe, color='g', linestyle='dashed', label=name_committe_1)  # linestyle = 'solid'
+    plt.plot(top_k, data_of_postion_committe, 'go')
+    plt.plot(top_k, data_of_score_committe, color='b', linestyle='dashed', label=name_committe_2)  # linestyle = 'solid'
+    plt.plot(top_k, data_of_score_committe, 'bo')
+
+
+    plt.xlabel('top-k')
+    plt.ylabel('Acuracia')
+    # plt.text(x_pos_tex, y_pos_tex, text)
+    # plt.ylim(min_y_lim, max_y_lim)
+    plt.title(title_figure, fontsize=11)
+    plt.legend()
+    plt.grid(True)
+    plt.savefig(path + 'comparacao_comites', dpi=300, bbox_inches='tight')
+    plt.show()
+
+
+#committe()
+plot_results_from_csv()
+
+
+
+
 
 
 
