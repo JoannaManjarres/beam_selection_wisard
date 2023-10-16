@@ -531,9 +531,30 @@ def plot_results_from_csv():
     plt.plot(top_k, data_of_score_committe, color='b', linestyle='dashed', label=name_committe_2)  # linestyle = 'solid'
     plt.plot(top_k, data_of_score_committe, 'bo')
 
+    for x, y in zip(top_k, data_of_postion_committe):
+        label = "{:.2f}".format(y[0])
+
+        plt.annotate(label,  # this is the text
+                     (x, y),  # these are the coordinates to position the label
+                     textcoords="offset points",  # how to position the text
+                     xytext=(0, -15),  # distance from text to points (x,y)
+                     ha='left',# horizontal alignment can be left, right or center
+                     color='g')
+
+    for x, y in zip(top_k, data_of_score_committe):
+        label = "{:.2f}".format(y[0])
+
+        plt.annotate(label,  # this is the text
+                     (x, y),  # these are the coordinates to position the label
+                     textcoords="offset points",  # how to position the text
+                     xytext=(0, 7),  # distance from text to points (x,y)
+                     ha='right',# horizontal alignment can be left, right or center
+                     color='b')
+
+
 
     plt.xlabel('top-k')
-    plt.ylabel('Acuracia')
+    plt.ylabel('Acurácia')
     # plt.text(x_pos_tex, y_pos_tex, text)
     # plt.ylim(min_y_lim, max_y_lim)
     plt.title(title_figure, fontsize=11)
