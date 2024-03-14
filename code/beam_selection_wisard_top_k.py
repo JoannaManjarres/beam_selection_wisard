@@ -2,6 +2,7 @@ import numpy as np
 import wisardpkg as wp
 from operator import itemgetter
 import pandas as pd
+from sklearn.metrics import accuracy_score
 
 import numpy as np
 
@@ -17,8 +18,8 @@ def beam_selection_top_k_wisard(x_train, x_test, y_train, y_test, data_input):
     #data_input ='coord_in_termometro_+_Lidar'
     data_set = 'all'
 
-    #addressSize = 44
-    addressSize = 58
+    addressSize = 44
+    #addressSize = 58
     ignoreZero = False
     verbose = True
     var = True
@@ -32,6 +33,11 @@ def beam_selection_top_k_wisard(x_train, x_test, y_train, y_test, data_input):
 
     # the output is a list of string, this represent the classes attributed to each input
     out = wsd.classify(x_test)
+
+    wsd_1 = wp.Wisard(addressSize, ignoreZero=ignoreZero, verbose=verbose)
+    wsd_1.train(x_train, y_train)
+    out_1 = wsd_1.classify(x_test)
+
 
     content_index = 0
     ram_index = 0
@@ -47,10 +53,15 @@ def beam_selection_top_k_wisard(x_train, x_test, y_train, y_test, data_input):
 
     f = open('../results/accuracy/8X32/'+data_input+'/Acurcacia_top_k_wisard.txt', 'w')
 
-
+    print('address memory: ', addressSize)
     for i in range(len(top_k)):
         acerto = 0
         nao_acerto = 0
+
+        if top_k[i] ==1:
+            acuracia_tpo_1 = accuracy_score (y_test, out_1)
+            print('Acuracia top k =1: ', acuracia_tpo_1)
+
         for amostra_a_avaliar in range(len(out)):
 
             lista_das_classes =out[amostra_a_avaliar]['classesDegrees']

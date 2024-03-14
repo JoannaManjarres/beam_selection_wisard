@@ -56,8 +56,8 @@ def plot_headmap(all_data,
                      xticklabels=x_axis_labels,
                      yticklabels=y_axis_labels,
                      )
-    hm.set_xlabel(x_label, fontsize=10)
-    hm.set_ylabel(y_label, fontsize=10)
+    hm.set_xlabel(x_label, color='steelblue', size=14, fontweight='bold')
+    hm.set_ylabel(y_label, color='steelblue', size=14, fontweight='bold')
 
     # displaying the plotted heatmap
     plt.subplots_adjust(right=1, left=0.09)
@@ -89,6 +89,7 @@ def read_data_for_coord_in_termometro():
                      names=['Tamanho_memoria', 'Acuracia', 'intervalo_conf'])
 
     rota = '../results/accuracy/8X32/coord_in_termometro_iguais/Combined/'
+
     j=12
     #all_info = [6, 12, 18,24,28,34,38,44,48,54,58,64]
     all_info = []
@@ -120,9 +121,9 @@ def read_data_for_coord_in_termometro():
     size_memory = [6, 12, 18, 24, 28, 34, 38, 44, 48, 54, 58, 64]
     #resolucao = [12, 24, 3, 4]
 
+    rota = '../results/accuracy/article/'
 
-
-    plot_headmap(all_info, size_memory, resolucao, 'Tamanho da memoria', 'Resolução', rota, 'coord_in_termometro_iguais')
+    plot_headmap(all_info, size_memory, resolucao, 'Address Size', 'Resolution', rota, 'coord_in_termometro_iguais')
     #return all_accuracy, size_memory, resolucao, rota
 
 
@@ -217,7 +218,8 @@ def read_coord_in_Thermomether_x_y_unbalanced():
     size_memory = [6, 12, 18, 24, 28, 34, 38, 44, 48, 54, 58, 64]
     # resolucao = [12, 24, 3, 4]
 
-    plot_headmap(all_info, size_memory, resolucao, 'Tamanho da memoria', 'Resolução', rota,
+    rota = '../results/accuracy/article/'
+    plot_headmap(all_info, size_memory, resolucao, 'Address size', 'Resolution', rota,
                  'read_coord_in_Thermomether_x_y_unbalanced')
 
 
@@ -257,6 +259,7 @@ def read_coord_in_Thermomether_x_y_unbalanced_with_decimal_part():
     plot_headmap(all_info, size_memory, resolucao, 'Tamanho da memoria', 'Resolução', rota,
                  'coord_in_Thermomether_x_y_unbalanced_with_decimal_part')
 
+#read_data_for_coord_in_termometro()
 #read_data_for_coord_in_termometro()
 #read_data_for_coord_in_termometro_iguais_com_decimal()
 read_coord_in_Thermomether_x_y_unbalanced()

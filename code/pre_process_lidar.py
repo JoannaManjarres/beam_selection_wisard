@@ -95,7 +95,7 @@ def process_data_rx_like_cube():
     np.savez(saveInputPath + 'all_data_lidar_+_rx_like_cube_test' + '.npz', lidar_test=all_data_test)
 
     print(saveInputPath)
-def pre_process_data_rx_like_cube(data_lidar_process_all, data_position_rx, data_position_tx, plot=False, sample_for_plot=0):
+def pre_process_data_rx_like_cube(data_lidar_process_all, data_position_rx, data_position_tx, plot=True, sample_for_plot=0):
     x_dimension = len(data_position_rx[0, :, 0, 0])
     y_dimension = len(data_position_rx[0, 0, :, 0])
     z_dimension = len(data_position_rx[0, 0, 0, :])
@@ -119,6 +119,7 @@ def pre_process_data_rx_like_cube(data_lidar_process_all, data_position_rx, data
 
 
     if plot:
+        print("plotando o cenario...")
         # ------- PLOT RX E CENA COMPLETA
         sample_for_plot = sample_for_plot
         rx_as_cube = position_of_rx_as_cube[sample_for_plot, :, :, :]
@@ -127,9 +128,11 @@ def pre_process_data_rx_like_cube(data_lidar_process_all, data_position_rx, data
         scenario_complet = data_lidar_process_all[sample_for_plot, :, :, :]
         fig = plt.figure()
 
+        plt.rcParams.update ({'font.size': 14})
+
         ax = fig.add_subplot(1, 2, 1, projection='3d')
         ax.voxels(rx_as_cube, alpha=0.12, edgecolor=None, shade=True, color='red')  # Voxel visualization
-        ax.set_title('Receptor')
+        ax.set_title('Rx')
         ax.set_xlabel('x', labelpad=10)
         ax.set_ylabel('y', labelpad=10)
         ax.set_zlabel('z', labelpad=10)
@@ -171,7 +174,7 @@ def pre_process_data_rx_like_cube(data_lidar_process_all, data_position_rx, data
         #ax.voxels(voxelarray, alpha=0.5, edgecolor=None, shade=True, antialiased=False,
          #         color='#cccccc90')  # Voxel visualization
         ax.voxels(voxelarray, facecolors=colors, edgecolor=None, antialiased=False)
-        ax.set_title('Cenario completo')
+        ax.set_title('Full scenario')
         ax.set_xlabel('x', labelpad=10)
         ax.set_ylabel('y', labelpad=10)
         ax.set_zlabel('z', labelpad=10)
@@ -184,6 +187,8 @@ def pre_process_data_rx_like_cube(data_lidar_process_all, data_position_rx, data
         c3 = mpatches.Patch(color=color_tx, label='Tx')
 
         ax.legend(handles=[c1, c2, c3], loc='center left', bbox_to_anchor=(-0.1, 0.9))
+
+        plot('plotei')
 
     return all_data
 
@@ -630,7 +635,9 @@ def pre_process_all_data_with_rx_like_cube_to_tx(data_lidar_process_all,
         rx = data_position_rx[sample_for_plot, :, :, :]
         tx = data_position_tx[sample_for_plot, :, :, :]
         scenario_complet = data_lidar_process_all[sample_for_plot, :, :, :]
+
         fig = plt.figure()
+        plt.rcParams.update ({'font.size': 14})
 
         ax = fig.add_subplot(1, 2, 1, projection='3d')
         ax.voxels(rx_as_cube, alpha=0.10, edgecolor=None, shade=True, color='red')  # Voxel visualization

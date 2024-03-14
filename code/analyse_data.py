@@ -255,9 +255,9 @@ def plot_distribution_beams_displot(beams_tx, beams_rx, pp_folder, connection, s
                        #cbar_kws={'panchor':(0.5,1.0)}
                 )
 
-    plt.title("Distribuicao dos Beams (Tx-Rx) ["+set+"]")
-    plt.xlabel("beams_tx_index")
-    plt.ylabel("beams_rx_index")
+    plt.title("Beams distribuition (Tx-Rx) ["+set+"]")
+    plt.xlabel("Beams index Tx")
+    plt.ylabel("Beams index Rx")
     plt.gca().invert_yaxis()
 
     plt.subplots_adjust(left=0.08)
@@ -271,19 +271,35 @@ def plot_distribution_beams_displot(beams_tx, beams_rx, pp_folder, connection, s
     plt.savefig(name, transparent=False, dpi=300)
     plt.show()
 
+def plot_hist_prob_beam_together(all_beam, train_beam, test_beam):
+    plt.rcParams.update ({'font.size': 10})
+    fig, ax = plt.subplots (figsize=(8, 6))
+    ax.hist (all_beam, bins='auto', density=True, color="darkblue", ec="darkblue")
+
+    ax.hist (train_beam, bins='auto', density=True, alpha=0.5, color="darkred")
+
+    ax.hist (test_beam, bins='auto', density=True, alpha=0.5, color="darkgray")
+
+    ax.set_ylabel ('P', fontsize=12, rotation=0)
+    ax.yaxis.set_label_coords (-0.13, 0.5)
+    ax.set_xlabel ('Beam pair index', fontsize=12)
+    plt.gca ().xaxis.set_major_locator (MaxNLocator (prune='lower'))
+    plt.show()
+
 def plot_hist_prob_beam(beam, set, pp_folder, connection, x_label='indice dos beams'):
 
     path = pp_folder + 'histogram/'+connection + '/'
     print(path)
 
-    plt.rcParams.update({'font.size': 10})
-    fig, ax = plt.subplots(figsize=(8, 6))
+    plt.rcParams.update({'font.size': 14})
+    plt.rcParams.update({'figure.subplot.bottom':0.125})# 0.127, 0.9, 0.9]
+    fig, ax = plt.subplots(figsize=(8, 4))
 
-    ax.hist(beam, bins='auto', density=True, color="darkblue", ec="darkblue")
+    ax.hist(beam, bins='auto', density=True, color="steelblue", ec="steelblue")
     # ax.plot(data, pdf_lognorm)
-    ax.set_ylabel('P', fontsize=12, rotation=0)
-    ax.yaxis.set_label_coords(-0.13, 0.5)
-    ax.set_xlabel('Índice do par de beams', fontsize=12)
+    ax.set_ylabel('P', fontsize=12, rotation=0, color='steelblue', fontweight='bold')
+    ax.yaxis.set_label_coords(-0.12, 0.5)
+    ax.set_xlabel('Beam pair index', color='steelblue', fontweight='bold' )
     #ax.xaxis.set_label_coords(1.05, -0.025)
     plt.grid(axis='y', alpha=0.9, color='white')
     ax.set_facecolor('#EEEEF5')
@@ -291,11 +307,13 @@ def plot_hist_prob_beam(beam, set, pp_folder, connection, x_label='indice dos be
     ax.spines['top'].set_visible(False)
     ax.spines['left'].set_visible(True)
     ax.spines['bottom'].set_visible(True)
-    # plt.tick_params(axis='x', colors='red', direction='out', length=7, width=2)
+    #plt.tick_params(axis='x', colors='red', direction='out', length=7, width=2)
+    #
     title = "Probabilidade do beam ["+set+"]"
-    plt.title(title)
+    #plt.title(title)
 
-    plt.gca().xaxis.set_major_locator(MaxNLocator(prune='lower'))
+    #plt.gca().xaxis.set_major_locator(MaxNLocator(prune='lower'))
+
 
     plt.savefig(path+"histogram_prob_all_Beams_combined_"+set+".png", bbox_inches='tight')
     plt.show()
@@ -318,6 +336,11 @@ def beam_analyses(antenna_config, connection, user):
         beam_tx_test = np.array([int(i) for i in index_beam_tx_test])
         beam_combined_train = np.array([int(i) for i in index_beam_combined_train])
         beam_combined_test = np.array([int(i) for i in index_beam_combined_test])
+
+        all_beams_combined = np.concatenate((beam_combined_train, beam_combined_test))
+        all_beams_combined_tx = np.concatenate((beam_tx_train, beam_tx_test))
+        all_beams_combined_rx = np.concatenate((beam_rx_train, beam_rx_test))
+
 
         all_info_train = np.column_stack((coord_val_train, index_beam_rx_train, index_beam_tx_train, beam_combined_train))
         all_info_test  = np.column_stack((coord_val_test,  index_beam_rx_test,  index_beam_tx_test, beam_combined_test))
@@ -399,15 +422,24 @@ def beam_analyses(antenna_config, connection, user):
                             pp_folder=pp_folder,
                             config=antenna_config)
 
+        print("beams train: ", beam_combined_train.size)
         plot_hist_prob_beam(beam_combined_train,
                             set="train",
                             pp_folder=pp_folder,
                             connection=connection)
-
+        print('beams test: ', beam_combined_test.size)
         plot_hist_prob_beam(beam_combined_test,
                             set="test",
                             pp_folder=pp_folder,
                             connection=connection)
+
+        print('beams all: ', all_beams_combined.size)
+        plot_hist_prob_beam(all_beams_combined,
+                             set ='all',
+                             pp_folder=pp_folder,
+                            connection=connection)
+
+
 
         plot_distribution_beams_displot(beams_tx=beam_tx_train,
                                 beams_rx=beam_rx_train,
@@ -420,6 +452,12 @@ def beam_analyses(antenna_config, connection, user):
                                         pp_folder=pp_folder,
                                         connection=connection,
                                         set='test')
+
+        plot_distribution_beams_displot (beams_tx=all_beams_combined_tx,
+                                         beams_rx=all_beams_combined_rx,
+                                         pp_folder=pp_folder,
+                                         connection=connection,
+                                         set='all')
 
 
 
